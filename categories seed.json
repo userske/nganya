@@ -1,0 +1,937 @@
+[
+ {
+  "name": "Sound Beast",
+  "nominees": [
+   "Band 4 band",
+   "Jaguar paw",
+   "Riot",
+   "Goon",
+   "Oblock",
+   "Mc queen",
+   "Blue lock",
+   "Darling",
+   "Posh (KBP)",
+   "Eleven",
+   "Cashflow (kbj)"
+  ],
+  "slug": "sound-beast",
+  "sort_order": 1
+ },
+ {
+  "name": "Mikindani 1",
+  "nominees": [
+   "Blue lock",
+   "high stakes",
+   "moneybag yo (kdt)",
+   "la flame",
+   "notorious",
+   "Eminem",
+   "Rebel",
+   "2pac",
+   "fubu"
+  ],
+  "slug": "mikindani-1",
+  "sort_order": 2
+ },
+ {
+  "name": "Magongo 1",
+  "nominees": [
+   "Prolific",
+   "Eleven",
+   "Supremacy",
+   "Je taime",
+   "Havoc",
+   "Da junior",
+   "Countryman",
+   "Latto",
+   "Bronxx",
+   "nwa"
+  ],
+  "slug": "magongo-1",
+  "sort_order": 3
+ },
+ {
+  "name": "Private (Mombasa 1)",
+  "nominees": [
+   "Chinchilla",
+   "Centurion",
+   "Frosty",
+   "Venom",
+   "Rage head"
+  ],
+  "slug": "private-mombasa-1",
+  "sort_order": 4
+ },
+ {
+  "name": "Best Nganya Mombasa",
+  "nominees": [
+   "Legacy",
+   "Sponge bob",
+   "Budapest",
+   "Legend",
+   "Focus",
+   "Blacklist-kdz",
+   "Kanyoni",
+   "Smooth"
+  ],
+  "slug": "best-nganya-mombasa",
+  "sort_order": 5
+ },
+ {
+  "name": "Best Garage",
+  "nominees": [
+   "Gemz Creation",
+   "Faraj graffix",
+   "Bululizo",
+   "Mama rich gang",
+   "Made in my garage (khood)",
+   "sirio’s garage",
+   "abdul’s garage",
+   "abbas garage"
+  ],
+  "slug": "best-garage",
+  "sort_order": 6
+ },
+ {
+  "name": "Mtwapa 1",
+  "nominees": [
+   "Versace",
+   "Celtics",
+   "Darling",
+   "Dose",
+   "Posh (KBR)",
+   "Bad nation (KBF)",
+   "Revolution (KBH)",
+   "Khood (KCD)",
+   "Ride",
+   "Jerusalem",
+   "Therapy",
+   "Makaveli",
+   "Loyal (kbv)"
+  ],
+  "slug": "mtwapa-1",
+  "sort_order": 7
+ },
+ {
+  "name": "Kisauni 1",
+  "nominees": [
+   "Kings",
+   "Paperlife",
+   "Madtown (batman)",
+   "Buruklyn boyz",
+   "weezy",
+   "Jazie uno",
+   "Cashflow (kbj 288q)",
+   "Thunder (kbk)",
+   "Jaguar paw",
+   "Khaled",
+   "Whitesox",
+   "Creek (kaw)",
+   "Brick pan brick",
+   "F1"
+  ],
+  "slug": "kisauni-1",
+  "sort_order": 8
+ },
+ {
+  "name": "Mtambo 1",
+  "nominees": [
+   "Khood (kbc)",
+   "Weezy",
+   "Rocafella",
+   "Yo gotti",
+   "Ace",
+   "Nirvana",
+   "Luffy",
+   "Chicago bulls (kbh)",
+   "Hotchase",
+   "Milano",
+   "Remmy",
+   "tunechi"
+  ],
+  "slug": "mtambo-1",
+  "sort_order": 9
+ },
+ {
+  "name": "Nyali 1",
+  "nominees": [
+   "gunna",
+   "hyper",
+   "redeemer",
+   "lilbaby",
+   "dollar dream",
+   "Black muslim"
+  ],
+  "slug": "nyali-1",
+  "sort_order": 10
+ },
+ {
+  "name": "Iconic Drivers",
+  "nominees": [
+   "Bebesha",
+   "Namba nane",
+   "Swabri king",
+   "Dulla Chizi",
+   "Arbab",
+   "Matonya",
+   "Babu Mbuta",
+   "Bokoboko",
+   "Bangombe",
+   "Ngwedu",
+   "Chimera",
+   "Bagira"
+  ],
+  "slug": "iconic-drivers",
+  "sort_order": 11
+ },
+ {
+  "name": "Tudor 1",
+  "nominees": [
+   "Posh (KBP)",
+   "Rio",
+   "Bigdaddy",
+   "Lilbaby",
+   "Migos",
+   "El classico",
+   "Che Guevara",
+   "Riot",
+   "Rust",
+   "Nightmare",
+   "Young money"
+  ],
+  "slug": "tudor-1",
+  "sort_order": 12
+ },
+ {
+  "name": "Jomvu 1",
+  "nominees": [
+   "3t",
+   "Compton",
+   "Guap",
+   "Buggs bunny"
+  ],
+  "slug": "jomvu-1",
+  "sort_order": 13
+ },
+ {
+  "name": "Migadini 1",
+  "nominees": [
+   "Madtown",
+   "Baby",
+   "Ottoman"
+  ],
+  "slug": "migadini-1",
+  "sort_order": 14
+ },
+ {
+  "name": "Mshomoroni 1",
+  "nominees": [
+   "Nizer",
+   "Mint",
+   "Anko",
+   "Lust",
+   "Freaky",
+   "Yaa yes"
+  ],
+  "slug": "mshomoroni-1",
+  "sort_order": 15
+ },
+ {
+  "name": "Investor of the Year",
+  "nominees": [
+   "Posh family",
+   "Herlifa family",
+   "Jazie family",
+   "Cashflow family",
+   "Creek family",
+   "Khood family",
+   "Nexus family",
+   "Madtown family",
+   "Che family",
+   "Moneybagg yo family",
+   "Almar family"
+  ],
+  "slug": "investor-of-the-year",
+  "sort_order": 16
+ },
+ {
+  "name": "Legend Company",
+  "nominees": [
+   "Rick ross family",
+   "Khaled family",
+   "Rust family",
+   "Rocafella family",
+   "K hood family",
+   "Nexus family",
+   "Orlando magic family",
+   "X large family"
+  ],
+  "slug": "legend-company",
+  "sort_order": 17
+ },
+ {
+  "name": "Miritini 1",
+  "nominees": [
+   "Goon",
+   "Call of duty",
+   "Offset",
+   "The kings",
+   "Guap",
+   "Weezy",
+   "Richgang",
+   "panastar",
+   "liquid"
+  ],
+  "slug": "miritini-1",
+  "sort_order": 18
+ },
+ {
+  "name": "Best Maintained",
+  "nominees": [
+   "Loyal - tudor",
+   "Je taime",
+   "Rickross- kisauni",
+   "T.i (white) - mtwapa",
+   "Jaguar paw- kisauni",
+   "Orlando magic -tudor",
+   "Bululizo",
+   "Band 4 band",
+   "Fugeez",
+   "notorious",
+   "Mr cheeks"
+  ],
+  "slug": "best-maintained",
+  "sort_order": 19
+ },
+ {
+  "name": "Blogger of the Year",
+  "nominees": [
+   "Thee culture",
+   "Thriller",
+   "Abawa",
+   "Mauzoo",
+   "Klin",
+   "Topspotter",
+   "Mtwapa toys",
+   "Tuluahmad"
+  ],
+  "slug": "blogger-of-the-year",
+  "sort_order": 20
+ },
+ {
+  "name": "Airbrush Artists",
+  "nominees": [
+   "zeddy dize",
+   "wizard customs ke (iantoholic)",
+   "kush",
+   "shakes",
+   "tizo",
+   "slick",
+   "Dannie",
+   "raj",
+   "Chinno"
+  ],
+  "slug": "airbrush-artists",
+  "sort_order": 21
+ },
+ {
+  "name": "Lighthouse Installer",
+  "nominees": [
+   "Daylight auto décor",
+   "Ngugi",
+   "Rashid lights",
+   "Ngare",
+   "Raphael",
+   "Mutua",
+   "Marto"
+  ],
+  "slug": "lighthouse-installer",
+  "sort_order": 22
+ },
+ {
+  "name": "Sticker Works",
+  "nominees": [
+   "most wanted (mjiji)",
+   "stickerhub",
+   "marcelo",
+   "azzo",
+   "mboga saba",
+   "ampedy",
+   "kim"
+  ],
+  "slug": "sticker-works",
+  "sort_order": 23
+ },
+ {
+  "name": "Best Auto Shop",
+  "nominees": [
+   "abbas car décor",
+   "fahmy"
+  ],
+  "slug": "best-auto-shop",
+  "sort_order": 24
+ },
+ {
+  "name": "Best Sacco",
+  "nominees": [
+   "Xperia sacco",
+   "Mom sacco",
+   "Tlb sacco",
+   "Geno sacco",
+   "Tatama sacco",
+   "Safari sacco"
+  ],
+  "slug": "best-sacco",
+  "sort_order": 25
+ },
+ {
+  "name": "Best Interior Design",
+  "nominees": [
+   "Madevu",
+   "Hussein",
+   "Simon",
+   "Muiruri",
+   "kudura"
+  ],
+  "slug": "best-interior-design",
+  "sort_order": 26
+ },
+ {
+  "name": "Best Sound Installer",
+  "nominees": [
+   "Marto",
+   "Hussein",
+   "Simon",
+   "Dolby trm",
+   "Salim"
+  ],
+  "slug": "best-sound-installer",
+  "sort_order": 27
+ },
+ {
+  "name": "Best Traffic",
+  "nominees": [
+   "kinywa – makupa",
+   "said – bamburi",
+   "masoud – nyali",
+   "mercy – central",
+   "Jose- bamburi",
+   "omosh -central",
+   "Daudi -central",
+   "Rhama -central",
+   "Toli- makupa",
+   "Halima - makupa"
+  ],
+  "slug": "best-traffic",
+  "sort_order": 28
+ },
+ {
+  "name": "Best Driver Mtwapa",
+  "nominees": [
+   "Babu mbuta",
+   "Namba nane",
+   "Jack",
+   "Sabri king",
+   "Korir",
+   "Njoro",
+   "Moddy",
+   "Zackariyah",
+   "Musa",
+   "spoiler",
+   "Baby driver"
+  ],
+  "slug": "best-driver-mtwapa",
+  "sort_order": 29
+ },
+ {
+  "name": "Mtambo Best Driver",
+  "nominees": [
+   "Daddy",
+   "Moddy (Alcatraz)",
+   "Hemedy",
+   "Kichwa",
+   "Sammy kanga",
+   "Mike mbosso",
+   "Edu -khood",
+   "Farouq – remmy",
+   "Daddy mauzoo- remmy",
+   "Francis- roca fela"
+  ],
+  "slug": "mtambo-best-driver",
+  "sort_order": 30
+ },
+ {
+  "name": "Kisauni Best Driver",
+  "nominees": [
+   "Abu hafswa",
+   "Babu mapengo",
+   "Poloranks",
+   "Deno",
+   "Jitoto",
+   "Abu ali – madtown",
+   "Defao",
+   "Matonya",
+   "Roja",
+   "Beka",
+   "Moddy chonyi",
+   "Aloha",
+   "Amiri",
+   "Jabbal",
+   "Athuman (weezy)"
+  ],
+  "slug": "kisauni-best-driver",
+  "sort_order": 31
+ },
+ {
+  "name": "Tudor Best Driver",
+  "nominees": [
+   "Maulana-lilbaby",
+   "Mnoko",
+   "Okwonkwo (riot)",
+   "Mbwakni- el clasico",
+   "Said -richgang",
+   "Karisa – lilbaby",
+   "Mkare -bigdaddy",
+   "Mutanda- prolific",
+   "Bosco - zeus",
+   "Swabiri- posh"
+  ],
+  "slug": "tudor-best-driver",
+  "sort_order": 32
+ },
+ {
+  "name": "Mikindani Best Driver",
+  "nominees": [
+   "Junior",
+   "Mnyika",
+   "Pato",
+   "Lucky",
+   "Monte",
+   "Vinnie",
+   "Sakaja",
+   "Buda monk",
+   "Amani",
+   "raphael"
+  ],
+  "slug": "mikindani-best-driver",
+  "sort_order": 33
+ },
+ {
+  "name": "Magongo Best Driver",
+  "nominees": [
+   "Saido",
+   "Harry",
+   "Bajira -eleven",
+   "Ali -rust",
+   "Bushman",
+   "Randy",
+   "Denno -latto",
+   "Sensei - prolific",
+   "Junior-je taime",
+   "Raphael jr"
+  ],
+  "slug": "magongo-best-driver",
+  "sort_order": 34
+ },
+ {
+  "name": "Mshomoroni Best Driver",
+  "nominees": [
+   "Mtuku-nizer",
+   "Eduu- mint",
+   "Rama redwax -anko",
+   "Pastor- lust",
+   "Kamwenga- nizee green",
+   "Jay- freaky",
+   "Chetu- yaa yes",
+   "George -freaky kbk"
+  ],
+  "slug": "mshomoroni-best-driver",
+  "sort_order": 35
+ },
+ {
+  "name": "Best Driver Jomvu",
+  "nominees": [
+   "Dawaa- liger",
+   "Dulla chugulu- daffy",
+   "Adamu – host",
+   "Yeyo-konde boy",
+   "Sammy – guap",
+   "Ali- Compton",
+   "Saidi hogost- 3t",
+   "Bysaaa- bugz bunny",
+   "Hamso kanali- buggzbunny",
+   "Sammy- guap"
+  ],
+  "slug": "best-driver-jomvu",
+  "sort_order": 36
+ },
+ {
+  "name": "Best Driver Miritini",
+  "nominees": [
+   "Athumani- the kings",
+   "Juma – the kings",
+   "Kibarua- call of duty",
+   "Songoni- liquid",
+   "Jay- the kings",
+   "Obako- the kings",
+   "Goon- junior mafia",
+   "Sammyro- panastar",
+   "Mabottle – rich gang",
+   "Mjaka - weezy"
+  ],
+  "slug": "best-driver-miritini",
+  "sort_order": 37
+ },
+ {
+  "name": "Best Conductor Kisauni",
+  "nominees": [
+   "Arafat",
+   "Saddam",
+   "Seif",
+   "Zuchu",
+   "Abu macho",
+   "Koko jr",
+   "Prezzo",
+   "Ali rasta",
+   "Mea",
+   "Jay mapesa",
+   "Bwiza",
+   "Kulu",
+   "Chilemba"
+  ],
+  "slug": "best-conductor-kisauni",
+  "sort_order": 38
+ },
+ {
+  "name": "Best Conductor Jomvu",
+  "nominees": [
+   "Simo pummu- buggz bunny",
+   "Faji – 2pac shakur",
+   "Boyka- liger",
+   "Osama- guap",
+   "Alole- bugz bunny",
+   "Hassani – the lord is my shepherd",
+   "Bokanda- host"
+  ],
+  "slug": "best-conductor-jomvu",
+  "sort_order": 39
+ },
+ {
+  "name": "Magongo Conductors",
+  "nominees": [
+   "Kombo",
+   "Haziz Jr",
+   "Kibwana",
+   "Etoo",
+   "Kennedy",
+   "Jaylaw"
+  ],
+  "slug": "magongo-conductors",
+  "sort_order": 40
+ },
+ {
+  "name": "Mikindani Best Conductor",
+  "nominees": [
+   "Otile -gta vice city",
+   "Diza- highstake",
+   "Sammy- Eminem kav",
+   "Aleh- moneybag",
+   "Hamso-Eminem kbz",
+   "Simiu- moneybag kdt",
+   "Ali madebe – rebel",
+   "Ali- notorious",
+   "Sheba- 2pac",
+   "Jesus- fubu"
+  ],
+  "slug": "mikindani-best-conductor",
+  "sort_order": 41
+ },
+ {
+  "name": "Best Conductor Miritini",
+  "nominees": [
+   "Dume – the kings",
+   "Ezekiel- call of duty",
+   "Tr konde – the kings",
+   "Samda -liquid",
+   "Mwalimu- the kings",
+   "Wozza- weezy",
+   "Simo- goon",
+   "Balo- rich gang",
+   "Hamso panastar"
+  ],
+  "slug": "best-conductor-miritini",
+  "sort_order": 42
+ },
+ {
+  "name": "Best Conductor Mshomoroni",
+  "nominees": [
+   "Og- mint",
+   "Pastor- tecno",
+   "Lee- freaky kat",
+   "Mungai- freaky kbj",
+   "Kobole- yaa yes",
+   "Bruno- nizer green",
+   "Spider- nizer red"
+  ],
+  "slug": "best-conductor-mshomoroni",
+  "sort_order": 43
+ },
+ {
+  "name": "Best Conductor Tudor",
+  "nominees": [
+   "Rama – bigdaddy",
+   "James- rio",
+   "Said- riot",
+   "Sharro puff- posh",
+   "Hassani- el classico",
+   "Mossee- zeus",
+   "Mohaa-prolific",
+   "Mwana- lilbaby"
+  ],
+  "slug": "best-conductor-tudor",
+  "sort_order": 44
+ },
+ {
+  "name": "Lighthouse of the Year",
+  "nominees": [
+   "Madtown batman",
+   "Posh kbq",
+   "Brick pan brick",
+   "Kings",
+   "Thunder (kbk)",
+   "Riot",
+   "Jazie uno",
+   "Revolution",
+   "Money long",
+   "Mc queen",
+   "Paperlife",
+   "Eleven",
+   "Cashflow (kbj)"
+  ],
+  "slug": "lighthouse-of-the-year",
+  "sort_order": 45
+ },
+ {
+  "name": "Nyali Best Conductor",
+  "nominees": [
+   "Mzamo- king",
+   "Kitale- dollar dream",
+   "Abdul- black muslims",
+   "Gift- lilbaby",
+   "Kajiro-gunna",
+   "Bisaka-miami",
+   "Makelele -redeemer",
+   "Shaban-viron",
+   "Madawa -blacklist"
+  ],
+  "slug": "nyali-best-conductor",
+  "sort_order": 46
+ },
+ {
+  "name": "Nyali Best Drivers",
+  "nominees": [
+   "Rogers- kung",
+   "Bakari - dollar dream",
+   "Majukumu-black muslim",
+   "Hamso duba - lilbaby",
+   "Kalameni- gunna",
+   "Ruger- miami",
+   "Muda- redeemer",
+   "Titus- viron",
+   "Mwakubia - blacklist"
+  ],
+  "slug": "nyali-best-drivers",
+  "sort_order": 47
+ },
+ {
+  "name": "Best Petrol Station",
+  "nominees": [
+   "Bamburi 1 (issa)",
+   "Reem( gas field)",
+   "Nas gas",
+   "Galana"
+  ],
+  "slug": "best-petrol-station",
+  "sort_order": 48
+ },
+ {
+  "name": "Best Carwash",
+  "nominees": [
+   "Bululizo & parking",
+   "Steji ya paka & parking",
+   "Chigunda's car wash & parking",
+   "Rubis & parking",
+   "Bamburi car wash",
+   "Gems car wash & parking"
+  ],
+  "slug": "best-carwash",
+  "sort_order": 49
+ },
+ {
+  "name": "Best Operation Manager",
+  "nominees": [
+   "shabal",
+   "swagger",
+   "Mwangala",
+   "Boss shakir",
+   "jelani",
+   "bashir"
+  ],
+  "slug": "best-operation-manager",
+  "sort_order": 50
+ },
+ {
+  "name": "Best Route",
+  "nominees": [
+   "Tudor",
+   "Bamburi mtambo",
+   "Bamburi kisauni",
+   "Jomvu",
+   "Mikindani",
+   "Magongo",
+   "Miritini",
+   "Nyali reef",
+   "Migadini",
+   "Mshomoroni",
+   "Mtwapa",
+   "Bombolulu",
+   "Kiembeni"
+  ],
+  "slug": "best-route",
+  "sort_order": 51
+ },
+ {
+  "name": "Best Adventure Group Mombasa",
+  "nominees": [
+   "Bean adventures",
+   "bronx safaris",
+   "avib adventures",
+   "Sunset cartels"
+  ],
+  "slug": "best-adventure-group-mombasa",
+  "sort_order": 52
+ },
+ {
+  "name": "Kiembeni Driver",
+  "nominees": [
+   "Mzee",
+   "Alfan",
+   "Waingo",
+   "Mwarabu",
+   "Bajey",
+   "Abbah",
+   "Jimmy",
+   "Bhonge",
+   "Shariffuh",
+   "Segah"
+  ],
+  "slug": "kiembeni-driver",
+  "sort_order": 53
+ },
+ {
+  "name": "Kiembeni Conductor",
+  "nominees": [
+   "Kanairo",
+   "Tolly",
+   "George",
+   "Jay",
+   "Jomba",
+   "Joseph",
+   "Gilly",
+   "Silvester",
+   "Mwanjola",
+   "Dogo",
+   "Morgan"
+  ],
+  "slug": "kiembeni-conductor",
+  "sort_order": 54
+ },
+ {
+  "name": "Mombasa 1 Matatu",
+  "nominees": [],
+  "note": "header with no nominees in source",
+  "slug": "mombasa-1-matatu",
+  "sort_order": 55,
+  "status": "needs_nominees"
+ },
+ {
+  "name": "Best Driver Mombasa",
+  "nominees": [],
+  "note": "header with no nominees in source",
+  "slug": "best-driver-mombasa",
+  "sort_order": 56,
+  "status": "needs_nominees"
+ },
+ {
+  "name": "Best Conductor Mombasa",
+  "nominees": [],
+  "note": "header with no nominees in source",
+  "slug": "best-conductor-mombasa",
+  "sort_order": 57,
+  "status": "needs_nominees"
+ },
+ {
+  "name": "Best Private 14 Seater (Nairobi)",
+  "nominees": [
+   "Stinger",
+   "spicy safaris",
+   "flight 13 (the Comeback)",
+   "kimya kimya",
+   "first priority",
+   "kings",
+   "galactic",
+   "fbi",
+   "habibi",
+   "steps"
+  ],
+  "slug": "best-private-14-seater-nairobi",
+  "sort_order": 58
+ },
+ {
+  "name": "Best Driver Nairobi",
+  "nominees": [
+   "Liabloh",
+   "Ostoh",
+   "Masterwong",
+   "Badder",
+   "Sule",
+   "Papito",
+   "Gateru",
+   "Lukman",
+   "Muhadi keisha",
+   "chacha"
+  ],
+  "slug": "best-driver-nairobi",
+  "sort_order": 59
+ },
+ {
+  "name": "Kenya 1",
+  "nominees": [
+   "Baba yaga",
+   "Ferrari",
+   "Versace",
+   "Ultron",
+   "Outlawz",
+   "1977",
+   "Moneyfest",
+   "Penguin",
+   "Eccentric",
+   "Bomaye"
+  ],
+  "slug": "kenya-1",
+  "sort_order": 60
+ },
+ {
+  "name": "Best Adventure Group",
+  "nominees": [
+   "Iconic tours",
+   "Headboy adventures",
+   "Alpha adventures",
+   "Plug adventures",
+   "Vva tours",
+   "Certified adventures"
+  ],
+  "slug": "best-adventure-group",
+  "sort_order": 61
+ }
+]

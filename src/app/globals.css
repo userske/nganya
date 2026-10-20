@@ -1,26 +1,180 @@
 @import "tailwindcss";
+@import url("https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=Inter:wght@300;400;500;600;700&display=swap");
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  /* Brand palette – Coastal Nganya Awards */
+  --brand-gold: #c9a227;
+  --brand-gold-light: #e6c158;
+  --brand-gold-dark: #9a7a1a;
+  --brand-orange: #e8602c;
+  --brand-teal: #0e9b8a;
+  --brand-navy: #0a0f1e;
+  --brand-navy-soft: #111827;
+  --brand-dark: #050810;
+
+  /* Semantic */
+  --background: var(--brand-dark);
+  --foreground: #f8f6f0;
+  --muted: #9ca3af;
+  --muted-foreground: #6b7280;
+  --border: #1f2937;
+  --border-soft: rgba(255, 255, 255, 0.08);
+  --card: #0f1525;
+  --card-hover: #161f35;
+  --success: #10b981;
+  --error: #ef4444;
+  --warning: #f59e0b;
+
+  --radius: 0.75rem;
+  --font-sans: "Outfit", "Inter", system-ui, sans-serif;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+* {
+  box-sizing: border-box;
+  border-color: var(--border);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+html {
+  scroll-behavior: smooth;
 }
 
 body {
-  background: var(--background);
+  background-color: var(--brand-dark);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Typography */
+.heading-display {
+  font-family: "Outfit", sans-serif;
+  font-weight: 900;
+  letter-spacing: -0.03em;
+  line-height: 1;
+}
+
+.heading-lg {
+  font-family: "Outfit", sans-serif;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  line-height: 1.05;
+}
+
+/* Gold gradient text */
+.text-gold-gradient {
+  background: linear-gradient(135deg, var(--brand-gold-light) 0%, var(--brand-gold) 50%, var(--brand-gold-dark) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Glass card */
+.glass-card {
+  background: rgba(255, 255, 255, 0.04);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: var(--radius);
+}
+
+/* Glow effects */
+.glow-gold {
+  box-shadow: 0 0 40px rgba(201, 162, 39, 0.2), 0 0 80px rgba(201, 162, 39, 0.1);
+}
+.glow-teal {
+  box-shadow: 0 0 40px rgba(14, 155, 138, 0.2);
+}
+
+/* Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: var(--brand-navy);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--brand-gold-dark);
+  border-radius: 9999px;
+}
+
+/* Animations */
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-12px); }
+}
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+@keyframes pulse-gold {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(201, 162, 39, 0.4); }
+  50% { box-shadow: 0 0 0 12px rgba(201, 162, 39, 0); }
+}
+@keyframes countdown-tick {
+  0% { transform: scale(1.05); }
+  100% { transform: scale(1); }
+}
+
+.animate-float { animation: float 4s ease-in-out infinite; }
+.animate-pulse-gold { animation: pulse-gold 2s ease-in-out infinite; }
+
+/* Loading skeleton */
+.skeleton {
+  background: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0.04) 25%,
+    rgba(255, 255, 255, 0.08) 50%,
+    rgba(255, 255, 255, 0.04) 75%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+}
+
+/* Countdown number animation */
+.countdown-num {
+  display: inline-block;
+  animation: countdown-tick 0.3s ease-out;
+}
+
+/* Nominee card vote state */
+.nominee-card {
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.nominee-card:hover:not(.nominee-card--locked):not(.nominee-card--voted) {
+  transform: translateY(-4px);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(201, 162, 39, 0.3);
+}
+.nominee-card--voted {
+  border-color: var(--brand-gold) !important;
+  box-shadow: 0 0 0 2px var(--brand-gold), 0 0 30px rgba(201, 162, 39, 0.15);
+}
+.nominee-card--locked {
+  opacity: 0.7;
+  cursor: default;
+}
+
+/* Progress bar fill */
+.vote-bar {
+  transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Hero text reveal */
+@keyframes reveal-up {
+  from { opacity: 0; transform: translateY(30px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.reveal-up {
+  animation: reveal-up 0.8s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+/* Noise texture overlay */
+.noise-overlay::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E");
+  pointer-events: none;
+  z-index: 0;
 }
