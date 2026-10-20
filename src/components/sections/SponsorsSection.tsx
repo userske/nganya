@@ -1,8 +1,6 @@
 "use client";
 
 import { motion } from "framer-motion";
-import Image from "next/image";
-import { Award, ShieldCheck, Sparkles, Star } from "lucide-react";
 
 interface Sponsor {
   name: string;
@@ -16,138 +14,160 @@ const sponsors: Sponsor[] = [
     name: "Mombasa County Government",
     tier: "headline",
     tagline: "Department of Transport & Infrastructure",
-    logoText: "MOMBASA COUNTY",
+    logoText: "Mombasa County",
   },
   {
     name: "Mombasa Cement",
     tier: "headline",
     tagline: "Official Venue & Logistics Partner",
-    logoText: "MOMBASA CEMENT",
+    logoText: "Mombasa Cement",
   },
   {
     name: "Paystack",
     tier: "gold",
-    tagline: "Official Payment Partner (Cards & M-Pesa)",
-    logoText: "PAYSTACK",
+    tagline: "Official Payment Partner",
+    logoText: "Paystack",
   },
   {
     name: "Coast Matatu Owners Association",
     tier: "gold",
     tagline: "Apex Matatu Industry Body",
-    logoText: "CMOA COAST",
+    logoText: "CMOA Coast",
   },
   {
     name: "RedBull Kenya",
     tier: "silver",
     tagline: "Energy & Sound Partner",
-    logoText: "RED BULL",
+    logoText: "Red Bull",
   },
   {
     name: "Pioneer Car Audio & Visuals",
     tier: "silver",
     tagline: "Acoustic Stage & Sound Sponsor",
-    logoText: "PIONEER AUDIO",
+    logoText: "Pioneer Audio",
   },
   {
     name: "Kisauni Express Sacco",
     tier: "partner",
     tagline: "Transport Network Partner",
-    logoText: "KISAUNI EXPRESS",
+    logoText: "Kisauni Express",
   },
   {
     name: "Likoni Ferry Fleet Logistics",
     tier: "partner",
     tagline: "Route Connectivity Partner",
-    logoText: "LIKONI FLEET",
+    logoText: "Likoni Fleet",
   },
 ];
 
+// Duplicate for seamless loop
+const MARQUEE_ITEMS = [...sponsors, ...sponsors];
+
 export function SponsorsSection() {
   return (
-    <section className="relative py-24 px-4 sm:px-6 lg:px-8 border-t border-white/5 bg-gradient-to-b from-[#050810] via-[#090e1a] to-[#050810] overflow-hidden">
-      {/* Background glow */}
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[350px] bg-amber-500/5 blur-[140px] pointer-events-none rounded-full" />
-
-      <div className="max-w-7xl mx-auto relative z-10">
-        <div className="text-center max-w-2xl mx-auto mb-16">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-500/10 border border-amber-500/20 text-amber-400 text-xs font-semibold uppercase tracking-widest mb-4">
-            <Sparkles className="w-3.5 h-3.5" />
-            Partners & Sponsors
+    <section
+      id="sponsors"
+      className="relative py-24 border-t border-white/[0.06] overflow-hidden bg-black"
+    >
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-16">
+        {/* Header */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.6 }}
+          className="flex flex-col sm:flex-row items-start sm:items-end justify-between gap-6"
+        >
+          <div>
+            <span className="text-[10px] px-3 py-1 rounded-full border border-white/15 text-white/40 font-bold uppercase tracking-widest mb-4 inline-block">
+              Partners & Sponsors
+            </span>
+            <h2 className="text-3xl sm:text-4xl font-black text-white tracking-tight leading-tight">
+              Backed by the Best<br />in the Industry
+            </h2>
           </div>
-          <h2 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-white mb-4">
-            Backed by the Best in the Industry
-          </h2>
-          <p className="text-slate-400 text-sm sm:text-base leading-relaxed">
-            Proudly partnering with county leaders, automotive icons, and financial pioneers making the Coast matatu culture legendary.
+          <p className="text-white/40 text-sm leading-relaxed max-w-xs">
+            County leaders, automotive icons, and financial pioneers making the Coast matatu culture legendary.
           </p>
-        </div>
+        </motion.div>
+      </div>
 
-        {/* Headline Sponsors */}
-        <div className="mb-12">
-          <p className="text-xs uppercase tracking-widest text-amber-400/80 font-bold mb-4 text-center">
-            Headline Partners
-          </p>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {sponsors
-              .filter((s) => s.tier === "headline")
-              .map((sponsor, idx) => (
-                <motion.div
-                  key={sponsor.name}
-                  initial={{ opacity: 0, y: 20 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ delay: idx * 0.1, duration: 0.5 }}
-                  className="group relative p-8 rounded-2xl bg-white/[0.03] border border-amber-500/20 hover:border-amber-500/50 transition-[border-color,box-shadow] duration-200 ease-out hover:shadow-[0_0_30px_rgba(245,158,11,0.12)] flex flex-col items-center text-center backdrop-blur-sm"
-                >
-                  <div className="w-14 h-14 rounded-xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-amber-400 mb-4 group-hover:scale-110 transition-transform duration-200">
-                    <ShieldCheck className="w-7 h-7" />
-                  </div>
-                  <h3 className="text-xl font-bold text-white tracking-wide group-hover:text-amber-400 transition-colors duration-150">
-                    {sponsor.name}
-                  </h3>
-                  <p className="text-xs text-slate-400 mt-1 uppercase tracking-wider">
-                    {sponsor.tagline}
-                  </p>
-                </motion.div>
-              ))}
-          </div>
-        </div>
-
-        {/* Gold & Silver Grid */}
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6">
+      {/* Headline sponsors grid */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-16">
+        <p className="text-[10px] uppercase tracking-widest text-white/25 font-bold mb-6">
+          Headline Partners
+        </p>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-px bg-white/[0.06] rounded-2xl overflow-hidden">
           {sponsors
-            .filter((s) => s.tier !== "headline")
+            .filter((s) => s.tier === "headline")
             .map((sponsor, idx) => (
               <motion.div
                 key={sponsor.name}
-                initial={{ opacity: 0, scale: 0.95 }}
-                whileInView={{ opacity: 1, scale: 1 }}
+                initial={{ opacity: 0, y: 16 }}
+                whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
-                transition={{ delay: 0.2 + idx * 0.05, duration: 0.4 }}
-                className="p-5 rounded-xl bg-white/[0.02] border border-white/5 hover:border-white/20 transition-[border-color,background-color] duration-150 ease-out hover:bg-white/[0.04] text-center flex flex-col justify-center items-center group"
+                transition={{ delay: idx * 0.1, duration: 0.5 }}
+                className="group bg-[#0a0a0a] px-10 py-12 flex flex-col justify-between hover:bg-white/[0.02] transition-colors duration-300"
               >
-                <div className="text-xs uppercase font-mono font-bold tracking-widest text-slate-300 group-hover:text-white transition-colors duration-150">
-                  {sponsor.logoText}
+                <div>
+                  <p className="text-[10px] uppercase tracking-widest text-white/25 font-bold mb-4">
+                    {sponsor.tagline}
+                  </p>
+                  <h3 className="text-2xl font-black text-white tracking-tight group-hover:text-white/80 transition-colors duration-200">
+                    {sponsor.logoText}
+                  </h3>
                 </div>
-                <div className="text-[11px] text-slate-500 mt-1 line-clamp-1">
-                  {sponsor.name}
-                </div>
+                <div className="mt-8 w-8 h-px bg-white/20 group-hover:w-16 transition-[width] duration-300" />
               </motion.div>
             ))}
         </div>
+      </div>
 
-        {/* Sponsor CTA */}
-        <div className="mt-16 text-center">
-          <p className="text-xs text-slate-400">
-            Want to sponsor Mombasa’s most celebrated cultural awards?{" "}
-            <a
-              href="mailto:sponsors@coastalngayaawards.com"
-              className="text-amber-400 font-medium hover:underline ml-1"
-            >
-              Get in touch with the partnerships team &rarr;
-            </a>
-          </p>
+      {/* Marquee — all sponsors */}
+      <div className="relative">
+        {/* Fade edges */}
+        <div className="absolute left-0 top-0 bottom-0 w-24 bg-gradient-to-r from-black to-transparent z-10 pointer-events-none" />
+        <div className="absolute right-0 top-0 bottom-0 w-24 bg-gradient-to-l from-black to-transparent z-10 pointer-events-none" />
+
+        <div className="flex overflow-hidden">
+          <motion.div
+            className="flex gap-px shrink-0"
+            animate={{ x: ["0%", "-50%"] }}
+            transition={{
+              duration: 28,
+              repeat: Infinity,
+              ease: "linear",
+            }}
+          >
+            {MARQUEE_ITEMS.map((sponsor, i) => (
+              <div
+                key={`${sponsor.name}-${i}`}
+                className="shrink-0 bg-[#0a0a0a] border-y border-white/[0.06] px-10 py-8 flex flex-col justify-center min-w-[220px] hover:bg-white/[0.03] transition-colors duration-200"
+              >
+                <div className="text-sm font-bold text-white/70 tracking-tight whitespace-nowrap">
+                  {sponsor.logoText}
+                </div>
+                <div className="text-[11px] text-white/25 mt-1 whitespace-nowrap">
+                  {sponsor.tagline}
+                </div>
+              </div>
+            ))}
+          </motion.div>
         </div>
+      </div>
+
+      {/* Sponsor CTA */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-16 flex items-center justify-between border-t border-white/[0.06] pt-8">
+        <p className="text-xs text-white/30">
+          Interested in partnering with us?
+        </p>
+        <a
+          href="mailto:sponsors@coastalnganyaawards.com"
+          className="text-xs text-white/60 font-medium hover:text-white transition-colors duration-150 flex items-center gap-1.5"
+        >
+          Get in touch
+          <span aria-hidden>→</span>
+        </a>
       </div>
     </section>
   );

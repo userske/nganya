@@ -1,10 +1,9 @@
 "use client";
 
 import { motion } from "framer-motion";
-import Link from "next/link";
 import Image from "next/image";
-import { MapPin, Calendar, Clock, Ticket, Vote, ChevronDown } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import Link from "next/link";
+import { MapPin, Calendar, Clock, ChevronDown } from "lucide-react";
 import { CountdownTimer } from "@/components/ui/CountdownTimer";
 import { format } from "date-fns";
 
@@ -86,30 +85,19 @@ export function HeroSection({ eventData }: HeroSectionProps) {
           fetchPriority="high"
           quality={85}
         />
-        {/* Dark overlay gradient */}
-        <div className="absolute inset-0 bg-gradient-to-b from-[#050810]/80 via-[#050810]/60 to-[#050810]" />
-        <div className="absolute inset-0 bg-gradient-to-r from-[#050810]/60 via-transparent to-[#050810]/60" />
+        <div className="absolute inset-0 bg-gradient-to-b from-black/70 via-black/50 to-black" />
+        <div className="absolute inset-0 bg-gradient-to-r from-black/50 via-transparent to-black/50" />
       </div>
 
-      {/* Floating particles */}
+      {/* Subtle white particles */}
       <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
         {PARTICLES.map((p, i) => (
           <motion.div
             key={i}
-            className="absolute w-1 h-1 rounded-full bg-[#c9a227]/40"
-            style={{
-              left: p.left,
-              top: p.top,
-            }}
-            animate={{
-              y: [0, -30, 0],
-              opacity: [0, 1, 0],
-            }}
-            transition={{
-              duration: p.duration,
-              repeat: Infinity,
-              delay: p.delay,
-            }}
+            className="absolute w-[2px] h-[2px] rounded-full bg-white/20"
+            style={{ left: p.left, top: p.top }}
+            animate={{ y: [0, -24, 0], opacity: [0, 0.6, 0] }}
+            transition={{ duration: p.duration, repeat: Infinity, delay: p.delay }}
           />
         ))}
       </div>
@@ -121,9 +109,9 @@ export function HeroSection({ eventData }: HeroSectionProps) {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6 }}
-          className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[#c9a227]/10 border border-[#c9a227]/30 text-[#c9a227] text-sm font-semibold tracking-wider uppercase mb-8"
+          className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 border border-white/15 text-white/60 text-xs font-medium tracking-widest uppercase mb-8"
         >
-          <span className="w-2 h-2 rounded-full bg-[#c9a227] animate-pulse" />
+          <span className="w-1.5 h-1.5 rounded-full bg-white/60" />
           Mombasa, Kenya · 2025
         </motion.div>
 
@@ -135,7 +123,7 @@ export function HeroSection({ eventData }: HeroSectionProps) {
           className="heading-display text-5xl sm:text-7xl lg:text-8xl xl:text-9xl text-white mb-6"
         >
           <span className="block">Coastal</span>
-          <span className="block text-gold-gradient">Nganya</span>
+          <span className="block text-white/90">Nganya</span>
           <span className="block">Awards</span>
         </motion.h1>
 
@@ -144,7 +132,7 @@ export function HeroSection({ eventData }: HeroSectionProps) {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.3 }}
-          className="text-white/60 text-lg sm:text-xl max-w-2xl mx-auto mb-10"
+          className="text-white/50 text-lg sm:text-xl max-w-2xl mx-auto mb-10"
         >
           {eventData.tagline ?? "Mombasa's biggest night for custom builds, sound setups, and route culture"}
         </motion.p>
@@ -157,14 +145,8 @@ export function HeroSection({ eventData }: HeroSectionProps) {
           className="flex flex-wrap items-center justify-center gap-6 mb-12"
         >
           {[
-            {
-              icon: Calendar,
-              text: formatEventDate(eventData.event_date),
-            },
-            {
-              icon: Clock,
-              text: formatEventTime(eventData.event_time),
-            },
+            { icon: Calendar, text: formatEventDate(eventData.event_date) },
+            { icon: Clock, text: formatEventTime(eventData.event_time) },
             {
               icon: MapPin,
               text: eventData.venue_name,
@@ -173,15 +155,15 @@ export function HeroSection({ eventData }: HeroSectionProps) {
           ].map(({ icon: Icon, text, href }) => (
             <div
               key={text}
-              className="flex items-center gap-2 text-white/70 text-sm sm:text-base"
+              className="flex items-center gap-2 text-white/50 text-sm sm:text-base"
             >
-              <Icon className="w-4 h-4 text-[#c9a227] flex-shrink-0" />
+              <Icon className="w-4 h-4 text-white/40 flex-shrink-0" />
               {href ? (
                 <a
                   href={href}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="hover:text-[#c9a227] transition-colors"
+                  className="hover:text-white/80 transition-colors"
                 >
                   {text}
                 </a>
@@ -210,34 +192,25 @@ export function HeroSection({ eventData }: HeroSectionProps) {
           className="flex flex-col sm:flex-row items-center justify-center gap-4"
         >
           {eventData.ticket_sales_open && (
-            <Button
-              asChild
-              size="lg"
-              className="bg-gradient-to-r from-amber-400 via-yellow-400 to-amber-500 hover:opacity-95 text-black font-extrabold text-base px-8 py-6 shadow-2xl shadow-amber-500/25 hover:shadow-amber-500/40 transition-[box-shadow,opacity] duration-200"
+            <Link
+              href="/tickets"
+              className="inline-flex items-center justify-center gap-2 px-8 py-4 bg-white text-black font-semibold text-base rounded-xl hover:bg-white/90 active:scale-[0.97] transition-[background-color,transform] duration-150"
             >
-              <Link href="/tickets">
-                <Ticket className="w-5 h-5 mr-2" />
-                Buy Tickets
-              </Link>
-            </Button>
-          )}
-          <Button
-            asChild
-            size="lg"
-            variant="outline"
-            className="border-white/20 text-white hover:bg-white/5 hover:border-[#c9a227]/60 text-base px-8 py-6 backdrop-blur-sm transition-[border-color,background-color] duration-150"
-          >
-            <Link href="/vote">
-              <Vote className="w-5 h-5 mr-2 text-[#c9a227]" />
-              Vote Now
+              Buy Tickets
             </Link>
-          </Button>
+          )}
+          <Link
+            href="/vote"
+            className="inline-flex items-center justify-center gap-2 px-8 py-4 border border-white/25 text-white font-medium text-base rounded-xl hover:bg-white/5 hover:border-white/40 active:scale-[0.97] transition-[background-color,border-color,transform] duration-150 backdrop-blur-sm"
+          >
+            Vote Now
+          </Link>
         </motion.div>
       </div>
 
       {/* Scroll indicator */}
       <motion.div
-        className="absolute bottom-8 left-1/2 -translate-x-1/2 z-10 text-white/30"
+        className="absolute bottom-8 left-1/2 -translate-x-1/2 z-10 text-white/25"
         animate={{ y: [0, 8, 0] }}
         transition={{ duration: 2, repeat: Infinity }}
         aria-hidden

@@ -4,15 +4,14 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
-import { Menu, X, Ticket, Vote, Trophy } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { Menu, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const navLinks = [
   { href: "/#about", label: "About" },
   { href: "/#sponsors", label: "Sponsors" },
-  { href: "/vote", label: "Vote", icon: Vote },
-  { href: "/results", label: "Results", icon: Trophy },
+  { href: "/vote", label: "Vote" },
+  { href: "/results", label: "Results" },
   { href: "/contact", label: "Contact" },
 ];
 
@@ -35,9 +34,9 @@ export function Navbar() {
     <>
       <header
         className={cn(
-          "fixed top-0 left-0 right-0 z-50 transition-[background-color,border-color,backdrop-filter,box-shadow] duration-500",
+          "fixed top-0 left-0 right-0 z-50 transition-[background-color,border-color,backdrop-filter] duration-500",
           scrolled
-            ? "bg-[#050810]/90 backdrop-blur-xl border-b border-white/5 shadow-2xl"
+            ? "bg-black/80 backdrop-blur-xl border-b border-white/10"
             : "bg-transparent"
         )}
       >
@@ -45,16 +44,16 @@ export function Navbar() {
           <div className="flex items-center justify-between h-16 lg:h-20">
             {/* Logo */}
             <Link href="/" className="flex items-center gap-3 group">
-              <div className="relative w-10 h-10 rounded-full bg-gradient-to-br from-[#c9a227] to-[#e8602c] flex items-center justify-center shadow-lg group-hover:shadow-[0_0_20px_rgba(201,162,39,0.4)] transition-shadow duration-300">
-                <Trophy className="w-5 h-5 text-white" />
-              </div>
               <div className="hidden sm:block">
                 <div className="text-white font-bold text-base leading-tight tracking-tight">
                   Coastal Nganya
                 </div>
-                <div className="text-[#c9a227] text-xs font-semibold tracking-widest uppercase">
+                <div className="text-white/40 text-xs font-medium tracking-widest uppercase">
                   Awards 2025
                 </div>
+              </div>
+              <div className="sm:hidden text-white font-bold text-base tracking-tight">
+                Coastal Nganya
               </div>
             </Link>
 
@@ -65,11 +64,9 @@ export function Navbar() {
                   key={link.href}
                   href={link.href}
                   className={cn(
-                    "px-4 py-2 rounded-lg text-sm font-medium motion-safe:transition-[color,background-color] motion-safe:duration-150 motion-safe:ease-out",
+                    "px-4 py-2 rounded-lg text-sm font-medium transition-[color,background-color] duration-150",
                     "hover:text-white hover:bg-white/5",
-                    pathname === link.href
-                      ? "text-[#c9a227]"
-                      : "text-white/70"
+                    pathname === link.href ? "text-white" : "text-white/50"
                   )}
                 >
                   {link.label}
@@ -79,27 +76,18 @@ export function Navbar() {
 
             {/* CTA */}
             <div className="hidden lg:flex items-center gap-3">
-              <Button
-                asChild
-                variant="ghost"
-                size="sm"
-                className="text-[#c9a227] border border-[#c9a227]/30 hover:bg-[#c9a227]/10 hover:border-[#c9a227]/60"
+              <Link
+                href="/vote"
+                className="px-4 py-2 text-sm font-medium text-white/70 hover:text-white border border-white/20 hover:border-white/40 rounded-lg transition-[color,border-color] duration-150"
               >
-                <Link href="/vote">
-                  <Vote className="w-4 h-4 mr-2" />
-                  Vote Now
-                </Link>
-              </Button>
-              <Button
-                asChild
-                size="sm"
-                className="bg-gradient-to-r from-[#c9a227] to-[#e8602c] hover:opacity-90 text-white font-semibold shadow-lg shadow-[#c9a227]/20"
+                Vote Now
+              </Link>
+              <Link
+                href="/tickets"
+                className="px-4 py-2 text-sm font-semibold text-black bg-white hover:bg-white/90 rounded-lg transition-[background-color] duration-150"
               >
-                <Link href="/tickets">
-                  <Ticket className="w-4 h-4 mr-2" />
-                  Buy Tickets
-                </Link>
-              </Button>
+                Buy Tickets
+              </Link>
             </div>
 
             {/* Mobile menu button */}
@@ -118,46 +106,43 @@ export function Navbar() {
       <AnimatePresence>
         {menuOpen && (
           <motion.div
-            initial={{ opacity: 0, y: -12, filter: "blur(4px)" }}
-            animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
-            exit={{ opacity: 0, y: -12, filter: "blur(4px)" }}
+            initial={{ opacity: 0, y: -12 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -12 }}
             transition={{ duration: 0.15, ease: "easeOut" }}
-            className="fixed inset-0 z-40 lg:hidden overscroll-contain"
+            className="fixed inset-0 z-40 lg:hidden"
           >
             <div
               className="absolute inset-0 bg-black/60 backdrop-blur-sm"
               onClick={() => setMenuOpen(false)}
             />
-            <div className="relative bg-[#0a0f1e] border-b border-white/10 shadow-2xl pt-16">
+            <div className="relative bg-[#0a0a0a] border-b border-white/10 shadow-2xl pt-16">
               <div className="max-w-7xl mx-auto px-4 py-6 flex flex-col gap-2">
                 {navLinks.map((link) => (
                   <Link
                     key={link.href}
                     href={link.href}
                     className={cn(
-                      "px-4 py-3 rounded-xl text-base font-medium motion-safe:transition-[color,background-color] motion-safe:duration-150 motion-safe:ease-out",
+                      "px-4 py-3 rounded-xl text-base font-medium transition-[color,background-color] duration-150",
                       "hover:bg-white/5 hover:text-white",
-                      pathname === link.href ? "text-[#c9a227]" : "text-white/80"
+                      pathname === link.href ? "text-white" : "text-white/60"
                     )}
                   >
                     {link.label}
                   </Link>
                 ))}
                 <div className="flex flex-col gap-3 pt-4 border-t border-white/10">
-                  <Link href="/vote">
-                    <Button
-                      variant="outline"
-                      className="w-full border-[#c9a227]/40 text-[#c9a227] hover:bg-[#c9a227]/10"
-                    >
-                      <Vote className="w-4 h-4 mr-2" />
-                      Vote Now
-                    </Button>
+                  <Link
+                    href="/vote"
+                    className="w-full px-4 py-3 text-sm font-medium text-white text-center border border-white/20 rounded-xl hover:bg-white/5 transition-colors"
+                  >
+                    Vote Now
                   </Link>
-                  <Link href="/tickets">
-                    <Button className="w-full bg-gradient-to-r from-[#c9a227] to-[#e8602c] text-white font-semibold">
-                      <Ticket className="w-4 h-4 mr-2" />
-                      Buy Tickets
-                    </Button>
+                  <Link
+                    href="/tickets"
+                    className="w-full px-4 py-3 text-sm font-semibold text-black text-center bg-white rounded-xl hover:bg-white/90 transition-colors"
+                  >
+                    Buy Tickets
                   </Link>
                 </div>
               </div>

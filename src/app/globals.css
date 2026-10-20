@@ -2,28 +2,14 @@
 @import url("https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=Inter:wght@300;400;500;600;700&display=swap");
 
 :root {
-  /* Brand palette – Coastal Nganya Awards */
-  --brand-gold: #c9a227;
-  --brand-gold-light: #e6c158;
-  --brand-gold-dark: #9a7a1a;
-  --brand-orange: #e8602c;
-  --brand-teal: #0e9b8a;
-  --brand-navy: #0a0f1e;
-  --brand-navy-soft: #111827;
-  --brand-dark: #050810;
-
-  /* Semantic */
-  --background: var(--brand-dark);
-  --foreground: #f8f6f0;
-  --muted: #9ca3af;
-  --muted-foreground: #6b7280;
-  --border: #1f2937;
-  --border-soft: rgba(255, 255, 255, 0.08);
-  --card: #0f1525;
-  --card-hover: #161f35;
+  --background: #000000;
+  --foreground: #f5f5f5;
+  --muted: #737373;
+  --muted-foreground: #525252;
+  --border: rgba(255, 255, 255, 0.08);
+  --card: #0a0a0a;
   --success: #10b981;
   --error: #ef4444;
-  --warning: #f59e0b;
 
   --radius: 0.75rem;
   --font-sans: "Outfit", "Inter", system-ui, sans-serif;
@@ -40,7 +26,7 @@ html {
 }
 
 body {
-  background-color: var(--brand-dark);
+  background-color: #000;
   color: var(--foreground);
   font-family: var(--font-sans);
   -webkit-font-smoothing: antialiased;
@@ -62,71 +48,35 @@ body {
   line-height: 1.05;
 }
 
-/* Gold gradient text */
-.text-gold-gradient {
-  background: linear-gradient(135deg, var(--brand-gold-light) 0%, var(--brand-gold) 50%, var(--brand-gold-dark) 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-}
-
-/* Glass card */
-.glass-card {
-  background: rgba(255, 255, 255, 0.04);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: var(--radius);
-}
-
-/* Glow effects */
-.glow-gold {
-  box-shadow: 0 0 40px rgba(201, 162, 39, 0.2), 0 0 80px rgba(201, 162, 39, 0.1);
-}
-.glow-teal {
-  box-shadow: 0 0 40px rgba(14, 155, 138, 0.2);
-}
-
 /* Scrollbar */
 ::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
+  width: 4px;
+  height: 4px;
 }
 ::-webkit-scrollbar-track {
-  background: var(--brand-navy);
+  background: #000;
 }
 ::-webkit-scrollbar-thumb {
-  background: var(--brand-gold-dark);
+  background: rgba(255, 255, 255, 0.15);
   border-radius: 9999px;
 }
 
 /* Animations */
-@keyframes float {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-12px); }
-}
 @keyframes shimmer {
   0% { background-position: -200% 0; }
   100% { background-position: 200% 0; }
 }
-@keyframes pulse-gold {
-  0%, 100% { box-shadow: 0 0 0 0 rgba(201, 162, 39, 0.4); }
-  50% { box-shadow: 0 0 0 12px rgba(201, 162, 39, 0); }
-}
 @keyframes countdown-tick {
-  0% { transform: scale(1.05); }
+  0% { transform: scale(1.04); }
   100% { transform: scale(1); }
 }
-
-.animate-float { animation: float 4s ease-in-out infinite; }
-.animate-pulse-gold { animation: pulse-gold 2s ease-in-out infinite; }
 
 /* Loading skeleton */
 .skeleton {
   background: linear-gradient(
     90deg,
     rgba(255, 255, 255, 0.04) 25%,
-    rgba(255, 255, 255, 0.08) 50%,
+    rgba(255, 255, 255, 0.07) 50%,
     rgba(255, 255, 255, 0.04) 75%
   );
   background-size: 200% 100%;
@@ -144,30 +94,30 @@ body {
   transition: transform 150ms ease-out, box-shadow 150ms ease-out, border-color 150ms ease-out;
 }
 .nominee-card:hover:not(.nominee-card--locked):not(.nominee-card--voted) {
-  transform: translateY(-4px);
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(201, 162, 39, 0.3);
+  transform: translateY(-2px);
+  box-shadow: 0 16px 32px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(255, 255, 255, 0.12);
 }
 .nominee-card--voted {
-  border-color: var(--brand-gold) !important;
-  box-shadow: 0 0 0 2px var(--brand-gold), 0 0 30px rgba(201, 162, 39, 0.15);
+  border-color: rgba(255, 255, 255, 0.5) !important;
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.3);
 }
 .nominee-card--locked {
-  opacity: 0.7;
+  opacity: 0.5;
   cursor: default;
 }
 
 /* Progress bar fill */
 .vote-bar {
-  transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: width 0.8s cubic-bezier(0.2, 0, 0, 1);
 }
 
 /* Hero text reveal */
 @keyframes reveal-up {
-  from { opacity: 0; transform: translateY(30px); }
+  from { opacity: 0; transform: translateY(24px); }
   to { opacity: 1; transform: translateY(0); }
 }
 .reveal-up {
-  animation: reveal-up 0.8s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+  animation: reveal-up 0.7s cubic-bezier(0.2, 0, 0, 1) forwards;
 }
 
 /* Noise texture overlay */

@@ -2,75 +2,60 @@
 
 import { motion } from "framer-motion";
 import Link from "next/link";
-import { Ticket, Vote, Trophy, ArrowRight, Flame } from "lucide-react";
-import { Button } from "@/components/ui/button";
 
 export function CTASection() {
   return (
-    <section className="relative py-28 px-4 sm:px-6 lg:px-8 bg-[#050810] overflow-hidden">
-      {/* Decorative gradient radial */}
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_80%_60%_at_50%_50%,rgba(245,158,11,0.12),transparent_70%)] pointer-events-none" />
-
-      <div className="max-w-5xl mx-auto relative z-10">
+    <section className="relative py-28 px-4 sm:px-6 lg:px-8 bg-black overflow-hidden">
+      <div className="max-w-5xl mx-auto">
         <motion.div
-          initial={{ opacity: 0, y: 30 }}
+          initial={{ opacity: 0, y: 24 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          transition={{ duration: 0.6 }}
-          className="relative rounded-3xl p-8 sm:p-14 bg-gradient-to-br from-slate-900/90 via-[#0e1627]/90 to-slate-900/90 border border-amber-500/30 shadow-[0_0_60px_rgba(245,158,11,0.15)] text-center backdrop-blur-xl"
+          transition={{ duration: 0.6, ease: [0.2, 0, 0, 1] }}
+          className="relative rounded-3xl border border-white/10 bg-[#0a0a0a] p-10 sm:p-16 text-center overflow-hidden"
         >
-          {/* Flame Pill */}
-          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-amber-500/15 border border-amber-500/30 text-amber-400 text-xs font-bold uppercase tracking-widest mb-6">
-            <Flame className="w-4 h-4 animate-pulse text-amber-400" />
-            The Coast Awards Gala Night Is Here
-          </div>
+          {/* Subtle radial light */}
+          <div className="absolute inset-0 bg-[radial-gradient(ellipse_60%_50%_at_50%_0%,rgba(255,255,255,0.04),transparent_70%)] pointer-events-none" />
 
-          <h2 className="text-3xl sm:text-5xl lg:text-6xl font-black text-white tracking-tight uppercase mb-6 leading-tight">
-            BE PART OF MOMBASA’S <br />
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-amber-400 via-yellow-300 to-amber-500">
-              GREATEST NIGHT OF PRIDE
+          <div className="relative z-10">
+            <span className="inline-block text-[10px] px-3 py-1 rounded-full border border-white/15 text-white/40 font-bold uppercase tracking-widest mb-8">
+              The Coast Awards Gala Night Is Here
             </span>
-          </h2>
 
-          <p className="text-slate-300 text-base sm:text-lg max-w-2xl mx-auto mb-10 leading-relaxed font-light">
-            Grab your digital ticket via instant guest checkout on M-Pesa or Card, or verify your email in 10 seconds to back your favorite matatu and crew with live verified votes.
-          </p>
+            <h2 className="text-4xl sm:text-5xl lg:text-6xl font-black text-white tracking-tight uppercase mb-6 leading-[1.05]">
+              Be Part of Mombasa&apos;s
+              <br />
+              <span className="text-white/50">Greatest Night of Pride</span>
+            </h2>
 
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-6">
-            <Button
-              asChild
-              size="lg"
-              className="w-full sm:w-auto bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-black font-extrabold text-base px-8 py-6 rounded-xl shadow-[0_0_30px_rgba(245,158,11,0.35)] hover:shadow-[0_0_45px_rgba(245,158,11,0.5)] transition-[box-shadow,transform] duration-200 ease-out hover:-translate-y-0.5"
-            >
-              <Link href="/tickets">
-                <Ticket className="w-5 h-5 mr-2" />
-                Buy Tickets Now (Guest Checkout)
+            <p className="text-white/40 text-base sm:text-lg max-w-2xl mx-auto mb-10 leading-relaxed">
+              Grab your digital ticket via instant guest checkout on M-Pesa or Card, or verify your email in 10 seconds to back your favourite matatu and crew with live verified votes.
+            </p>
+
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-5">
+              <Link
+                href="/tickets"
+                className="inline-flex items-center justify-center w-full sm:w-auto px-8 py-4 bg-white text-black font-semibold text-base rounded-xl hover:bg-white/90 active:scale-[0.97] transition-[background-color,transform] duration-150"
+              >
+                Buy Tickets
               </Link>
-            </Button>
-
-            <Button
-              asChild
-              variant="outline"
-              size="lg"
-              className="w-full sm:w-auto bg-white/5 hover:bg-white/10 text-white border-white/20 hover:border-amber-400/50 font-bold text-base px-8 py-6 rounded-xl transition-[background-color,border-color,color] duration-150 ease-out"
-            >
-              <Link href="/vote">
-                <Vote className="w-5 h-5 mr-2 text-amber-400" />
+              <Link
+                href="/vote"
+                className="inline-flex items-center justify-center gap-2 w-full sm:w-auto px-8 py-4 border border-white/20 text-white font-medium text-base rounded-xl hover:bg-white/5 hover:border-white/35 active:scale-[0.97] transition-[background-color,border-color,transform] duration-150"
+              >
                 Vote in 61 Categories
-                <ArrowRight className="w-4 h-4 ml-2" />
+                <span aria-hidden className="text-white/40">→</span>
               </Link>
-            </Button>
-          </div>
-
-          <div className="mt-10 pt-8 border-t border-white/10 flex flex-wrap items-center justify-center gap-6 sm:gap-12 text-xs sm:text-sm text-slate-400 font-mono">
-            <div className="flex items-center gap-2">
-              <span className="w-2 h-2 rounded-full bg-emerald-500 animate-ping" />
-              <span>Instant M-Pesa & Card Delivery</span>
             </div>
-            <div>•</div>
-            <div>One Person = One Vote Guarantee</div>
-            <div>•</div>
-            <div>Live Realtime Leaderboard</div>
+
+            {/* Proof points */}
+            <div className="mt-10 pt-8 border-t border-white/8 flex flex-wrap items-center justify-center gap-6 sm:gap-10 text-xs text-white/30 font-mono tracking-wide">
+              <span>Instant M-Pesa & Card Delivery</span>
+              <span className="hidden sm:block text-white/15">·</span>
+              <span>One Person = One Vote Guarantee</span>
+              <span className="hidden sm:block text-white/15">·</span>
+              <span>Live Realtime Leaderboard</span>
+            </div>
           </div>
         </motion.div>
       </div>
