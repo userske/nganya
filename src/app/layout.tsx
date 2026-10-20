@@ -17,7 +17,7 @@ export const viewport: Viewport = {
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
   title: {
-    default: "Coastal Nganya Awards 2025 | Mombasa Matatu Culture",
+    default: "Coastal Nganya Awards 2026 | Mombasa Matatu Culture",
     template: "%s | Coastal Nganya Awards",
   },
   description:
@@ -27,14 +27,14 @@ export const metadata: Metadata = {
     "Mombasa matatu",
     "nganya awards",
     "Kenya transport culture",
-    "matatu awards 2025",
+    "matatu awards 2026",
   ],
   openGraph: {
     type: "website",
     locale: "en_KE",
     url: siteUrl,
     siteName: "Coastal Nganya Awards",
-    title: "Coastal Nganya Awards 2025",
+    title: "Coastal Nganya Awards 2026",
     description:
       "The Coastal Nganya Awards celebrates the best of Mombasa's matatu and nganya culture.",
     images: [
@@ -42,13 +42,13 @@ export const metadata: Metadata = {
         url: "/og-image.jpg",
         width: 1200,
         height: 630,
-        alt: "Coastal Nganya Awards 2025",
+        alt: "Coastal Nganya Awards 2026",
       },
     ],
   },
   twitter: {
     card: "summary_large_image",
-    title: "Coastal Nganya Awards 2025",
+    title: "Coastal Nganya Awards 2026",
     description:
       "The Coastal Nganya Awards celebrates the best of Mombasa's matatu and nganya culture.",
     images: ["/og-image.jpg"],
@@ -86,7 +86,7 @@ export default function RootLayout({
             __html: JSON.stringify({
               "@context": "https://schema.org",
               "@type": "Event",
-              name: "Coastal Nganya Awards 2025",
+              name: "Coastal Nganya Awards 2026",
               description:
                 "Annual awards night celebrating the best of Mombasa's matatu and nganya culture.",
               url: siteUrl,

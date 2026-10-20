@@ -32,8 +32,8 @@ export function Footer({ eventData }: FooterProps) {
             </p>
             <div className="text-xs text-white/25 space-y-1.5">
               <div className="flex items-center gap-2">
-                <Calendar className="w-3.5 h-3.5 shrink-0" strokeWidth={1.5} />
-                <span>{eventData.event_date ?? "December 2025"} · {eventData.event_time ?? "6:00 PM EAT"}</span>
+                <Calendar className="w-3.5 h-3.5 shrink-0 text-amber-400" strokeWidth={1.5} />
+                <span>{eventData.event_date ?? "December 2026"} · {eventData.event_time ?? "6:00 PM EAT"}</span>
               </div>
               <div className="flex items-center gap-2">
                 <MapPin className="w-3.5 h-3.5 shrink-0" strokeWidth={1.5} />

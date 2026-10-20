@@ -160,7 +160,7 @@ export function TicketSuccessClient({ orderRef }: TicketSuccessClientProps) {
                 <div>Holder: <span className="text-white font-bold">{orderDetails?.buyerName}</span></div>
                 <div>Code: <span className="text-white font-bold tracking-widest">{t.ticket_code}</span></div>
                 <div>Venue: Mombasa Cement Grounds, Mombasa</div>
-                <div>Date: Saturday, Dec 6, 2025 • 6:00 PM EAT</div>
+                <div>Date: Sunday, Dec 6, 2026 • 6:00 PM EAT</div>
               </div>
             </div>
 

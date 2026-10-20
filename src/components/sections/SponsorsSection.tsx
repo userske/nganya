@@ -79,7 +79,7 @@ export function SponsorsSection() {
           className="flex flex-col sm:flex-row items-start sm:items-end justify-between gap-6"
         >
           <div>
-            <span className="text-[10px] px-3 py-1 rounded-full border border-white/15 text-white/40 font-bold uppercase tracking-widest mb-4 inline-block">
+            <span className="text-[10px] px-3 py-1 rounded-full border border-amber-500/25 bg-amber-500/10 text-amber-400 font-bold uppercase tracking-widest mb-4 inline-block shadow-[0_0_12px_rgba(245,158,11,0.12)]">
               Partners & Sponsors
             </span>
             <h2 className="text-3xl sm:text-4xl font-black text-white tracking-tight leading-tight">
@@ -94,7 +94,7 @@ export function SponsorsSection() {
 
       {/* Headline sponsors grid */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-16">
-        <p className="text-[10px] uppercase tracking-widest text-white/25 font-bold mb-6">
+        <p className="text-[10px] uppercase tracking-widest text-amber-400/60 font-bold mb-6">
           Headline Partners
         </p>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-px bg-white/[0.06] rounded-2xl overflow-hidden">
@@ -113,11 +113,11 @@ export function SponsorsSection() {
                   <p className="text-[10px] uppercase tracking-widest text-white/25 font-bold mb-4">
                     {sponsor.tagline}
                   </p>
-                  <h3 className="text-2xl font-black text-white tracking-tight group-hover:text-white/80 transition-colors duration-200">
+                  <h3 className="text-2xl font-black text-white tracking-tight group-hover:text-amber-200 transition-colors duration-200">
                     {sponsor.logoText}
                   </h3>
                 </div>
-                <div className="mt-8 w-8 h-px bg-white/20 group-hover:w-16 transition-[width] duration-300" />
+                <div className="mt-8 w-8 h-px bg-white/20 group-hover:w-16 group-hover:bg-amber-400 transition-[width,background-color] duration-300" />
               </motion.div>
             ))}
         </div>

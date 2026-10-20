@@ -15,17 +15,17 @@ export function CTASection() {
           className="relative rounded-3xl border border-white/10 bg-[#0a0a0a] p-10 sm:p-16 text-center overflow-hidden"
         >
           {/* Subtle radial light */}
-          <div className="absolute inset-0 bg-[radial-gradient(ellipse_60%_50%_at_50%_0%,rgba(255,255,255,0.04),transparent_70%)] pointer-events-none" />
+          <div className="absolute inset-0 bg-[radial-gradient(ellipse_60%_50%_at_50%_0%,rgba(245,158,11,0.08),transparent_70%)] pointer-events-none" />
 
           <div className="relative z-10">
-            <span className="inline-block text-[10px] px-3 py-1 rounded-full border border-white/15 text-white/40 font-bold uppercase tracking-widest mb-8">
+            <span className="inline-block text-[10px] px-3 py-1 rounded-full border border-amber-500/25 bg-amber-500/10 text-amber-400 font-bold uppercase tracking-widest mb-8 shadow-[0_0_15px_rgba(245,158,11,0.15)]">
               The Coast Awards Gala Night Is Here
             </span>
 
             <h2 className="text-4xl sm:text-5xl lg:text-6xl font-black text-white tracking-tight uppercase mb-6 leading-[1.05]">
               Be Part of Mombasa&apos;s
               <br />
-              <span className="text-white/50">Greatest Night of Pride</span>
+              <span className="text-gold-gradient">Greatest Night of Pride</span>
             </h2>
 
             <p className="text-white/40 text-base sm:text-lg max-w-2xl mx-auto mb-10 leading-relaxed">
@@ -35,7 +35,7 @@ export function CTASection() {
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-5">
               <Link
                 href="/tickets"
-                className="inline-flex items-center justify-center w-full sm:w-auto px-8 py-4 bg-white text-black font-semibold text-base rounded-xl hover:bg-white/90 active:scale-[0.97] transition-[background-color,transform] duration-150"
+                className="inline-flex items-center justify-center w-full sm:w-auto px-8 py-4 bg-gradient-to-r from-amber-400 via-amber-500 to-amber-600 text-black font-bold text-base rounded-xl hover:brightness-110 shadow-[0_0_25px_rgba(245,158,11,0.3)] active:scale-[0.97] transition-[filter,transform] duration-150"
               >
                 Buy Tickets
               </Link>

@@ -60,8 +60,8 @@ export function Navbar() {
                 <div className="text-white font-bold text-base leading-tight tracking-tight">
                   Coastal Nganya
                 </div>
-                <div className="text-white/40 text-xs font-medium tracking-widest uppercase">
-                  Awards 2025
+                <div className="text-amber-400/80 text-xs font-semibold tracking-widest uppercase">
+                  Awards 2026
                 </div>
               </div>
               <div className="sm:hidden text-white font-bold text-base tracking-tight">
@@ -97,7 +97,7 @@ export function Navbar() {
               </Link>
               <Link
                 href="/tickets"
-                className="px-4 py-2 text-sm font-semibold text-black bg-white hover:bg-white/90 rounded-lg transition-[background-color] duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white"
+                className="px-4 py-2 text-sm font-bold text-black bg-amber-400 hover:bg-amber-300 rounded-lg shadow-sm transition-[background-color] duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-400"
               >
                 Buy Tickets
               </Link>
@@ -160,7 +160,7 @@ export function Navbar() {
                   </Link>
                   <Link
                     href="/tickets"
-                    className="w-full px-4 py-3 text-sm font-semibold text-black text-center bg-white rounded-xl hover:bg-white/90 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white"
+                    className="w-full px-4 py-3 text-sm font-bold text-black text-center bg-amber-400 rounded-xl hover:bg-amber-300 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-400"
                   >
                     Buy Tickets
                   </Link>

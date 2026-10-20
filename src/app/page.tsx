@@ -30,7 +30,7 @@ export default async function HomePage() {
   const eventData = event ?? {
     event_name: "Coastal Nganya Awards",
     tagline: "Mombasa's biggest night for custom builds, sound setups, and route culture",
-    event_date: "2025-12-06",
+    event_date: "2026-12-06",
     event_time: "18:00",
     venue_name: "Mombasa Cement Grounds, Mombasa",
     about_html: `<p>The <strong>Coastal Nganya Awards</strong> honors the fabricators, audio engineers, airbrush artists, and crews behind Mombasa's most revered matatus.</p><p>From high-bass battles on the Jomvu line to custom aerodynamic kits rolling through Kisauni, Mikindani, and Likoni, this is street engineering at full volume. 61 categories. Over 500 nominees. One verified vote per category.</p>`,

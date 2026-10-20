@@ -54,7 +54,7 @@ export function AboutSection({ aboutHtml }: AboutSectionProps) {
               transition={{ duration: 0.5, delay: i * 0.08 }}
               className="bg-[#0a0a0a] p-8 text-center"
             >
-              <stat.icon className="w-5 h-5 text-white/30 mx-auto mb-4" strokeWidth={1.5} />
+              <stat.icon className="w-5 h-5 text-amber-400/80 mx-auto mb-4" strokeWidth={1.5} />
               <div className="text-3xl lg:text-4xl font-black text-white mb-1 tracking-tight">
                 {stat.value}
               </div>
@@ -71,12 +71,12 @@ export function AboutSection({ aboutHtml }: AboutSectionProps) {
             viewport={{ once: true }}
             transition={{ duration: 0.6 }}
           >
-            <span className="inline-block text-[10px] px-3 py-1 rounded-full border border-white/15 text-white/40 font-bold uppercase tracking-widest mb-6">
+            <span className="inline-block text-[10px] px-3 py-1 rounded-full border border-amber-500/25 bg-amber-500/10 text-amber-400 font-bold uppercase tracking-widest mb-6 shadow-[0_0_12px_rgba(245,158,11,0.12)]">
               Our Scene
             </span>
             <h2 className="text-4xl lg:text-5xl font-black text-white mb-8 tracking-tight leading-[1.05]">
               Mombasa&apos;s Signature{" "}
-              <span className="text-white/50">Street Engineering</span>
+              <span className="text-gold-gradient">Street Engineering</span>
             </h2>
             <div
               className="prose prose-invert prose-p:text-white/50 prose-p:leading-relaxed prose-strong:text-white/80 max-w-none text-sm"

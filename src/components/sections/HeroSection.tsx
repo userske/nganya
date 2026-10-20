@@ -66,7 +66,7 @@ function formatEventTime(time: string) {
 }
 
 export function HeroSection({ eventData }: HeroSectionProps) {
-  const eventDateTime = `${eventData.event_date}T${eventData.event_time}:00`;
+  const eventDateTime = `${eventData.event_date}T${eventData.event_time}:00+03:00`;
 
   return (
     <section
@@ -109,10 +109,10 @@ export function HeroSection({ eventData }: HeroSectionProps) {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6 }}
-          className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 border border-white/15 text-white/60 text-xs font-medium tracking-widest uppercase mb-8"
+          className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-amber-400/10 border border-amber-400/25 text-amber-400 text-xs font-semibold tracking-widest uppercase mb-8 shadow-[0_0_15px_rgba(245,158,11,0.15)]"
         >
-          <span className="w-1.5 h-1.5 rounded-full bg-white/60" />
-          Mombasa, Kenya · 2025
+          <span className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse" />
+          Mombasa, Kenya · 2026
         </motion.div>
 
         {/* Title */}
@@ -123,7 +123,7 @@ export function HeroSection({ eventData }: HeroSectionProps) {
           className="heading-display text-5xl sm:text-7xl lg:text-8xl xl:text-9xl text-white mb-6"
         >
           <span className="block">Coastal</span>
-          <span className="block text-white/90">Nganya</span>
+          <span className="block text-gold-gradient">Nganya</span>
           <span className="block">Awards</span>
         </motion.h1>
 
@@ -194,7 +194,7 @@ export function HeroSection({ eventData }: HeroSectionProps) {
           {eventData.ticket_sales_open && (
             <Link
               href="/tickets"
-              className="inline-flex items-center justify-center gap-2 px-8 py-4 bg-white text-black font-semibold text-base rounded-xl hover:bg-white/90 active:scale-[0.97] transition-[background-color,transform] duration-150"
+              className="inline-flex items-center justify-center gap-2 px-8 py-4 bg-gradient-to-r from-amber-400 via-amber-500 to-amber-600 text-black font-bold text-base rounded-xl hover:brightness-110 shadow-[0_0_25px_rgba(245,158,11,0.3)] active:scale-[0.97] transition-[filter,transform] duration-150"
             >
               Buy Tickets
             </Link>

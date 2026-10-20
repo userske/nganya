@@ -18,7 +18,7 @@ export default function TermsPage() {
               Terms of Voting & Ticket Sales
             </h1>
             <p className="text-xs text-white/40 font-mono">
-              Last Updated: October 2025 • Coastal Nganya Awards Night
+              Last Updated: October 2026 • Coastal Nganya Awards Night
             </p>
           </div>
 

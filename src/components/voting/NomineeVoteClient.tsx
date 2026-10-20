@@ -268,20 +268,22 @@ export function NomineeVoteClient({
               onKeyDown={(e) => handleKeyDownNominee(e, nominee.id)}
               className={`relative p-6 rounded-2xl transition-[background-color,border-color,box-shadow,transform] duration-200 ease-out border text-left select-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white active:scale-[0.99] ${
                 isThisVoted
-                  ? "bg-white/[0.08] border-white shadow-[0_0_24px_rgba(255,255,255,0.08)]"
+                  ? "bg-emerald-950/20 border-emerald-500 shadow-[0_0_24px_rgba(16,185,129,0.12)]"
                   : isSelected && !isLocked
-                  ? "bg-white/[0.06] border-white shadow-[0_0_24px_rgba(255,255,255,0.06)]"
+                  ? "bg-amber-950/20 border-amber-400 shadow-[0_0_24px_rgba(245,158,11,0.15)]"
                   : isLocked
                   ? "bg-white/[0.02] border-white/5 opacity-50 cursor-not-allowed"
-                  : "bg-white/[0.02] border-white/10 hover:border-white/30 hover:bg-white/[0.05] cursor-pointer"
+                  : "bg-white/[0.02] border-white/10 hover:border-amber-400/40 hover:bg-white/[0.04] cursor-pointer"
               }`}
             >
               {/* Top Row: Icon & Status */}
               <div className="flex items-center justify-between mb-4">
                 <div
                   className={`w-10 h-10 rounded-xl flex items-center justify-center font-bold text-sm ${
-                    isThisVoted || isSelected
-                      ? "bg-white text-black"
+                    isThisVoted
+                      ? "bg-emerald-500 text-black"
+                      : isSelected
+                      ? "bg-amber-400 text-black shadow-sm"
                       : "bg-white/5 text-white/50 border border-white/10"
                   }`}
                 >
@@ -289,7 +291,7 @@ export function NomineeVoteClient({
                 </div>
 
                 {isThisVoted ? (
-                  <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-white bg-white/15 border border-white/25 px-2.5 py-1 rounded-full">
+                  <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-emerald-400 bg-emerald-500/10 border border-emerald-500/25 px-2.5 py-1 rounded-full">
                     <CheckCircle2 className="w-3.5 h-3.5" />
                     Your Vote
                   </span>
@@ -298,7 +300,7 @@ export function NomineeVoteClient({
                     <div className="text-xs font-mono font-semibold text-white">
                       {voteCount} votes
                     </div>
-                    <div className="text-[11px] text-white/40 font-mono">
+                    <div className="text-[11px] text-amber-400/70 font-mono">
                       {percentage}%
                     </div>
                   </div>
@@ -320,7 +322,11 @@ export function NomineeVoteClient({
                 <div className="w-full bg-white/5 h-1.5 rounded-full overflow-hidden" role="progressbar" aria-valuenow={percentage} aria-valuemin={0} aria-valuemax={100}>
                   <div
                     className={`h-full transition-[width] duration-500 ease-out ${
-                      isThisVoted || isSelected ? "bg-white" : "bg-white/30"
+                      isThisVoted
+                        ? "bg-emerald-400"
+                        : isSelected
+                        ? "bg-gradient-to-r from-amber-400 to-amber-200"
+                        : "bg-white/30"
                     }`}
                     style={{ width: `${percentage}%` }}
                   />
@@ -334,11 +340,11 @@ export function NomineeVoteClient({
       {/* Floating Action Bar when nominee is selected and not locked */}
       {!isLocked && (
         <div className="fixed bottom-6 left-1/2 -translate-x-1/2 w-[92%] max-w-xl z-30 pb-safe">
-          <div className="p-4 rounded-2xl bg-[#0a0a0a]/95 border border-white/20 shadow-2xl backdrop-blur-xl flex items-center justify-between gap-4">
+          <div className="p-4 rounded-2xl bg-[#0a0a0a]/95 border border-amber-500/25 shadow-2xl backdrop-blur-xl flex items-center justify-between gap-4">
             <div className="min-w-0 truncate">
               {selectedNominee ? (
                 <div>
-                  <div className="text-[11px] uppercase tracking-wider text-white/40 font-medium">
+                  <div className="text-[11px] uppercase tracking-wider text-amber-400/80 font-medium">
                     Selected Nominee:
                   </div>
                   <div className="text-sm font-semibold text-white truncate">
@@ -356,7 +362,7 @@ export function NomineeVoteClient({
             <Button
               disabled={!selectedNomineeId || isSubmitting}
               onClick={handleVoteSubmitClick}
-              className="bg-white hover:bg-white/90 text-black font-semibold px-6 h-11 rounded-xl shadow-lg shrink-0 focus-visible:ring-2 focus-visible:ring-white"
+              className="bg-gradient-to-r from-amber-400 via-amber-500 to-amber-600 hover:brightness-110 text-black font-bold px-6 h-11 rounded-xl shadow-[0_0_20px_rgba(245,158,11,0.25)] shrink-0 focus-visible:ring-2 focus-visible:ring-amber-400 active:scale-[0.98]"
             >
               {isSubmitting ? (
                 <>
@@ -405,7 +411,7 @@ export function NomineeVoteClient({
             </Button>
             <Button
               onClick={executeVote}
-              className="bg-white hover:bg-white/90 text-black font-semibold focus-visible:ring-2 focus-visible:ring-white"
+              className="bg-amber-400 hover:bg-amber-300 text-black font-bold focus-visible:ring-2 focus-visible:ring-amber-400"
             >
               Confirm & Cast Vote
             </Button>

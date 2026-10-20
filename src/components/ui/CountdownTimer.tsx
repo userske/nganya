@@ -19,6 +19,19 @@ function pad(n: number) {
   return String(n).padStart(2, "0");
 }
 
+function parseTargetDate(targetDateStr: string): Date {
+  if (!targetDateStr) return new Date("2026-12-06T18:00:00+03:00");
+  // If pure YYYY-MM-DD, set to 6:00 PM East Africa Time (UTC+3)
+  if (/^\d{4}-\d{2}-\d{2}$/.test(targetDateStr)) {
+    return new Date(`${targetDateStr}T18:00:00+03:00`);
+  }
+  // If YYYY-MM-DDTHH:mm(:ss)? without timezone offset, append +03:00
+  if (/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}(:\d{2})?$/.test(targetDateStr)) {
+    return new Date(`${targetDateStr}+03:00`);
+  }
+  return new Date(targetDateStr);
+}
+
 function getTimeLeft(target: Date): TimeLeft {
   const diff = Math.max(0, target.getTime() - Date.now());
   return {
@@ -51,7 +64,7 @@ function CountdownUnit({
   return (
     <div className="flex flex-col items-center gap-2">
       <div className="relative">
-        <div className="w-20 h-20 sm:w-28 sm:h-28 lg:w-32 lg:h-32 rounded-2xl bg-white/[0.04] border border-white/10 backdrop-blur-sm flex items-center justify-center overflow-hidden">
+        <div className="w-20 h-20 sm:w-28 sm:h-28 lg:w-32 lg:h-32 rounded-2xl bg-gradient-to-b from-white/[0.06] to-amber-950/20 border border-amber-500/25 backdrop-blur-md flex items-center justify-center overflow-hidden shadow-[0_0_20px_rgba(245,158,11,0.08)]">
           <AnimatePresence mode="popLayout" initial={false}>
             <motion.span
               key={value}
@@ -66,10 +79,10 @@ function CountdownUnit({
             </motion.span>
           </AnimatePresence>
         </div>
-        {/* Subtle monochrome accent */}
-        <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-1/2 h-[1px] bg-gradient-to-r from-transparent via-white/30 to-transparent" />
+        {/* Luminous coastal amber bottom bar */}
+        <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-3/4 h-[2px] bg-gradient-to-r from-transparent via-amber-400 to-transparent" />
       </div>
-      <span className="text-xs sm:text-sm font-semibold uppercase tracking-[0.2em] text-white/50">
+      <span className="text-xs sm:text-sm font-semibold uppercase tracking-[0.2em] text-amber-400/80">
         {label}
       </span>
     </div>
@@ -77,7 +90,7 @@ function CountdownUnit({
 }
 
 export function CountdownTimer({ targetDate, className }: CountdownTimerProps) {
-  const target = new Date(targetDate);
+  const target = parseTargetDate(targetDate);
   const [timeLeft, setTimeLeft] = useState<TimeLeft>(getTimeLeft(target));
   const [mounted, setMounted] = useState(false);
 
@@ -94,8 +107,8 @@ export function CountdownTimer({ targetDate, className }: CountdownTimerProps) {
       <div className={`flex gap-4 sm:gap-6 lg:gap-8 ${className ?? ""}`} aria-label="Loading countdown">
         {["Days", "Hours", "Mins", "Secs"].map((label) => (
           <div key={label} className="flex flex-col items-center gap-2">
-            <div className="w-20 h-20 sm:w-28 sm:h-28 lg:w-32 lg:h-32 rounded-2xl skeleton" />
-            <span className="text-xs sm:text-sm font-semibold uppercase tracking-[0.2em] text-white/50">
+            <div className="w-20 h-20 sm:w-28 sm:h-28 lg:w-32 lg:h-32 rounded-2xl skeleton border border-amber-500/20" />
+            <span className="text-xs sm:text-sm font-semibold uppercase tracking-[0.2em] text-amber-400/80">
               {label}
             </span>
           </div>

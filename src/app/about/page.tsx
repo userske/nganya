@@ -64,8 +64,8 @@ export default function AboutPage() {
             </h3>
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-xs font-mono text-white/70">
               <div className="flex items-center gap-2 p-3 rounded-lg bg-white/[0.02] border border-white/10">
-                <Calendar className="w-4 h-4 text-white/60" />
-                <span>Saturday, Dec 6, 2025</span>
+                <Calendar className="w-4 h-4 text-amber-400" />
+                <span className="text-white font-medium">Sunday, Dec 6, 2026</span>
               </div>
               <div className="flex items-center gap-2 p-3 rounded-lg bg-white/[0.02] border border-white/10">
                 <Clock className="w-4 h-4 text-white/60" />
@@ -80,7 +80,7 @@ export default function AboutPage() {
 
           {/* Bottom CTAs */}
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-            <Button asChild className="bg-white hover:bg-white/90 text-black font-semibold px-8 h-12 rounded-xl focus-visible:ring-2 focus-visible:ring-white">
+            <Button asChild className="bg-amber-400 hover:bg-amber-300 text-black font-bold px-8 h-12 rounded-xl shadow-[0_0_20px_rgba(245,158,11,0.25)] focus-visible:ring-2 focus-visible:ring-amber-400">
               <Link href="/tickets">
                 <Ticket className="w-4 h-4 mr-2" />
                 Get Your Digital Pass

@@ -105,8 +105,8 @@ export function TicketCheckoutClient({ tiers }: TicketCheckoutClientProps) {
                   isSoldOut
                     ? "bg-white/[0.01] border-white/5 opacity-40 cursor-not-allowed"
                     : isSelected
-                    ? "bg-white/[0.06] border-white shadow-[0_4px_24px_rgba(255,255,255,0.06)] cursor-pointer"
-                    : "bg-white/[0.02] border-white/10 hover:border-white/30 hover:bg-white/[0.04] cursor-pointer"
+                    ? "bg-amber-950/20 border-amber-400 shadow-[0_4px_24px_rgba(245,158,11,0.15)] cursor-pointer"
+                    : "bg-white/[0.02] border-white/10 hover:border-amber-400/40 hover:bg-white/[0.04] cursor-pointer"
                 }`}
               >
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-3">
@@ -117,7 +117,7 @@ export function TicketCheckoutClient({ tiers }: TicketCheckoutClientProps) {
                     <p className="text-xs text-white/50 mt-0.5">{tier.description}</p>
                   </div>
                   <div className="text-left sm:text-right">
-                    <span className="text-2xl font-black text-white font-mono">
+                    <span className="text-2xl font-black text-amber-400 font-mono">
                       KES {tier.price_kes.toLocaleString()}
                     </span>
                     <span className="text-xs text-white/40 block">per ticket</span>
@@ -129,7 +129,7 @@ export function TicketCheckoutClient({ tiers }: TicketCheckoutClientProps) {
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 mt-4 pt-4 border-t border-white/5">
                     {tier.perks.map((perk, i) => (
                       <div key={i} className="flex items-center gap-2 text-xs text-white/70">
-                        <Check className="w-3.5 h-3.5 text-white shrink-0" />
+                        <Check className="w-3.5 h-3.5 text-amber-400 shrink-0" />
                         <span>{perk}</span>
                       </div>
                     ))}
@@ -148,7 +148,7 @@ export function TicketCheckoutClient({ tiers }: TicketCheckoutClientProps) {
                     </span>
                   )}
                   {isSelected && (
-                    <span className="text-white font-semibold text-xs uppercase flex items-center gap-1">
+                    <span className="text-amber-400 font-semibold text-xs uppercase flex items-center gap-1">
                       Selected Tier &check;
                     </span>
                   )}
@@ -272,7 +272,7 @@ export function TicketCheckoutClient({ tiers }: TicketCheckoutClientProps) {
             <Button
               type="submit"
               disabled={isLoading || !buyerName || !buyerEmail || !buyerPhone}
-              className="w-full mt-6 bg-white hover:bg-white/90 text-black font-semibold text-sm h-12 rounded-xl shadow-lg transition-[opacity,transform] duration-150 ease-out active:scale-[0.98] focus-visible:ring-2 focus-visible:ring-white"
+              className="w-full mt-6 bg-gradient-to-r from-amber-400 via-amber-500 to-amber-600 hover:brightness-110 text-black font-bold text-sm h-12 rounded-xl shadow-[0_0_24px_rgba(245,158,11,0.25)] transition-[filter,transform] duration-150 ease-out active:scale-[0.98] focus-visible:ring-2 focus-visible:ring-amber-400"
             >
               {isLoading ? (
                 <>
