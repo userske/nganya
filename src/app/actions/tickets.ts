@@ -78,7 +78,7 @@ export async function createTicketCheckoutAction(
   const amountKes = (reservation as any).amount_kes;
 
   // 3. Initialize Paystack Transaction
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://coastalngayaawards.com";
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://coastalnganyaawards.com";
   const callbackUrl = `${siteUrl}/tickets/success?ref=${orderNumber}`;
 
   const paystack = new PaystackClient();

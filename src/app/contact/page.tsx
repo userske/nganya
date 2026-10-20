@@ -35,25 +35,29 @@ export default function ContactPage() {
             {/* Info Cards */}
             <div className="md:col-span-5 space-y-4">
               <div className="p-6 rounded-2xl bg-white/[0.03] border border-white/10 space-y-2">
-                <div className="flex items-center gap-2 text-white/60 text-xs uppercase font-mono font-bold">
+                <div className="flex items-center gap-2 text-amber-400 text-xs uppercase font-mono font-bold">
                   <Mail className="w-4 h-4" />
-                  Email Support
+                  Official Email
                 </div>
                 <div className="text-sm font-semibold text-white">
-                  tickets@coastalngayaawards.com
+                  <a href="mailto:info@coastalnganyaawards.com" className="hover:text-amber-400 transition-colors">
+                    info@coastalnganyaawards.com
+                  </a>
                 </div>
                 <p className="text-xs text-white/50">
-                  For guest ticket lookup, receipt re-issues, and corporate group bookings.
+                  For general inquiries, ticket lookup, receipt re-issues, and guest support.
                 </p>
               </div>
 
               <div className="p-6 rounded-2xl bg-white/[0.03] border border-white/10 space-y-2">
-                <div className="flex items-center gap-2 text-white/60 text-xs uppercase font-mono font-bold">
+                <div className="flex items-center gap-2 text-amber-400 text-xs uppercase font-mono font-bold">
                   <MessageSquare className="w-4 h-4" />
                   Sponsorships & Media
                 </div>
                 <div className="text-sm font-semibold text-white">
-                  partners@coastalngayaawards.com
+                  <a href="mailto:info@coastalnganyaawards.com" className="hover:text-amber-400 transition-colors">
+                    info@coastalnganyaawards.com
+                  </a>
                 </div>
                 <p className="text-xs text-white/50">
                   For brand placements, VIP lounge tables, and red carpet media accreditation.
@@ -101,7 +105,7 @@ export default function ContactPage() {
                   <Textarea id="contact-message" rows={4} placeholder="How can we assist you today?" className="bg-white/5 border-white/10 text-white placeholder:text-white/30 resize-none focus-visible:ring-2 focus-visible:ring-white" />
                 </div>
 
-                <Button type="button" className="w-full bg-white hover:bg-white/90 text-black font-semibold h-11 rounded-xl focus-visible:ring-2 focus-visible:ring-white">
+                <Button type="button" className="w-full bg-gradient-to-r from-amber-400 via-amber-500 to-amber-600 hover:brightness-110 text-black font-bold h-11 rounded-xl shadow-[0_0_20px_rgba(245,158,11,0.25)] focus-visible:ring-2 focus-visible:ring-amber-400">
                   <Send className="w-4 h-4 mr-2" />
                   Submit Message
                 </Button>

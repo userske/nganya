@@ -28,7 +28,7 @@ export default function PrivacyPage() {
                 1. Data Controller & Scope
               </h2>
               <p>
-                The <strong>Coastal Nganya Awards Committee</strong> acts as the Data Controller regarding personal data collected on <code>coastalngayaawards.com</code>. We are committed to protecting your privacy in accordance with Kenyan law and international privacy standards.
+                The <strong>Coastal Nganya Awards Committee</strong> acts as the Data Controller regarding personal data collected on <code>coastalnganyaawards.com</code>. We are committed to protecting your privacy in accordance with Kenyan law and international privacy standards.
               </p>
             </section>
 
@@ -60,7 +60,7 @@ export default function PrivacyPage() {
                 You have the right to request access to your personal data, request correction of erroneous data, or request deletion of contact records following the conclusion of the awards gala, subject to statutory audit obligations.
               </p>
               <p>
-                For data protection inquiries, email our compliance officer at <a href="mailto:privacy@coastalngayaawards.com" className="text-white underline underline-offset-4">privacy@coastalngayaawards.com</a>.
+                For data protection inquiries, email our compliance officer at <a href="mailto:info@coastalnganyaawards.com" className="text-amber-400 underline underline-offset-4">info@coastalnganyaawards.com</a>.
               </p>
             </section>
           </div>

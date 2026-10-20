@@ -84,21 +84,24 @@ export function Footer({ eventData }: FooterProps) {
             </ul>
           </div>
 
-          {/* Security & Admin */}
+          {/* Contact & Inquiries */}
           <div>
             <h4 className="text-[10px] uppercase tracking-widest font-bold text-white/50 mb-5">
-              Integrity & Admin
+              Contact & Inquiries
             </h4>
-            <ul className="space-y-3 text-xs text-white/30 leading-relaxed">
-              <li>Protected by Cloudflare Turnstile & Postgres Unique Locks</li>
-              <li>HMAC Signed QR Tickets with Door Scanner Validation</li>
-              <li className="pt-1">
-                <Link
-                  href="/admin"
-                  className="text-white/25 hover:text-white/50 transition-colors duration-150"
+            <ul className="space-y-3 text-xs text-white/35 leading-relaxed font-mono">
+              <li>
+                <span className="text-white/20 block text-[10px] uppercase tracking-wider mb-0.5">Email</span>
+                <a
+                  href="mailto:info@coastalnganyaawards.com"
+                  className="text-amber-400 hover:text-amber-300 transition-colors font-medium text-xs break-all"
                 >
-                  Admin Portal →
-                </Link>
+                  info@coastalnganyaawards.com
+                </a>
+              </li>
+              <li>
+                <span className="text-white/20 block text-[10px] uppercase tracking-wider mb-0.5">Location</span>
+                <span className="text-white/60">Mombasa Cement Grounds, Mombasa</span>
               </li>
             </ul>
           </div>

@@ -19,7 +19,7 @@ export async function sendTicketEmail({
   tickets,
 }: SendTicketEmailParams) {
   const apiKey = process.env.RESEND_API_KEY;
-  const fromEmail = process.env.EMAIL_FROM || "tickets@coastalngayaawards.com";
+  const fromEmail = process.env.EMAIL_FROM || "info@coastalnganyaawards.com";
 
   if (!apiKey) {
     console.warn("RESEND_API_KEY not configured. Skipping email delivery in dev mode.");
@@ -88,7 +88,7 @@ export async function sendTicketEmail({
           ${ticketHtmlList}
 
           <div style="text-align: center; margin-top: 32px; border-top: 1px solid rgba(255, 255, 255, 0.1); padding-top: 20px; font-size: 12px; color: #737373;">
-            <p>You can also download or re-issue your tickets anytime at <a href="https://coastalngayaawards.com/my-tickets" style="color: #ffffff; text-decoration: underline;">coastalngayaawards.com/my-tickets</a>.</p>
+            <p>You can also download or re-issue your tickets anytime at <a href="https://coastalnganyaawards.com/my-tickets" style="color: #ffffff; text-decoration: underline;">coastalnganyaawards.com/my-tickets</a>.</p>
             <p style="margin-top: 6px;">&copy; Coastal Nganya Awards. Mombasa, Kenya.</p>
           </div>
         </div>

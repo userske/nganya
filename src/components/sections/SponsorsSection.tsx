@@ -92,37 +92,6 @@ export function SponsorsSection() {
         </motion.div>
       </div>
 
-      {/* Headline sponsors grid */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-16">
-        <p className="text-[10px] uppercase tracking-widest text-amber-400/60 font-bold mb-6">
-          Headline Partners
-        </p>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-px bg-white/[0.06] rounded-2xl overflow-hidden">
-          {sponsors
-            .filter((s) => s.tier === "headline")
-            .map((sponsor, idx) => (
-              <motion.div
-                key={sponsor.name}
-                initial={{ opacity: 0, y: 16 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: idx * 0.1, duration: 0.5 }}
-                className="group bg-[#0a0a0a] px-10 py-12 flex flex-col justify-between hover:bg-white/[0.02] transition-colors duration-300"
-              >
-                <div>
-                  <p className="text-[10px] uppercase tracking-widest text-white/25 font-bold mb-4">
-                    {sponsor.tagline}
-                  </p>
-                  <h3 className="text-2xl font-black text-white tracking-tight group-hover:text-amber-200 transition-colors duration-200">
-                    {sponsor.logoText}
-                  </h3>
-                </div>
-                <div className="mt-8 w-8 h-px bg-white/20 group-hover:w-16 group-hover:bg-amber-400 transition-[width,background-color] duration-300" />
-              </motion.div>
-            ))}
-        </div>
-      </div>
-
       {/* Marquee — all sponsors */}
       <div className="relative">
         {/* Fade edges */}
@@ -162,8 +131,8 @@ export function SponsorsSection() {
           Interested in partnering with us?
         </p>
         <a
-          href="mailto:sponsors@coastalnganyaawards.com"
-          className="text-xs text-white/60 font-medium hover:text-white transition-colors duration-150 flex items-center gap-1.5"
+          href="mailto:info@coastalnganyaawards.com"
+          className="text-xs text-amber-400 font-semibold hover:text-amber-300 transition-colors duration-150 flex items-center gap-1.5"
         >
           Get in touch
           <span aria-hidden>→</span>

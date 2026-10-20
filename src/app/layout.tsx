@@ -5,7 +5,7 @@ import { ThemeProvider } from "next-themes";
 
 import { MotionProvider } from "@/components/providers/MotionProvider";
 
-const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "https://coastalngayaawards.com";
+const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "https://coastalnganyaawards.com";
 
 export const viewport: Viewport = {
   themeColor: "#000000",
