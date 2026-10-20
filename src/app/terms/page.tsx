@@ -8,23 +8,23 @@ export const metadata = {
 
 export default function TermsPage() {
   return (
-    <div className="min-h-screen bg-[#050810] text-white flex flex-col justify-between">
+    <div className="min-h-screen bg-black text-white flex flex-col justify-between">
       <Navbar />
 
-      <main className="flex-1 max-w-4xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-28 text-slate-300 leading-relaxed text-sm">
+      <main className="flex-1 max-w-4xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-28 text-white/70 leading-relaxed text-sm">
         <div className="space-y-8">
           <div>
             <h1 className="text-3xl sm:text-4xl font-black text-white uppercase tracking-tight mb-2">
               Terms of Voting & Ticket Sales
             </h1>
-            <p className="text-xs text-amber-400 font-mono">
-              Last Updated: October 2025 • Governing the Coastal Nganya Awards Night
+            <p className="text-xs text-white/40 font-mono">
+              Last Updated: October 2025 • Coastal Nganya Awards Night
             </p>
           </div>
 
           <div className="p-8 rounded-3xl bg-white/[0.02] border border-white/10 space-y-6">
             <section className="space-y-2">
-              <h2 className="text-lg font-bold text-white uppercase tracking-wider text-amber-400">
+              <h2 className="text-lg font-bold text-white uppercase tracking-wider">
                 1. Public Voting Integrity & Rules
               </h2>
               <p>
@@ -36,7 +36,7 @@ export default function TermsPage() {
             </section>
 
             <section className="space-y-2">
-              <h2 className="text-lg font-bold text-white uppercase tracking-wider text-amber-400">
+              <h2 className="text-lg font-bold text-white uppercase tracking-wider">
                 2. Guest Ticket Checkout & Reservations
               </h2>
               <p>
@@ -48,7 +48,7 @@ export default function TermsPage() {
             </section>
 
             <section className="space-y-2">
-              <h2 className="text-lg font-bold text-white uppercase tracking-wider text-amber-400">
+              <h2 className="text-lg font-bold text-white uppercase tracking-wider">
                 3. Gate Admission & QR Ticket Security
               </h2>
               <p>
@@ -57,11 +57,11 @@ export default function TermsPage() {
             </section>
 
             <section className="space-y-2">
-              <h2 className="text-lg font-bold text-white uppercase tracking-wider text-amber-400">
+              <h2 className="text-lg font-bold text-white uppercase tracking-wider">
                 4. Cancellation & Refund Policy
               </h2>
               <p>
-                All ticket purchases are final. In the unlikely event of event postponement or force majeure rescheduling by organizers, tickets remain valid for the rescheduled date.
+                All ticket purchases are final. In the event of event postponement or force majeure rescheduling by organizers, tickets remain valid for the rescheduled date.
               </p>
             </section>
           </div>

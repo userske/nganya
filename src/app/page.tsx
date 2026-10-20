@@ -42,7 +42,7 @@ export default async function HomePage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#050810] text-white">
+    <div className="min-h-screen bg-black text-white">
       <Navbar />
       <main>
         <HeroSection eventData={eventData} />

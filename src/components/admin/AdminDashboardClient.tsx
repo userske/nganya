@@ -114,7 +114,7 @@ export function AdminDashboardClient({
       {/* Admin Header */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-6 border-b border-white/10">
         <div>
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-500/10 border border-amber-500/20 text-amber-400 text-xs font-semibold uppercase tracking-widest mb-2">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/5 border border-white/10 text-white/70 text-xs font-semibold uppercase tracking-widest mb-2">
             Administrator Command Center
           </div>
           <h1 className="text-3xl font-black text-white uppercase tracking-tight">
@@ -125,7 +125,7 @@ export function AdminDashboardClient({
         <div className="flex items-center gap-3">
           <Button
             asChild
-            className="bg-amber-500 hover:bg-amber-400 text-black font-extrabold text-xs h-10 rounded-xl"
+            className="bg-white hover:bg-white/90 text-black font-semibold text-xs h-10 rounded-xl focus-visible:ring-2 focus-visible:ring-white"
           >
             <Link href="/admin/scan">
               <Camera className="w-4 h-4 mr-2" />
@@ -138,9 +138,9 @@ export function AdminDashboardClient({
       {/* Top Metrics Cards */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         <div className="p-5 rounded-2xl bg-white/[0.03] border border-white/10">
-          <div className="flex items-center justify-between text-slate-400 text-xs mb-2">
+          <div className="flex items-center justify-between text-white/50 text-xs mb-2">
             <span>Verified Votes</span>
-            <Vote className="w-4 h-4 text-amber-400" />
+            <Vote className="w-4 h-4 text-white/70" />
           </div>
           <div className="text-2xl sm:text-3xl font-black text-white font-mono">
             {totalVotes.toLocaleString()}
@@ -148,9 +148,9 @@ export function AdminDashboardClient({
         </div>
 
         <div className="p-5 rounded-2xl bg-white/[0.03] border border-white/10">
-          <div className="flex items-center justify-between text-slate-400 text-xs mb-2">
+          <div className="flex items-center justify-between text-white/50 text-xs mb-2">
             <span>Total Categories</span>
-            <Trophy className="w-4 h-4 text-amber-400" />
+            <Trophy className="w-4 h-4 text-white/70" />
           </div>
           <div className="text-2xl sm:text-3xl font-black text-white font-mono">
             {categoriesList.length}
@@ -158,9 +158,9 @@ export function AdminDashboardClient({
         </div>
 
         <div className="p-5 rounded-2xl bg-white/[0.03] border border-white/10">
-          <div className="flex items-center justify-between text-slate-400 text-xs mb-2">
+          <div className="flex items-center justify-between text-white/50 text-xs mb-2">
             <span>Ticket Orders</span>
-            <Ticket className="w-4 h-4 text-emerald-400" />
+            <Ticket className="w-4 h-4 text-white/70" />
           </div>
           <div className="text-2xl sm:text-3xl font-black text-white font-mono">
             {(orders || []).length}
@@ -181,23 +181,23 @@ export function AdminDashboardClient({
       {/* Admin Tabs */}
       <Tabs defaultValue="settings" className="w-full">
         <TabsList className="bg-white/5 border border-white/10 p-1 rounded-2xl flex flex-wrap h-auto gap-1">
-          <TabsTrigger value="settings" className="rounded-xl text-xs py-2 px-4 data-[state=active]:bg-amber-500 data-[state=active]:text-black font-bold">
+          <TabsTrigger value="settings" className="rounded-xl text-xs py-2 px-4 data-[state=active]:bg-white data-[state=active]:text-black font-semibold">
             <Settings className="w-3.5 h-3.5 mr-1.5" />
             Event Settings
           </TabsTrigger>
-          <TabsTrigger value="categories" className="rounded-xl text-xs py-2 px-4 data-[state=active]:bg-amber-500 data-[state=active]:text-black font-bold">
+          <TabsTrigger value="categories" className="rounded-xl text-xs py-2 px-4 data-[state=active]:bg-white data-[state=active]:text-black font-semibold">
             <Trophy className="w-3.5 h-3.5 mr-1.5" />
             Categories & Nominees
           </TabsTrigger>
-          <TabsTrigger value="tickets" className="rounded-xl text-xs py-2 px-4 data-[state=active]:bg-amber-500 data-[state=active]:text-black font-bold">
+          <TabsTrigger value="tickets" className="rounded-xl text-xs py-2 px-4 data-[state=active]:bg-white data-[state=active]:text-black font-semibold">
             <Ticket className="w-3.5 h-3.5 mr-1.5" />
             Tickets & Orders
           </TabsTrigger>
-          <TabsTrigger value="security" className="rounded-xl text-xs py-2 px-4 data-[state=active]:bg-amber-500 data-[state=active]:text-black font-bold">
+          <TabsTrigger value="security" className="rounded-xl text-xs py-2 px-4 data-[state=active]:bg-white data-[state=active]:text-black font-semibold">
             <ShieldAlert className="w-3.5 h-3.5 mr-1.5" />
             Anti-Abuse Monitor
           </TabsTrigger>
-          <TabsTrigger value="audit" className="rounded-xl text-xs py-2 px-4 data-[state=active]:bg-amber-500 data-[state=active]:text-black font-bold">
+          <TabsTrigger value="audit" className="rounded-xl text-xs py-2 px-4 data-[state=active]:bg-white data-[state=active]:text-black font-semibold">
             <History className="w-3.5 h-3.5 mr-1.5" />
             Audit Log
           </TabsTrigger>
@@ -284,7 +284,7 @@ export function AdminDashboardClient({
               <Button
                 type="submit"
                 disabled={isSavingSettings}
-                className="bg-amber-500 hover:bg-amber-400 text-black font-extrabold px-8 h-12 rounded-xl"
+                className="bg-white hover:bg-white/90 text-black font-semibold px-8 h-12 rounded-xl focus-visible:ring-2 focus-visible:ring-white"
               >
                 {isSavingSettings ? (
                   <>
@@ -334,7 +334,7 @@ export function AdminDashboardClient({
                     <td className="p-3.5">
                       <Badge
                         variant={c.is_active ? "default" : "secondary"}
-                        className={c.is_active ? "bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 text-[10px]" : "bg-white/5 text-slate-400 text-[10px]"}
+                        className={c.is_active ? "bg-white/15 text-white border border-white/20 text-[10px]" : "bg-white/5 text-white/40 text-[10px]"}
                       >
                         {c.is_active ? "Active" : "Inactive"}
                       </Badge>
@@ -344,7 +344,7 @@ export function AdminDashboardClient({
                         size="sm"
                         variant="ghost"
                         onClick={() => handleToggleCategory(c.id, c.is_active)}
-                        className="text-xs text-amber-400 hover:text-white"
+                        className="text-xs text-white/70 hover:text-white"
                       >
                         {c.is_active ? "Deactivate" : "Activate"}
                       </Button>
@@ -394,15 +394,15 @@ export function AdminDashboardClient({
                 ) : (
                   filteredOrders.map((o) => (
                     <tr key={o.id} className="hover:bg-white/[0.02]">
-                      <td className="p-3.5 font-bold text-amber-400">{o.order_number}</td>
+                      <td className="p-3.5 font-bold text-white font-mono">{o.order_number}</td>
                       <td className="p-3.5 text-white">{o.buyer_name}</td>
-                      <td className="p-3.5 text-slate-400">{o.buyer_phone}</td>
+                      <td className="p-3.5 text-white/50">{o.buyer_phone}</td>
                       <td className="p-3.5 text-white">
                         {o.quantity} tkts • KES {Number(o.total_amount_kes).toLocaleString()}
                       </td>
                       <td className="p-3.5">
                         <span className={`px-2 py-0.5 rounded-full text-[10px] uppercase font-bold ${
-                          o.status === "confirmed" ? "bg-emerald-500/20 text-emerald-400" : "bg-amber-500/20 text-amber-400"
+                          o.status === "confirmed" ? "bg-white/20 text-white" : "bg-white/10 text-white/60"
                         }`}>
                           {o.status}
                         </span>
@@ -421,24 +421,24 @@ export function AdminDashboardClient({
             <h2 className="text-base font-bold text-white uppercase tracking-wider mb-2">
               Salted IP Cluster Monitoring
             </h2>
-            <p className="text-xs text-slate-400 mb-6 leading-relaxed">
+            <p className="text-xs text-white/50 mb-6 leading-relaxed">
               Kenya networks rely heavily on mobile carrier CGNAT (shared IP). The system logs salted hashes and flags clusters without blocking legitimate shared-network voters. Review clusters with unusually high activity below:
             </p>
 
             <div className="space-y-3">
               {(suspiciousIps || []).length === 0 ? (
-                <div className="p-6 rounded-2xl bg-emerald-500/5 border border-emerald-500/20 text-emerald-400 text-xs text-center">
-                  <CheckCircle2 className="w-5 h-5 mx-auto mb-1 text-emerald-400" />
+                <div className="p-6 rounded-2xl bg-white/[0.03] border border-white/10 text-white/70 text-xs text-center">
+                  <CheckCircle2 className="w-5 h-5 mx-auto mb-1 text-white" />
                   No suspicious voting bursts or abnormal voter clusters detected.
                 </div>
               ) : (
                 suspiciousIps.map((c, i) => (
                   <div key={i} className="p-4 rounded-xl bg-white/[0.03] border border-white/10 flex items-center justify-between text-xs font-mono">
                     <div>
-                      <span className="text-amber-400 font-bold">IP Hash: {c.ip_hash.substring(0, 16)}...</span>
-                      <span className="text-slate-400 ml-4">{c.voters_count} accounts • {c.votes_count} votes</span>
+                      <span className="text-white font-bold">IP Hash: {c.ip_hash.substring(0, 16)}...</span>
+                      <span className="text-white/40 ml-4">{c.voters_count} accounts • {c.votes_count} votes</span>
                     </div>
-                    <Button size="sm" variant="destructive" className="text-xs h-8">
+                    <Button size="sm" variant="outline" className="text-xs h-8 border-white/20 text-white hover:bg-white/10">
                       Flag / Review Cluster
                     </Button>
                   </div>
@@ -452,7 +452,7 @@ export function AdminDashboardClient({
         <TabsContent value="audit" className="mt-6">
           <div className="rounded-2xl border border-white/10 overflow-hidden bg-white/[0.02]">
             <table className="w-full text-left text-xs">
-              <thead className="bg-white/5 border-b border-white/10 text-slate-400 uppercase tracking-wider font-mono">
+              <thead className="bg-white/5 border-b border-white/10 text-white/50 uppercase tracking-wider font-mono">
                 <tr>
                   <th className="p-3.5">Action</th>
                   <th className="p-3.5">Entity</th>
@@ -462,16 +462,16 @@ export function AdminDashboardClient({
               <tbody className="divide-y divide-white/5 font-mono">
                 {(auditLogs || []).length === 0 ? (
                   <tr>
-                    <td colSpan={3} className="p-8 text-center text-slate-500">
+                    <td colSpan={3} className="p-8 text-center text-white/40">
                       No admin actions logged yet.
                     </td>
                   </tr>
                 ) : (
                   auditLogs.map((a) => (
                     <tr key={a.id} className="hover:bg-white/[0.02]">
-                      <td className="p-3.5 font-bold text-amber-400">{a.action}</td>
+                      <td className="p-3.5 font-bold text-white">{a.action}</td>
                       <td className="p-3.5 text-white">{a.entity_type} {a.entity_id ? `(#${a.entity_id})` : ""}</td>
-                      <td className="p-3.5 text-slate-500">{new Date(a.created_at).toLocaleString()}</td>
+                      <td className="p-3.5 text-white/40">{new Date(a.created_at).toLocaleString()}</td>
                     </tr>
                   ))
                 )}

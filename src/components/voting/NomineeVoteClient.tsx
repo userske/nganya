@@ -6,12 +6,9 @@ import {
   CheckCircle2,
   Lock,
   Vote,
-  Sparkles,
   ChevronLeft,
   AlertTriangle,
   Loader2,
-  ShieldAlert,
-  Flame,
   Award,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -58,7 +55,6 @@ export function NomineeVoteClient({
   initialCounts,
   existingVoteNomineeId,
   isAuthenticated: initialAuth,
-  userEmail,
 }: NomineeVoteClientProps) {
   const [counts, setCounts] = useState<Record<string, number>>(initialCounts);
   const [selectedNomineeId, setSelectedNomineeId] = useState<string | null>(null);
@@ -134,6 +130,14 @@ export function NomineeVoteClient({
     setSelectedNomineeId(nomineeId);
   };
 
+  const handleKeyDownNominee = (e: React.KeyboardEvent, nomineeId: string) => {
+    if (isLocked) return;
+    if (e.key === " " || e.key === "Enter") {
+      e.preventDefault();
+      setSelectedNomineeId(nomineeId);
+    }
+  };
+
   const handleVoteSubmitClick = () => {
     if (!selectedNomineeId) return;
     if (!isAuthenticated) {
@@ -158,7 +162,7 @@ export function NomineeVoteClient({
           ...prev,
           [selectedNomineeId]: (prev[selectedNomineeId] ?? 0) + 1,
         }));
-        toast.success("Vote confirmed!", {
+        toast.success("Vote confirmed", {
           description: `Your vote for ${result.nominee_name} has been counted in real time.`,
         });
       } else {
@@ -189,7 +193,7 @@ export function NomineeVoteClient({
           asChild
           variant="ghost"
           size="sm"
-          className="text-slate-400 hover:text-white hover:bg-white/5 pl-2"
+          className="text-white/60 hover:text-white hover:bg-white/5 pl-2 focus-visible:ring-2 focus-visible:ring-white"
         >
           <Link href="/vote">
             <ChevronLeft className="w-4 h-4 mr-1" />
@@ -200,7 +204,7 @@ export function NomineeVoteClient({
         {category.group_name && (
           <Badge
             variant="outline"
-            className="text-xs uppercase tracking-wider bg-white/5 border-white/10 text-amber-400/90 py-1 px-3 rounded-full"
+            className="text-xs uppercase tracking-wider bg-white/5 border-white/10 text-white/70 py-1 px-3 rounded-full"
           >
             {category.group_name}
           </Badge>
@@ -212,31 +216,38 @@ export function NomineeVoteClient({
         <h1 className="text-3xl sm:text-5xl font-black text-white uppercase tracking-tight mb-3">
           {category.name}
         </h1>
-        <p className="text-slate-400 text-sm sm:text-base max-w-2xl">
+        <p className="text-white/50 text-sm sm:text-base max-w-2xl leading-relaxed">
           {category.description ||
-            "Tap your nominee below, review your choice, and confirm your vote. Exactly one vote per person."}
+            "Select your nominee below, review your choice, and confirm your vote. Exactly one vote per verified voter."}
         </p>
 
         {/* Locked banner if voted */}
         {isLocked && votedNominee && (
-          <div className="mt-6 p-4 rounded-xl bg-emerald-500/10 border border-emerald-500/30 flex items-center gap-3 text-emerald-400">
-            <CheckCircle2 className="w-6 h-6 shrink-0" />
+          <div
+            role="status"
+            className="mt-6 p-4 rounded-xl bg-white/[0.04] border border-white/20 flex items-center gap-3 text-white"
+          >
+            <CheckCircle2 className="w-5 h-5 shrink-0 text-white" />
             <div>
-              <div className="text-xs uppercase tracking-wider font-bold">
-                Vote Locked & Counted
+              <div className="text-xs uppercase tracking-wider font-semibold text-white/50">
+                Vote Locked & Recorded
               </div>
               <div className="text-sm font-semibold text-white">
-                You voted for: <span className="text-emerald-400">{votedNominee.name}</span>
+                You voted for: <span className="underline underline-offset-2">{votedNominee.name}</span>
                 {votedNominee.subtitle && ` (${votedNominee.subtitle})`}
               </div>
             </div>
-            <Lock className="w-4 h-4 text-emerald-500/60 ml-auto" />
+            <Lock className="w-4 h-4 text-white/40 ml-auto" />
           </div>
         )}
       </div>
 
       {/* Nominees Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 mb-12">
+      <div
+        role="radiogroup"
+        aria-label={`Nominees for ${category.name}`}
+        className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 mb-12"
+      >
         {nominees.map((nominee) => {
           const isSelected = selectedNomineeId === nominee.id;
           const isThisVoted = votedNomineeId === nominee.id;
@@ -249,68 +260,67 @@ export function NomineeVoteClient({
           return (
             <div
               key={nominee.id}
+              role="radio"
+              aria-checked={isThisVoted || isSelected}
+              aria-disabled={isLocked}
+              tabIndex={isLocked ? -1 : 0}
               onClick={() => handleNomineeClick(nominee.id)}
-              className={`relative p-6 rounded-2xl transition-[background-color,border-color,box-shadow,transform] duration-200 ease-out border text-left select-none ${
+              onKeyDown={(e) => handleKeyDownNominee(e, nominee.id)}
+              className={`relative p-6 rounded-2xl transition-[background-color,border-color,box-shadow,transform] duration-200 ease-out border text-left select-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white active:scale-[0.99] ${
                 isThisVoted
-                  ? "bg-[#0c1f1a] border-emerald-500 shadow-[0_0_30px_rgba(16,185,129,0.2)]"
+                  ? "bg-white/[0.08] border-white shadow-[0_0_24px_rgba(255,255,255,0.08)]"
                   : isSelected && !isLocked
-                  ? "bg-amber-500/10 border-amber-500 shadow-[0_0_30px_rgba(245,158,11,0.25)] scale-[1.01]"
+                  ? "bg-white/[0.06] border-white shadow-[0_0_24px_rgba(255,255,255,0.06)]"
                   : isLocked
-                  ? "bg-white/[0.02] border-white/5 opacity-60 cursor-not-allowed"
-                  : "bg-white/[0.03] border-white/10 hover:border-amber-500/40 hover:bg-white/[0.06] cursor-pointer"
+                  ? "bg-white/[0.02] border-white/5 opacity-50 cursor-not-allowed"
+                  : "bg-white/[0.02] border-white/10 hover:border-white/30 hover:bg-white/[0.05] cursor-pointer"
               }`}
             >
               {/* Top Row: Icon & Status */}
               <div className="flex items-center justify-between mb-4">
                 <div
                   className={`w-10 h-10 rounded-xl flex items-center justify-center font-bold text-sm ${
-                    isThisVoted
-                      ? "bg-emerald-500/20 text-emerald-400 border border-emerald-500/30"
-                      : isSelected
-                      ? "bg-amber-500/20 text-amber-400 border border-amber-500/30"
-                      : "bg-white/5 text-slate-400 border border-white/10"
+                    isThisVoted || isSelected
+                      ? "bg-white text-black"
+                      : "bg-white/5 text-white/50 border border-white/10"
                   }`}
                 >
                   <Award className="w-5 h-5" />
                 </div>
 
                 {isThisVoted ? (
-                  <span className="inline-flex items-center gap-1.5 text-xs font-bold text-emerald-400 bg-emerald-500/20 border border-emerald-500/40 px-2.5 py-1 rounded-full">
+                  <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-white bg-white/15 border border-white/25 px-2.5 py-1 rounded-full">
                     <CheckCircle2 className="w-3.5 h-3.5" />
                     Your Vote
                   </span>
                 ) : (
                   <div className="text-right">
-                    <div className="text-xs font-mono font-bold text-amber-400">
+                    <div className="text-xs font-mono font-semibold text-white">
                       {voteCount} votes
                     </div>
-                    <div className="text-[11px] text-slate-500 font-mono">
+                    <div className="text-[11px] text-white/40 font-mono">
                       {percentage}%
                     </div>
                   </div>
                 )}
               </div>
 
-              {/* Nominee Title & Plate/Route Subtitle */}
+              {/* Nominee Title & Subtitle */}
               <h3 className="text-xl font-bold text-white mb-1 tracking-tight">
                 {nominee.name}
               </h3>
               {nominee.subtitle && (
-                <p className="text-xs text-amber-400/80 font-mono font-medium mb-4">
+                <p className="text-xs text-white/60 font-mono font-medium mb-4">
                   {nominee.subtitle}
                 </p>
               )}
 
               {/* Progress bar for live percentage */}
               <div className="mt-4 pt-3 border-t border-white/5">
-                <div className="w-full bg-white/5 h-1.5 rounded-full overflow-hidden">
+                <div className="w-full bg-white/5 h-1.5 rounded-full overflow-hidden" role="progressbar" aria-valuenow={percentage} aria-valuemin={0} aria-valuemax={100}>
                   <div
                     className={`h-full transition-[width] duration-500 ease-out ${
-                      isThisVoted
-                        ? "bg-emerald-500"
-                        : isSelected
-                        ? "bg-amber-400"
-                        : "bg-slate-600"
+                      isThisVoted || isSelected ? "bg-white" : "bg-white/30"
                     }`}
                     style={{ width: `${percentage}%` }}
                   />
@@ -323,21 +333,21 @@ export function NomineeVoteClient({
 
       {/* Floating Action Bar when nominee is selected and not locked */}
       {!isLocked && (
-        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 w-[92%] max-w-xl z-30">
-          <div className="p-4 rounded-2xl bg-slate-900/95 border border-amber-500/40 shadow-[0_0_40px_rgba(245,158,11,0.25)] backdrop-blur-xl flex items-center justify-between gap-4">
+        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 w-[92%] max-w-xl z-30 pb-safe">
+          <div className="p-4 rounded-2xl bg-[#0a0a0a]/95 border border-white/20 shadow-2xl backdrop-blur-xl flex items-center justify-between gap-4">
             <div className="min-w-0 truncate">
               {selectedNominee ? (
                 <div>
-                  <div className="text-[11px] uppercase tracking-wider text-slate-400">
+                  <div className="text-[11px] uppercase tracking-wider text-white/40 font-medium">
                     Selected Nominee:
                   </div>
-                  <div className="text-sm font-bold text-amber-400 truncate">
+                  <div className="text-sm font-semibold text-white truncate">
                     {selectedNominee.name}
                     {selectedNominee.subtitle && ` (${selectedNominee.subtitle})`}
                   </div>
                 </div>
               ) : (
-                <div className="text-xs text-slate-400">
+                <div className="text-xs text-white/50">
                   Select a nominee above to cast your vote
                 </div>
               )}
@@ -346,7 +356,7 @@ export function NomineeVoteClient({
             <Button
               disabled={!selectedNomineeId || isSubmitting}
               onClick={handleVoteSubmitClick}
-              className="bg-amber-500 hover:bg-amber-400 text-black font-extrabold px-6 h-11 rounded-xl shadow-lg shadow-amber-500/20 shrink-0"
+              className="bg-white hover:bg-white/90 text-black font-semibold px-6 h-11 rounded-xl shadow-lg shrink-0 focus-visible:ring-2 focus-visible:ring-white"
             >
               {isSubmitting ? (
                 <>
@@ -366,20 +376,20 @@ export function NomineeVoteClient({
 
       {/* Confirmation Dialog */}
       <Dialog open={confirmModalOpen} onOpenChange={setConfirmModalOpen}>
-        <DialogContent className="sm:max-w-md bg-[#0a0f1d] border border-amber-500/30 text-white p-6 rounded-2xl">
+        <DialogContent className="sm:max-w-md bg-[#0a0a0a] border border-white/10 text-white p-6 rounded-2xl">
           <DialogHeader>
-            <div className="w-12 h-12 rounded-xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-amber-400 mb-3">
-              <AlertTriangle className="w-6 h-6" />
+            <div className="w-12 h-12 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center text-white mb-3">
+              <AlertTriangle className="w-5 h-5" />
             </div>
-            <DialogTitle className="text-xl font-bold text-white">
+            <DialogTitle className="text-xl font-bold text-white tracking-tight">
               Confirm Your Vote
             </DialogTitle>
-            <DialogDescription className="text-slate-300 text-sm leading-relaxed">
-              You are voting for: <strong className="text-amber-400 font-bold">{selectedNominee?.name}</strong> in{" "}
-              <strong>{category.name}</strong>.
-              <span className="block mt-2 text-xs text-red-400/90 font-medium">
-                • You can only vote ONCE in this category.<br />
-                • Votes cannot be changed, removed, or edited once cast.<br />
+            <DialogDescription className="text-white/60 text-sm leading-relaxed">
+              You are voting for: <strong className="text-white font-semibold">{selectedNominee?.name}</strong> in{" "}
+              <strong className="text-white font-semibold">{category.name}</strong>.
+              <span className="block mt-2 text-xs text-white/40">
+                • You can only vote once in this category.<br />
+                • Votes cannot be changed or edited once cast.<br />
                 • Your vote will instantly reflect on the public leaderboard.
               </span>
             </DialogDescription>
@@ -389,13 +399,13 @@ export function NomineeVoteClient({
             <Button
               variant="outline"
               onClick={() => setConfirmModalOpen(false)}
-              className="border-white/10 hover:bg-white/5 text-white"
+              className="border-white/10 hover:bg-white/5 text-white focus-visible:ring-2 focus-visible:ring-white"
             >
               Cancel
             </Button>
             <Button
               onClick={executeVote}
-              className="bg-amber-500 hover:bg-amber-400 text-black font-bold"
+              className="bg-white hover:bg-white/90 text-black font-semibold focus-visible:ring-2 focus-visible:ring-white"
             >
               Confirm & Cast Vote
             </Button>

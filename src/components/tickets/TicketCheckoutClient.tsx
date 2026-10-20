@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Check, Ticket, ShieldCheck, CreditCard, Smartphone, Loader2, Sparkles, ChevronRight } from "lucide-react";
+import { Check, Ticket, ShieldCheck, CreditCard, Smartphone, Loader2, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -51,7 +51,7 @@ export function TicketCheckoutClient({ tiers }: TicketCheckoutClientProps) {
       });
 
       if (res.success && res.checkoutUrl) {
-        toast.info("Redirecting to Paystack checkout...", {
+        toast.info("Connecting to checkout...", {
           description: "Select M-Pesa or Card to complete payment.",
         });
         window.location.href = res.checkoutUrl;
@@ -65,6 +65,14 @@ export function TicketCheckoutClient({ tiers }: TicketCheckoutClientProps) {
     }
   };
 
+  const handleKeyDownTier = (e: React.KeyboardEvent, tierId: string, isSoldOut: boolean) => {
+    if (isSoldOut) return;
+    if (e.key === " " || e.key === "Enter") {
+      e.preventDefault();
+      setSelectedTierId(tierId);
+    }
+  };
+
   return (
     <div className="grid grid-cols-1 lg:grid-cols-12 gap-10">
       {/* Tiers Column */}
@@ -73,12 +81,12 @@ export function TicketCheckoutClient({ tiers }: TicketCheckoutClientProps) {
           <h2 className="text-xl sm:text-2xl font-bold text-white uppercase tracking-tight mb-2">
             1. Select Your Ticket Tier
           </h2>
-          <p className="text-sm text-slate-400">
-            Choose your admission experience. All passes include live acoustic arena access.
+          <p className="text-sm text-white/50">
+            Choose your admission experience. All passes include access to the main awards arena.
           </p>
         </div>
 
-        <div className="space-y-4">
+        <div role="radiogroup" aria-label="Ticket Tiers" className="space-y-4">
           {tiers.map((tier) => {
             const isSelected = selectedTierId === tier.id;
             const remaining = Math.max(0, tier.capacity - tier.sold_count);
@@ -87,27 +95,32 @@ export function TicketCheckoutClient({ tiers }: TicketCheckoutClientProps) {
             return (
               <div
                 key={tier.id}
+                role="radio"
+                aria-checked={isSelected}
+                aria-disabled={isSoldOut}
+                tabIndex={isSoldOut ? -1 : 0}
                 onClick={() => !isSoldOut && setSelectedTierId(tier.id)}
-                className={`relative p-6 rounded-2xl transition-[background-color,border-color,box-shadow] duration-200 ease-out border text-left ${
+                onKeyDown={(e) => handleKeyDownTier(e, tier.id, isSoldOut)}
+                className={`relative p-6 rounded-2xl transition-[background-color,border-color,box-shadow,transform] duration-200 ease-out border text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white active:scale-[0.99] select-none ${
                   isSoldOut
-                    ? "bg-white/[0.01] border-white/5 opacity-50 cursor-not-allowed"
+                    ? "bg-white/[0.01] border-white/5 opacity-40 cursor-not-allowed"
                     : isSelected
-                    ? "bg-amber-500/10 border-amber-500 shadow-[0_0_30px_rgba(245,158,11,0.2)] cursor-pointer"
-                    : "bg-white/[0.03] border-white/10 hover:border-white/25 hover:bg-white/[0.05] cursor-pointer"
+                    ? "bg-white/[0.06] border-white shadow-[0_4px_24px_rgba(255,255,255,0.06)] cursor-pointer"
+                    : "bg-white/[0.02] border-white/10 hover:border-white/30 hover:bg-white/[0.04] cursor-pointer"
                 }`}
               >
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-3">
                   <div>
-                    <h3 className="text-xl font-extrabold text-white uppercase">
+                    <h3 className="text-xl font-bold text-white uppercase tracking-tight">
                       {tier.name}
                     </h3>
-                    <p className="text-xs text-slate-400 mt-0.5">{tier.description}</p>
+                    <p className="text-xs text-white/50 mt-0.5">{tier.description}</p>
                   </div>
                   <div className="text-left sm:text-right">
-                    <span className="text-2xl font-black text-amber-400 font-mono">
+                    <span className="text-2xl font-black text-white font-mono">
                       KES {tier.price_kes.toLocaleString()}
                     </span>
-                    <span className="text-xs text-slate-500 block">per ticket</span>
+                    <span className="text-xs text-white/40 block">per ticket</span>
                   </div>
                 </div>
 
@@ -115,8 +128,8 @@ export function TicketCheckoutClient({ tiers }: TicketCheckoutClientProps) {
                 {tier.perks && tier.perks.length > 0 && (
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 mt-4 pt-4 border-t border-white/5">
                     {tier.perks.map((perk, i) => (
-                      <div key={i} className="flex items-center gap-2 text-xs text-slate-300">
-                        <Check className="w-3.5 h-3.5 text-amber-400 shrink-0" />
+                      <div key={i} className="flex items-center gap-2 text-xs text-white/70">
+                        <Check className="w-3.5 h-3.5 text-white shrink-0" />
                         <span>{perk}</span>
                       </div>
                     ))}
@@ -126,16 +139,16 @@ export function TicketCheckoutClient({ tiers }: TicketCheckoutClientProps) {
                 {/* Remaining stock badge */}
                 <div className="mt-4 flex items-center justify-between text-xs">
                   {isSoldOut ? (
-                    <Badge variant="destructive" className="text-[10px] uppercase">
+                    <Badge variant="outline" className="text-[10px] uppercase border-white/20 text-white/40">
                       Sold Out
                     </Badge>
                   ) : (
-                    <span className="text-emerald-400 font-mono text-[11px]">
+                    <span className="text-white/50 font-mono text-[11px]">
                       {remaining} spots available
                     </span>
                   )}
                   {isSelected && (
-                    <span className="text-amber-400 font-bold text-xs uppercase flex items-center gap-1">
+                    <span className="text-white font-semibold text-xs uppercase flex items-center gap-1">
                       Selected Tier &check;
                     </span>
                   )}
@@ -148,16 +161,16 @@ export function TicketCheckoutClient({ tiers }: TicketCheckoutClientProps) {
 
       {/* Checkout Form Column */}
       <div className="lg:col-span-5">
-        <div className="sticky top-28 p-6 sm:p-8 rounded-3xl bg-[#0c1220]/90 border border-amber-500/20 shadow-[0_0_50px_rgba(245,158,11,0.12)] backdrop-blur-xl">
+        <div className="sticky top-28 p-6 sm:p-8 rounded-3xl bg-[#0a0a0a]/95 border border-white/10 shadow-2xl backdrop-blur-xl">
           <div className="flex items-center gap-2 mb-6 pb-4 border-b border-white/10">
-            <Ticket className="w-5 h-5 text-amber-400" />
+            <Ticket className="w-5 h-5 text-white/70" />
             <h2 className="text-lg font-bold text-white uppercase tracking-wider">
               2. Guest Checkout
             </h2>
           </div>
 
           {errorMessage && (
-            <div className="mb-6 p-3 rounded-xl bg-red-500/10 border border-red-500/20 text-red-400 text-xs">
+            <div role="alert" className="mb-6 p-3 rounded-xl bg-white/5 border border-white/20 text-white text-xs">
               {errorMessage}
             </div>
           )}
@@ -165,19 +178,20 @@ export function TicketCheckoutClient({ tiers }: TicketCheckoutClientProps) {
           <form onSubmit={handleSubmit} className="space-y-4">
             {/* Quantity Picker */}
             <div className="space-y-2">
-              <Label className="text-xs uppercase tracking-wider text-slate-300">
+              <Label className="text-xs uppercase tracking-wider text-white/60">
                 Number of Tickets
               </Label>
-              <div className="flex items-center gap-3">
+              <div className="flex items-center gap-2" role="group" aria-label="Ticket Quantity">
                 {[1, 2, 3, 5, 10].map((num) => (
                   <button
                     key={num}
                     type="button"
+                    aria-pressed={quantity === num}
                     onClick={() => setQuantity(num)}
-                    className={`flex-1 py-2 rounded-xl text-xs font-bold transition-[background-color,color,border-color] duration-150 ease-out active:scale-[0.96] ${
+                    className={`flex-1 py-2 rounded-xl text-xs font-semibold transition-[background-color,color] duration-150 ease-out active:scale-[0.96] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white ${
                       quantity === num
-                        ? "bg-amber-500 text-black shadow-md shadow-amber-500/20"
-                        : "bg-white/5 text-slate-300 hover:bg-white/10 border border-white/10"
+                        ? "bg-white text-black font-bold shadow-sm"
+                        : "bg-white/5 text-white/60 hover:text-white hover:bg-white/10 border border-white/10"
                     }`}
                   >
                     {num}
@@ -188,64 +202,67 @@ export function TicketCheckoutClient({ tiers }: TicketCheckoutClientProps) {
 
             {/* Buyer Name */}
             <div className="space-y-1.5">
-              <Label htmlFor="buyer-name" className="text-xs uppercase tracking-wider text-slate-300">
+              <Label htmlFor="buyer-name" className="text-xs uppercase tracking-wider text-white/60">
                 Full Name
               </Label>
               <Input
                 id="buyer-name"
+                autoComplete="name"
                 placeholder="e.g. Salim Omar"
                 value={buyerName}
                 onChange={(e) => setBuyerName(e.target.value)}
                 required
-                className="bg-white/5 border-white/10 text-white placeholder:text-slate-500 h-11 focus-visible:ring-amber-500/50"
+                className="bg-white/5 border-white/10 text-white placeholder:text-white/30 h-11 focus-visible:ring-2 focus-visible:ring-white"
               />
             </div>
 
             {/* Buyer Email */}
             <div className="space-y-1.5">
-              <Label htmlFor="buyer-email" className="text-xs uppercase tracking-wider text-slate-300">
+              <Label htmlFor="buyer-email" className="text-xs uppercase tracking-wider text-white/60">
                 Email Address (Tickets delivered here)
               </Label>
               <Input
                 id="buyer-email"
                 type="email"
-                placeholder="e.g. salim@gmail.com"
+                autoComplete="email"
+                placeholder="name@example.com"
                 value={buyerEmail}
                 onChange={(e) => setBuyerEmail(e.target.value)}
                 required
-                className="bg-white/5 border-white/10 text-white placeholder:text-slate-500 h-11 focus-visible:ring-amber-500/50"
+                className="bg-white/5 border-white/10 text-white placeholder:text-white/30 h-11 focus-visible:ring-2 focus-visible:ring-white"
               />
             </div>
 
             {/* Buyer Phone */}
             <div className="space-y-1.5">
-              <Label htmlFor="buyer-phone" className="text-xs uppercase tracking-wider text-slate-300">
+              <Label htmlFor="buyer-phone" className="text-xs uppercase tracking-wider text-white/60">
                 Phone Number (For M-Pesa prompt)
               </Label>
               <Input
                 id="buyer-phone"
                 type="tel"
+                autoComplete="tel"
                 placeholder="e.g. 0712345678"
                 value={buyerPhone}
                 onChange={(e) => setBuyerPhone(e.target.value)}
                 required
-                className="bg-white/5 border-white/10 text-white placeholder:text-slate-500 h-11 focus-visible:ring-amber-500/50"
+                className="bg-white/5 border-white/10 text-white placeholder:text-white/30 h-11 focus-visible:ring-2 focus-visible:ring-white"
               />
             </div>
 
             {/* Order Summary */}
             <div className="mt-6 pt-4 border-t border-white/10 space-y-2 text-xs">
-              <div className="flex justify-between text-slate-400">
+              <div className="flex justify-between text-white/50">
                 <span>{selectedTier.name} &times; {quantity}</span>
                 <span className="font-mono text-white">KES {totalPriceKes.toLocaleString()}</span>
               </div>
-              <div className="flex justify-between text-slate-400">
-                <span>Service & Gate Processing Fee</span>
-                <span className="font-mono text-emerald-400">FREE</span>
+              <div className="flex justify-between text-white/50">
+                <span>Service & Processing Fee</span>
+                <span className="font-mono text-white/80">FREE</span>
               </div>
               <div className="flex justify-between text-base font-bold text-white pt-2 border-t border-white/5">
                 <span>Total Due</span>
-                <span className="font-mono text-amber-400 text-lg">
+                <span className="font-mono text-white text-lg">
                   KES {totalPriceKes.toLocaleString()}
                 </span>
               </div>
@@ -255,12 +272,12 @@ export function TicketCheckoutClient({ tiers }: TicketCheckoutClientProps) {
             <Button
               type="submit"
               disabled={isLoading || !buyerName || !buyerEmail || !buyerPhone}
-              className="w-full mt-6 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-black font-black text-sm h-13 rounded-xl shadow-[0_0_30px_rgba(245,158,11,0.3)] transition-[box-shadow,opacity] duration-150 ease-out"
+              className="w-full mt-6 bg-white hover:bg-white/90 text-black font-semibold text-sm h-12 rounded-xl shadow-lg transition-[opacity,transform] duration-150 ease-out active:scale-[0.98] focus-visible:ring-2 focus-visible:ring-white"
             >
               {isLoading ? (
                 <>
                   <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                  Reserving & Connecting Paystack...
+                  Connecting to checkout...
                 </>
               ) : (
                 <>
@@ -272,19 +289,19 @@ export function TicketCheckoutClient({ tiers }: TicketCheckoutClientProps) {
           </form>
 
           {/* Payment Badges */}
-          <div className="mt-6 pt-4 border-t border-white/5 flex items-center justify-between text-[11px] text-slate-400 font-mono">
+          <div className="mt-6 pt-4 border-t border-white/5 flex items-center justify-between text-[11px] text-white/40 font-mono">
             <div className="flex items-center gap-1.5">
-              <Smartphone className="w-3.5 h-3.5 text-emerald-400" />
+              <Smartphone className="w-3.5 h-3.5 text-white/60" />
               <span>M-Pesa STK</span>
             </div>
             <span>•</span>
             <div className="flex items-center gap-1.5">
-              <CreditCard className="w-3.5 h-3.5 text-amber-400" />
-              <span>Visa / Mastercard</span>
+              <CreditCard className="w-3.5 h-3.5 text-white/60" />
+              <span>Card</span>
             </div>
             <span>•</span>
             <div className="flex items-center gap-1.5">
-              <ShieldCheck className="w-3.5 h-3.5 text-sky-400" />
+              <ShieldCheck className="w-3.5 h-3.5 text-white/60" />
               <span>SSL Secured</span>
             </div>
           </div>

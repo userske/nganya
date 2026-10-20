@@ -8,7 +8,7 @@ import { MotionProvider } from "@/components/providers/MotionProvider";
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "https://coastalngayaawards.com";
 
 export const viewport: Viewport = {
-  themeColor: "#050810",
+  themeColor: "#000000",
   width: "device-width",
   initialScale: 1,
   viewportFit: "cover",
@@ -75,6 +75,10 @@ export default function RootLayout({
           href="https://fonts.gstatic.com"
           crossOrigin="anonymous"
         />
+        {/* Apple PWA / web-app meta */}
+        <meta name="apple-mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+        <meta name="apple-mobile-web-app-title" content="Coastal Nganya Awards" />
         {/* Schema.org Event structured data – server rendered */}
         <script
           type="application/ld+json"
@@ -95,17 +99,26 @@ export default function RootLayout({
         />
       </head>
       <body className="min-h-screen antialiased">
+        {/* Skip to main content — WCAG 2.4.1 */}
+        <a
+          href="#main-content"
+          className="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-[100] focus:px-4 focus:py-2 focus:bg-white focus:text-black focus:text-sm focus:font-semibold focus:rounded-lg focus:outline-none focus:ring-2 focus:ring-white/50"
+        >
+          Skip to main content
+        </a>
         <ThemeProvider attribute="class" defaultTheme="dark" forcedTheme="dark">
           <MotionProvider>
-            {children}
+            <div id="main-content" tabIndex={-1} className="outline-none">
+              {children}
+            </div>
           </MotionProvider>
           <Toaster
             theme="dark"
             toastOptions={{
               style: {
-                background: "#0f1525",
-                border: "1px solid rgba(255,255,255,0.08)",
-                color: "#f8f6f0",
+                background: "#0a0a0a",
+                border: "1px solid rgba(255,255,255,0.12)",
+                color: "#ffffff",
               },
             }}
           />

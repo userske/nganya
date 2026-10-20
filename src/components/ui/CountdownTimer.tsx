@@ -51,7 +51,7 @@ function CountdownUnit({
   return (
     <div className="flex flex-col items-center gap-2">
       <div className="relative">
-        <div className="w-20 h-20 sm:w-28 sm:h-28 lg:w-32 lg:h-32 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-sm flex items-center justify-center overflow-hidden">
+        <div className="w-20 h-20 sm:w-28 sm:h-28 lg:w-32 lg:h-32 rounded-2xl bg-white/[0.04] border border-white/10 backdrop-blur-sm flex items-center justify-center overflow-hidden">
           <AnimatePresence mode="popLayout" initial={false}>
             <motion.span
               key={value}
@@ -66,8 +66,8 @@ function CountdownUnit({
             </motion.span>
           </AnimatePresence>
         </div>
-        {/* Gold accent line */}
-        <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-1/2 h-[2px] bg-gradient-to-r from-transparent via-[#c9a227] to-transparent" />
+        {/* Subtle monochrome accent */}
+        <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-1/2 h-[1px] bg-gradient-to-r from-transparent via-white/30 to-transparent" />
       </div>
       <span className="text-xs sm:text-sm font-semibold uppercase tracking-[0.2em] text-white/50">
         {label}
@@ -91,7 +91,7 @@ export function CountdownTimer({ targetDate, className }: CountdownTimerProps) {
 
   if (!mounted) {
     return (
-      <div className={`flex gap-4 sm:gap-6 lg:gap-8 ${className ?? ""}`}>
+      <div className={`flex gap-4 sm:gap-6 lg:gap-8 ${className ?? ""}`} aria-label="Loading countdown">
         {["Days", "Hours", "Mins", "Secs"].map((label) => (
           <div key={label} className="flex flex-col items-center gap-2">
             <div className="w-20 h-20 sm:w-28 sm:h-28 lg:w-32 lg:h-32 rounded-2xl skeleton" />
@@ -112,16 +112,20 @@ export function CountdownTimer({ targetDate, className }: CountdownTimerProps) {
 
   if (isOver) {
     return (
-      <div className={`text-center ${className ?? ""}`}>
-        <p className="text-2xl font-bold text-[#c9a227] animate-pulse">
-          🎉 The Event Has Started!
+      <div className={`text-center ${className ?? ""}`} role="status">
+        <p className="text-xl sm:text-2xl font-bold text-white tracking-wide">
+          The Event is Underway
         </p>
       </div>
     );
   }
 
   return (
-    <div className={`flex gap-4 sm:gap-6 lg:gap-8 ${className ?? ""}`}>
+    <div
+      role="timer"
+      aria-label={`${timeLeft.days} days, ${timeLeft.hours} hours, ${timeLeft.minutes} minutes, and ${timeLeft.seconds} seconds until the event`}
+      className={`flex gap-4 sm:gap-6 lg:gap-8 ${className ?? ""}`}
+    >
       <CountdownUnit value={timeLeft.days} label="Days" />
       <CountdownUnit value={timeLeft.hours} label="Hours" />
       <CountdownUnit value={timeLeft.minutes} label="Mins" />

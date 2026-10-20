@@ -13,7 +13,7 @@ export default async function TicketSuccessPage({ searchParams }: SuccessPagePro
   const { ref, simulated } = await searchParams;
 
   return (
-    <div className="min-h-screen bg-[#050810] text-white flex flex-col justify-between">
+    <div className="min-h-screen bg-black text-white flex flex-col justify-between">
       <Navbar />
 
       <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-28">

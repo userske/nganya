@@ -2,17 +2,7 @@
 
 import { useState, useEffect, useMemo } from "react";
 import Link from "next/link";
-import {
-  Trophy,
-  Flame,
-  Search,
-  Sparkles,
-  BarChart2,
-  Medal,
-  RefreshCw,
-  Vote,
-  Ticket,
-} from "lucide-react";
+import { Search, Vote, ArrowRight } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -42,8 +32,6 @@ export function ResultsClientView({ categories, initialCounts }: ResultsClientVi
   const [counts, setCounts] = useState<Record<string, number>>(initialCounts);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedGroup, setSelectedGroup] = useState<string>("All");
-  const [lastUpdated, setLastUpdated] = useState<Date>(new Date());
-  const [isLiveActive, setIsLiveActive] = useState(true);
 
   // Groups
   const groups = useMemo(() => {
@@ -76,15 +64,10 @@ export function ResultsClientView({ categories, initialCounts }: ResultsClientVi
               ...prev,
               [nominee_id]: count,
             }));
-            setLastUpdated(new Date());
           }
         }
       )
-      .subscribe((status) => {
-        if (status === "SUBSCRIBED") {
-          setIsLiveActive(true);
-        }
-      });
+      .subscribe();
 
     const interval = setInterval(async () => {
       try {
@@ -97,7 +80,6 @@ export function ResultsClientView({ categories, initialCounts }: ResultsClientVi
             map[item.nominee_id] = Number(item.count);
           }
           setCounts((prev) => ({ ...prev, ...map }));
-          setLastUpdated(new Date());
         }
       } catch {
         // Polling failure gracefully ignored
@@ -138,32 +120,32 @@ export function ResultsClientView({ categories, initialCounts }: ResultsClientVi
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-10 pb-8 border-b border-white/10">
         <div>
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-500/10 border border-amber-500/20 text-amber-400 text-xs font-semibold uppercase tracking-widest mb-3">
-            <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping" />
-            Live Realtime Leaderboard
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/5 border border-white/10 text-white/70 text-xs font-semibold uppercase tracking-widest mb-3">
+            <span className="w-1.5 h-1.5 rounded-full bg-white animate-pulse" />
+            Live Leaderboard
           </div>
           <h1 className="text-3xl sm:text-5xl font-black text-white tracking-tight uppercase">
-            AWARDS LEADERBOARD
+            Awards Leaderboard
           </h1>
-          <p className="text-slate-400 text-sm sm:text-base mt-2 max-w-xl">
-            Live, tamper-proof tallies updating as votes are confirmed. Public, transparent, and direct.
+          <p className="text-white/50 text-sm sm:text-base mt-2 max-w-xl leading-relaxed">
+            Realtime verified tallies updating as votes are confirmed. Public, transparent, and direct.
           </p>
         </div>
 
         <div className="flex flex-wrap items-center gap-3">
           {/* Total Votes Stat Card */}
           <div className="p-3 sm:p-4 rounded-2xl bg-white/[0.04] border border-white/10 text-right">
-            <div className="text-[11px] uppercase tracking-wider text-slate-400 font-mono">
+            <div className="text-[11px] uppercase tracking-wider text-white/40 font-mono">
               Total Verified Votes
             </div>
-            <div className="text-2xl sm:text-3xl font-black text-amber-400 font-mono">
+            <div className="text-2xl sm:text-3xl font-black text-white font-mono">
               {totalVotesAcrossPlatform.toLocaleString()}
             </div>
           </div>
 
           <Button
             asChild
-            className="bg-amber-500 hover:bg-amber-400 text-black font-extrabold h-12 rounded-xl"
+            className="bg-white hover:bg-white/90 text-black font-semibold h-12 rounded-xl focus-visible:ring-2 focus-visible:ring-white"
           >
             <Link href="/vote">
               <Vote className="w-4 h-4 mr-2" />
@@ -176,25 +158,28 @@ export function ResultsClientView({ categories, initialCounts }: ResultsClientVi
       {/* Search and Filters */}
       <div className="space-y-4 mb-8">
         <div className="relative">
-          <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+          <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-white/40" />
           <Input
+            aria-label="Search leaderboard"
             placeholder="Search leaderboard by category or nominee name..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="pl-11 h-12 bg-white/[0.04] border-white/10 text-white placeholder:text-slate-500 rounded-xl focus-visible:ring-amber-500/50 text-sm"
+            className="pl-11 h-12 bg-white/[0.04] border-white/10 text-white placeholder:text-white/30 rounded-xl focus-visible:ring-2 focus-visible:ring-white text-sm"
           />
         </div>
 
         {/* Group Tabs */}
-        <div className="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-none">
+        <div className="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-none" role="tablist" aria-label="Category Groups">
           {groups.map((group) => (
             <button
               key={group}
+              role="tab"
+              aria-selected={selectedGroup === group}
               onClick={() => setSelectedGroup(group)}
-              className={`px-4 py-2 rounded-xl text-xs font-semibold whitespace-nowrap transition-[background-color,color,box-shadow] duration-150 ease-out active:scale-[0.96] ${
+              className={`px-4 py-2 rounded-xl text-xs font-medium whitespace-nowrap transition-[background-color,color] duration-150 ease-out active:scale-[0.97] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white ${
                 selectedGroup === group
-                  ? "bg-amber-500 text-black shadow-lg shadow-amber-500/20 font-bold"
-                  : "bg-white/[0.04] text-slate-400 hover:text-white hover:bg-white/[0.08] border border-white/5"
+                  ? "bg-white text-black font-semibold shadow-sm"
+                  : "bg-white/[0.04] text-white/60 hover:text-white hover:bg-white/[0.08] border border-white/5"
               }`}
             >
               {group}
@@ -233,15 +218,15 @@ export function ResultsClientView({ categories, initialCounts }: ResultsClientVi
                     {category.group_name && (
                       <Badge
                         variant="outline"
-                        className="text-[10px] uppercase font-bold bg-white/5 border-white/10 text-amber-400/90 py-0.5 px-2"
+                        className="text-[10px] uppercase font-semibold bg-white/5 border-white/10 text-white/70 py-0.5 px-2"
                       >
                         {category.group_name}
                       </Badge>
                     )}
                   </div>
-                  <p className="text-xs text-slate-400 mt-1">
+                  <p className="text-xs text-white/40 mt-1">
                     {category.nominees.length} Nominees • Total Votes:{" "}
-                    <strong className="text-amber-400 font-mono">
+                    <strong className="text-white font-mono font-semibold">
                       {totalCategoryVotes.toLocaleString()}
                     </strong>
                   </p>
@@ -251,10 +236,11 @@ export function ResultsClientView({ categories, initialCounts }: ResultsClientVi
                   asChild
                   size="sm"
                   variant="outline"
-                  className="border-white/10 hover:border-amber-500/40 text-slate-300 hover:text-white text-xs"
+                  className="border-white/20 hover:border-white/40 text-white text-xs hover:bg-white/5 focus-visible:ring-2 focus-visible:ring-white"
                 >
                   <Link href={`/vote/${category.slug}`}>
-                    Vote in this Category &rarr;
+                    Vote in this Category
+                    <ArrowRight className="w-3.5 h-3.5 ml-1.5" />
                   </Link>
                 </Button>
               </div>
@@ -277,7 +263,7 @@ export function ResultsClientView({ categories, initialCounts }: ResultsClientVi
                       key={nominee.id}
                       className={`relative p-4 rounded-xl border transition-[background-color,border-color,box-shadow] duration-200 ease-out ${
                         isFirst
-                          ? "bg-amber-500/10 border-amber-500/40 shadow-[0_0_20px_rgba(245,158,11,0.1)]"
+                          ? "bg-white/[0.05] border-white/30 shadow-[0_4px_24px_rgba(255,255,255,0.04)]"
                           : "bg-white/[0.02] border-white/5 hover:border-white/15"
                       }`}
                     >
@@ -287,12 +273,10 @@ export function ResultsClientView({ categories, initialCounts }: ResultsClientVi
                           <div
                             className={`w-7 h-7 rounded-lg flex items-center justify-center text-xs font-bold shrink-0 font-mono ${
                               isFirst
-                                ? "bg-amber-500 text-black font-extrabold"
-                                : isSecond
-                                ? "bg-slate-300 text-slate-900"
-                                : isThird
-                                ? "bg-amber-700 text-amber-100"
-                                : "bg-white/5 text-slate-400 border border-white/10"
+                                ? "bg-white text-black font-extrabold"
+                                : isSecond || isThird
+                                ? "bg-white/15 text-white"
+                                : "bg-white/5 text-white/40 border border-white/10"
                             }`}
                           >
                             {rank + 1}
@@ -303,7 +287,7 @@ export function ResultsClientView({ categories, initialCounts }: ResultsClientVi
                               {nominee.name}
                             </span>
                             {nominee.subtitle && (
-                              <span className="text-xs text-amber-400/80 font-mono block">
+                              <span className="text-xs text-white/50 font-mono block">
                                 {nominee.subtitle}
                               </span>
                             )}
@@ -312,22 +296,20 @@ export function ResultsClientView({ categories, initialCounts }: ResultsClientVi
 
                         {/* Votes and Percentage */}
                         <div className="text-right shrink-0">
-                          <div className="text-sm sm:text-base font-extrabold text-white font-mono">
+                          <div className="text-sm sm:text-base font-bold text-white font-mono">
                             {voteCount.toLocaleString()} votes
                           </div>
-                          <div className="text-xs text-slate-400 font-mono">
+                          <div className="text-xs text-white/40 font-mono">
                             {percentage}%
                           </div>
                         </div>
                       </div>
 
                       {/* Vote share bar */}
-                      <div className="w-full bg-white/5 h-2 rounded-full overflow-hidden">
+                      <div className="w-full bg-white/5 h-2 rounded-full overflow-hidden" role="progressbar" aria-valuenow={percentage} aria-valuemin={0} aria-valuemax={100}>
                         <div
                           className={`h-full transition-[width] duration-500 ease-out ${
-                            isFirst
-                              ? "bg-gradient-to-r from-amber-500 to-yellow-300"
-                              : "bg-amber-500/50"
+                            isFirst ? "bg-white" : "bg-white/30"
                           }`}
                           style={{ width: `${percentage}%` }}
                         />

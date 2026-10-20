@@ -8,23 +8,23 @@ export const metadata = {
 
 export default function PrivacyPage() {
   return (
-    <div className="min-h-screen bg-[#050810] text-white flex flex-col justify-between">
+    <div className="min-h-screen bg-black text-white flex flex-col justify-between">
       <Navbar />
 
-      <main className="flex-1 max-w-4xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-28 text-slate-300 leading-relaxed text-sm">
+      <main className="flex-1 max-w-4xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-28 text-white/70 leading-relaxed text-sm">
         <div className="space-y-8">
           <div>
             <h1 className="text-3xl sm:text-4xl font-black text-white uppercase tracking-tight mb-2">
               Privacy Policy & Data Protection
             </h1>
-            <p className="text-xs text-amber-400 font-mono">
-              In full compliance with the Kenya Data Protection Act (2019)
+            <p className="text-xs text-white/40 font-mono">
+              In compliance with the Kenya Data Protection Act (2019)
             </p>
           </div>
 
           <div className="p-8 rounded-3xl bg-white/[0.02] border border-white/10 space-y-6">
             <section className="space-y-2">
-              <h2 className="text-lg font-bold text-white uppercase tracking-wider text-amber-400">
+              <h2 className="text-lg font-bold text-white uppercase tracking-wider">
                 1. Data Controller & Scope
               </h2>
               <p>
@@ -33,7 +33,7 @@ export default function PrivacyPage() {
             </section>
 
             <section className="space-y-2">
-              <h2 className="text-lg font-bold text-white uppercase tracking-wider text-amber-400">
+              <h2 className="text-lg font-bold text-white uppercase tracking-wider">
                 2. Data We Collect and Why
               </h2>
               <ul className="list-disc pl-5 space-y-2">
@@ -53,14 +53,14 @@ export default function PrivacyPage() {
             </section>
 
             <section className="space-y-2">
-              <h2 className="text-lg font-bold text-white uppercase tracking-wider text-amber-400">
+              <h2 className="text-lg font-bold text-white uppercase tracking-wider">
                 3. Your Rights Under the Kenya Data Protection Act
               </h2>
               <p>
                 You have the right to request access to your personal data, request correction of erroneous data, or request deletion of contact records following the conclusion of the awards gala, subject to statutory audit obligations.
               </p>
               <p>
-                For data protection inquiries, email our compliance officer at <a href="mailto:privacy@coastalngayaawards.com" className="text-amber-400 underline">privacy@coastalngayaawards.com</a>.
+                For data protection inquiries, email our compliance officer at <a href="mailto:privacy@coastalngayaawards.com" className="text-white underline underline-offset-4">privacy@coastalngayaawards.com</a>.
               </p>
             </section>
           </div>

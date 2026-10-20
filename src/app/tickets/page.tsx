@@ -50,18 +50,18 @@ export default async function TicketsPage() {
   const tiers = tiersDb && tiersDb.length > 0 ? tiersDb : DEFAULT_TIERS;
 
   return (
-    <div className="min-h-screen bg-[#050810] text-white flex flex-col justify-between">
+    <div className="min-h-screen bg-black text-white flex flex-col justify-between">
       <Navbar />
 
       <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-28">
         <div className="text-center max-w-3xl mx-auto mb-16">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-500/10 border border-amber-500/20 text-amber-400 text-xs font-semibold uppercase tracking-widest mb-3">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/5 border border-white/10 text-white/70 text-xs font-semibold uppercase tracking-widest mb-3">
             Official Gate Tickets
           </div>
           <h1 className="text-3xl sm:text-5xl font-black text-white uppercase tracking-tight mb-4">
-            SECURE YOUR PASS
+            Secure Your Pass
           </h1>
-          <p className="text-slate-400 text-sm sm:text-base leading-relaxed">
+          <p className="text-white/50 text-sm sm:text-base leading-relaxed">
             Instant digital ticket delivery with signed QR code. Pay securely via <strong>M-Pesa</strong> or <strong>Card</strong> through Paystack. No login required.
           </p>
         </div>

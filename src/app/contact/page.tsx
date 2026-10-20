@@ -1,6 +1,6 @@
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
-import { Mail, Phone, MapPin, MessageSquare, Send, Sparkles } from "lucide-react";
+import { Mail, MessageSquare, MapPin, Send } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -13,21 +13,20 @@ export const metadata = {
 
 export default function ContactPage() {
   return (
-    <div className="min-h-screen bg-[#050810] text-white flex flex-col justify-between">
+    <div className="min-h-screen bg-black text-white flex flex-col justify-between">
       <Navbar />
 
       <main className="flex-1 max-w-5xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-28">
         <div className="space-y-12">
           {/* Header */}
           <div className="text-center max-w-xl mx-auto">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-500/10 border border-amber-500/20 text-amber-400 text-xs font-semibold uppercase tracking-widest mb-4">
-              <Sparkles className="w-3.5 h-3.5" />
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/5 border border-white/10 text-white/70 text-xs font-semibold uppercase tracking-widest mb-4">
               Get In Touch
             </div>
             <h1 className="text-3xl sm:text-5xl font-black text-white uppercase tracking-tight">
               Contact & Support
             </h1>
-            <p className="text-slate-400 text-sm sm:text-base mt-3">
+            <p className="text-white/50 text-sm sm:text-base mt-3 leading-relaxed">
               Have questions regarding ticket bookings, nominee submissions, brand sponsorships, or press passes? We are here to help.
             </p>
           </div>
@@ -36,73 +35,73 @@ export default function ContactPage() {
             {/* Info Cards */}
             <div className="md:col-span-5 space-y-4">
               <div className="p-6 rounded-2xl bg-white/[0.03] border border-white/10 space-y-2">
-                <div className="flex items-center gap-2 text-amber-400 text-xs uppercase font-mono font-bold">
+                <div className="flex items-center gap-2 text-white/60 text-xs uppercase font-mono font-bold">
                   <Mail className="w-4 h-4" />
                   Email Support
                 </div>
                 <div className="text-sm font-semibold text-white">
                   tickets@coastalngayaawards.com
                 </div>
-                <p className="text-xs text-slate-400">
+                <p className="text-xs text-white/50">
                   For guest ticket lookup, receipt re-issues, and corporate group bookings.
                 </p>
               </div>
 
               <div className="p-6 rounded-2xl bg-white/[0.03] border border-white/10 space-y-2">
-                <div className="flex items-center gap-2 text-amber-400 text-xs uppercase font-mono font-bold">
+                <div className="flex items-center gap-2 text-white/60 text-xs uppercase font-mono font-bold">
                   <MessageSquare className="w-4 h-4" />
                   Sponsorships & Media
                 </div>
                 <div className="text-sm font-semibold text-white">
                   partners@coastalngayaawards.com
                 </div>
-                <p className="text-xs text-slate-400">
+                <p className="text-xs text-white/50">
                   For brand placements, VIP lounge tables, and red carpet media accreditation.
                 </p>
               </div>
 
               <div className="p-6 rounded-2xl bg-white/[0.03] border border-white/10 space-y-2">
-                <div className="flex items-center gap-2 text-amber-400 text-xs uppercase font-mono font-bold">
+                <div className="flex items-center gap-2 text-white/60 text-xs uppercase font-mono font-bold">
                   <MapPin className="w-4 h-4" />
                   Event Secretariat
                 </div>
                 <div className="text-sm font-semibold text-white">
                   Mombasa Cement Grounds, Mombasa, Kenya
                 </div>
-                <p className="text-xs text-slate-400">
+                <p className="text-xs text-white/50">
                   Coast Matatu Owners Association Advisory Desk.
                 </p>
               </div>
             </div>
 
             {/* Direct Message Form */}
-            <div className="md:col-span-7 p-8 rounded-3xl bg-[#0c1220]/90 border border-amber-500/20 backdrop-blur-xl">
+            <div className="md:col-span-7 p-8 rounded-3xl bg-[#0a0a0a]/95 border border-white/10 shadow-2xl backdrop-blur-xl">
               <h3 className="text-lg font-bold text-white uppercase tracking-wider mb-6 pb-3 border-b border-white/10">
                 Send Us a Message
               </h3>
               <form className="space-y-4">
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div className="space-y-1.5">
-                    <Label className="text-xs uppercase text-slate-300">Name</Label>
-                    <Input placeholder="Your full name" className="bg-white/5 border-white/10 text-white" />
+                    <Label htmlFor="contact-name" className="text-xs uppercase text-white/60">Name</Label>
+                    <Input id="contact-name" placeholder="Your full name" className="bg-white/5 border-white/10 text-white placeholder:text-white/30 focus-visible:ring-2 focus-visible:ring-white" />
                   </div>
                   <div className="space-y-1.5">
-                    <Label className="text-xs uppercase text-slate-300">Phone</Label>
-                    <Input placeholder="e.g. 0712345678" className="bg-white/5 border-white/10 text-white" />
+                    <Label htmlFor="contact-phone" className="text-xs uppercase text-white/60">Phone</Label>
+                    <Input id="contact-phone" placeholder="e.g. 0712345678" className="bg-white/5 border-white/10 text-white placeholder:text-white/30 focus-visible:ring-2 focus-visible:ring-white" />
                   </div>
                 </div>
 
                 <div className="space-y-1.5">
-                  <Label className="text-xs uppercase text-slate-300">Email Address</Label>
-                  <Input type="email" placeholder="yourname@gmail.com" className="bg-white/5 border-white/10 text-white" />
+                  <Label htmlFor="contact-email" className="text-xs uppercase text-white/60">Email Address</Label>
+                  <Input id="contact-email" type="email" placeholder="name@example.com" className="bg-white/5 border-white/10 text-white placeholder:text-white/30 focus-visible:ring-2 focus-visible:ring-white" />
                 </div>
 
                 <div className="space-y-1.5">
-                  <Label className="text-xs uppercase text-slate-300">Message</Label>
-                  <Textarea rows={4} placeholder="How can we assist you today?" className="bg-white/5 border-white/10 text-white resize-none" />
+                  <Label htmlFor="contact-message" className="text-xs uppercase text-white/60">Message</Label>
+                  <Textarea id="contact-message" rows={4} placeholder="How can we assist you today?" className="bg-white/5 border-white/10 text-white placeholder:text-white/30 resize-none focus-visible:ring-2 focus-visible:ring-white" />
                 </div>
 
-                <Button type="button" className="w-full bg-amber-500 hover:bg-amber-400 text-black font-extrabold h-11 rounded-xl">
+                <Button type="button" className="w-full bg-white hover:bg-white/90 text-black font-semibold h-11 rounded-xl focus-visible:ring-2 focus-visible:ring-white">
                   <Send className="w-4 h-4 mr-2" />
                   Submit Message
                 </Button>

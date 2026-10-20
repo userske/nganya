@@ -47,13 +47,13 @@ export async function sendTicketEmail({
     const ticketHtmlList = ticketsWithQr
       .map(
         (t) => `
-      <div style="border: 2px solid #f59e0b; border-radius: 12px; padding: 20px; margin-bottom: 20px; background-color: #0f172a; color: #ffffff; text-align: center;">
-        <h3 style="color: #f59e0b; margin: 0 0 10px 0; font-size: 20px; text-transform: uppercase;">${t.tierName}</h3>
-        <p style="font-family: monospace; font-size: 18px; font-weight: bold; margin: 5px 0 15px 0; color: #ffffff;">Ticket Code: ${t.ticketCode}</p>
-        <div style="background-color: #ffffff; display: inline-block; padding: 10px; border-radius: 8px;">
+      <div style="border: 1px solid rgba(255, 255, 255, 0.2); border-radius: 12px; padding: 24px; margin-bottom: 20px; background-color: #0a0a0a; color: #ffffff; text-align: center;">
+        <h3 style="color: #ffffff; margin: 0 0 8px 0; font-size: 20px; text-transform: uppercase; font-weight: 800; letter-spacing: 0.05em;">${t.tierName}</h3>
+        <p style="font-family: monospace; font-size: 16px; font-weight: bold; margin: 5px 0 16px 0; color: #ffffff; letter-spacing: 0.1em;">Ticket Code: ${t.ticketCode}</p>
+        <div style="background-color: #ffffff; display: inline-block; padding: 12px; border-radius: 10px;">
           <img src="${t.qrDataUrl}" alt="Ticket QR" width="200" height="200" style="display: block;" />
         </div>
-        <p style="font-size: 12px; color: #94a3b8; margin-top: 15px;">Present this digital ticket or printed QR at the gate entrance.</p>
+        <p style="font-size: 12px; color: #a3a3a3; margin-top: 16px;">Present this digital ticket or printed QR at the gate entrance.</p>
       </div>
     `
       )
@@ -64,21 +64,21 @@ export async function sendTicketEmail({
       to: [buyerEmail],
       subject: `Your Coastal Nganya Awards Tickets [Order #${orderNumber}]`,
       html: `
-        <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; max-width: 600px; margin: 0 auto; background-color: #050810; padding: 30px; border-radius: 16px; color: #ffffff;">
-          <div style="text-align: center; margin-bottom: 30px;">
-            <h1 style="color: #f59e0b; margin: 0; font-size: 28px; text-transform: uppercase;">Coastal Nganya Awards</h1>
-            <p style="color: #94a3b8; margin: 5px 0 0 0; font-size: 14px;">Mombasa's Premier Matatu Culture Awards</p>
+        <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; max-width: 600px; margin: 0 auto; background-color: #000000; padding: 32px; border-radius: 16px; color: #ffffff; border: 1px solid rgba(255, 255, 255, 0.1);">
+          <div style="text-align: center; margin-bottom: 32px;">
+            <h1 style="color: #ffffff; margin: 0; font-size: 26px; text-transform: uppercase; font-weight: 900; letter-spacing: 0.05em;">Coastal Nganya Awards</h1>
+            <p style="color: #737373; margin: 6px 0 0 0; font-size: 13px; text-transform: uppercase; letter-spacing: 0.1em;">Mombasa's Premier Matatu Culture Awards</p>
           </div>
 
-          <div style="background-color: rgba(255, 255, 255, 0.05); padding: 20px; border-radius: 12px; margin-bottom: 25px;">
+          <div style="background-color: rgba(255, 255, 255, 0.04); padding: 20px; border-radius: 12px; margin-bottom: 24px; border: 1px solid rgba(255, 255, 255, 0.08);">
             <p style="margin: 0 0 8px 0; font-size: 16px;">Hello <strong>${buyerName}</strong>,</p>
-            <p style="margin: 0; color: #cbd5e1; font-size: 14px; line-height: 1.5;">
-              Thank you for purchasing your ticket(s) for the Coastal Nganya Awards Night! Your digital tickets are attached below and available for gate entry.
+            <p style="margin: 0; color: #a3a3a3; font-size: 14px; line-height: 1.5;">
+              Thank you for purchasing your ticket(s) for the Coastal Nganya Awards Night! Your digital tickets are attached below and ready for gate entry.
             </p>
           </div>
 
-          <div style="margin-bottom: 25px; padding: 15px; border-left: 4px solid #f59e0b; background-color: rgba(245, 158, 11, 0.05);">
-            <p style="margin: 0; font-size: 13px; color: #cbd5e1;">
+          <div style="margin-bottom: 24px; padding: 16px; border-left: 3px solid #ffffff; background-color: rgba(255, 255, 255, 0.03);">
+            <p style="margin: 0; font-size: 13px; color: #d4d4d4; line-height: 1.6;">
               <strong>Date:</strong> Saturday, December 6, 2025<br />
               <strong>Time:</strong> 6:00 PM EAT<br />
               <strong>Venue:</strong> Mombasa Cement Grounds, Mombasa
@@ -87,9 +87,9 @@ export async function sendTicketEmail({
 
           ${ticketHtmlList}
 
-          <div style="text-align: center; margin-top: 30px; border-top: 1px solid rgba(255, 255, 255, 0.1); padding-top: 20px; font-size: 12px; color: #64748b;">
-            <p>You can also download or re-issue your tickets anytime at <a href="https://coastalngayaawards.com/my-tickets" style="color: #f59e0b; text-decoration: none;">coastalngayaawards.com/my-tickets</a>.</p>
-            <p>&copy; Coastal Nganya Awards. Built for the culture.</p>
+          <div style="text-align: center; margin-top: 32px; border-top: 1px solid rgba(255, 255, 255, 0.1); padding-top: 20px; font-size: 12px; color: #737373;">
+            <p>You can also download or re-issue your tickets anytime at <a href="https://coastalngayaawards.com/my-tickets" style="color: #ffffff; text-decoration: underline;">coastalngayaawards.com/my-tickets</a>.</p>
+            <p style="margin-top: 6px;">&copy; Coastal Nganya Awards. Mombasa, Kenya.</p>
           </div>
         </div>
       `,

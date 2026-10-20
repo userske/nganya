@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import QRCode from "qrcode";
-import { CheckCircle2, Loader2, Download, Printer, ArrowRight, ShieldCheck, Ticket } from "lucide-react";
+import { CheckCircle2, Loader2, Printer, ArrowRight, Ticket } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 interface TicketItem {
@@ -18,11 +18,11 @@ interface TicketSuccessClientProps {
   isSimulated?: boolean;
 }
 
-export function TicketSuccessClient({ orderRef, isSimulated }: TicketSuccessClientProps) {
+export function TicketSuccessClient({ orderRef }: TicketSuccessClientProps) {
   const [status, setStatus] = useState<"pending" | "confirmed" | "failed">("pending");
   const [orderDetails, setOrderDetails] = useState<any>(null);
   const [qrImages, setQrImages] = useState<Record<string, string>>({});
-  const [pollCount, setPollCount] = useState(0);
+  const [, setPollCount] = useState(0);
 
   useEffect(() => {
     let isMounted = true;
@@ -88,17 +88,17 @@ export function TicketSuccessClient({ orderRef, isSimulated }: TicketSuccessClie
 
   if (status === "pending") {
     return (
-      <div className="max-w-xl mx-auto p-8 sm:p-12 rounded-3xl bg-[#0c1220]/90 border border-amber-500/30 text-center backdrop-blur-xl">
-        <Loader2 className="w-12 h-12 text-amber-400 animate-spin mx-auto mb-6" />
-        <h2 className="text-2xl font-black text-white uppercase tracking-tight mb-2">
-          Verifying Payment with Paystack...
+      <div className="max-w-xl mx-auto p-8 sm:p-12 rounded-3xl bg-[#0a0a0a]/95 border border-white/10 text-center backdrop-blur-xl">
+        <Loader2 className="w-10 h-10 text-white animate-spin mx-auto mb-6" />
+        <h2 className="text-2xl font-bold text-white uppercase tracking-tight mb-2">
+          Verifying Payment...
         </h2>
-        <p className="text-slate-400 text-sm mb-6 leading-relaxed">
-          Order Reference: <strong className="text-amber-400 font-mono">{orderRef}</strong>.
+        <p className="text-white/50 text-sm mb-6 leading-relaxed">
+          Order Reference: <strong className="text-white font-mono">{orderRef}</strong>.
           <br />
-          Please wait while we confirm your M-Pesa or Card transaction and issue your cryptographically signed tickets.
+          Please wait while we confirm your transaction and issue your tickets.
         </p>
-        <div className="p-3 rounded-xl bg-white/5 border border-white/10 text-xs text-slate-400 font-mono">
+        <div className="p-3 rounded-xl bg-white/5 border border-white/10 text-xs text-white/40 font-mono">
           Automatic refresh in progress • Please do not close this window
         </div>
       </div>
@@ -107,14 +107,14 @@ export function TicketSuccessClient({ orderRef, isSimulated }: TicketSuccessClie
 
   if (status === "failed") {
     return (
-      <div className="max-w-xl mx-auto p-8 sm:p-12 rounded-3xl bg-red-950/40 border border-red-500/30 text-center backdrop-blur-xl">
-        <h2 className="text-2xl font-black text-white uppercase tracking-tight mb-2">
+      <div className="max-w-xl mx-auto p-8 sm:p-12 rounded-3xl bg-[#0a0a0a]/95 border border-white/15 text-center backdrop-blur-xl">
+        <h2 className="text-2xl font-bold text-white uppercase tracking-tight mb-2">
           Payment Unsuccessful
         </h2>
-        <p className="text-slate-400 text-sm mb-6">
+        <p className="text-white/50 text-sm mb-6">
           Your payment could not be completed or was cancelled. Any reserved tickets have been released.
         </p>
-        <Button asChild className="bg-amber-500 hover:bg-amber-400 text-black font-bold">
+        <Button asChild className="bg-white hover:bg-white/90 text-black font-semibold focus-visible:ring-2 focus-visible:ring-white">
           <Link href="/tickets">Try Again</Link>
         </Button>
       </div>
@@ -126,18 +126,18 @@ export function TicketSuccessClient({ orderRef, isSimulated }: TicketSuccessClie
   return (
     <div className="max-w-3xl mx-auto space-y-8">
       {/* Banner */}
-      <div className="p-8 rounded-3xl bg-emerald-950/40 border border-emerald-500/40 text-center shadow-[0_0_50px_rgba(16,185,129,0.15)]">
-        <div className="w-16 h-16 rounded-2xl bg-emerald-500/20 border border-emerald-500/40 flex items-center justify-center text-emerald-400 mx-auto mb-4">
-          <CheckCircle2 className="w-10 h-10" />
+      <div className="p-8 rounded-3xl bg-white/[0.04] border border-white/20 text-center shadow-2xl">
+        <div className="w-14 h-14 rounded-2xl bg-white/10 border border-white/20 flex items-center justify-center text-white mx-auto mb-4">
+          <CheckCircle2 className="w-8 h-8" />
         </div>
-        <h1 className="text-2xl sm:text-4xl font-black text-white uppercase tracking-tight mb-2">
-          Payment Confirmed!
+        <h1 className="text-2xl sm:text-4xl font-bold text-white uppercase tracking-tight mb-2">
+          Payment Confirmed
         </h1>
-        <p className="text-slate-300 text-sm max-w-md mx-auto">
-          Thank you, <strong>{orderDetails?.buyerName}</strong>. Your {tickets.length} ticket(s) are confirmed and ready for gate entry.
+        <p className="text-white/70 text-sm max-w-md mx-auto">
+          Thank you, <strong>{orderDetails?.buyerName}</strong>. Your {tickets.length} pass(es) are confirmed and ready for entry.
         </p>
-        <p className="text-xs text-emerald-400 mt-2 font-mono">
-          Order #{orderDetails?.orderNumber} • Emailed to {orderDetails?.buyerEmail}
+        <p className="text-xs text-white/50 mt-2 font-mono">
+          Order #{orderDetails?.orderNumber} • Sent to {orderDetails?.buyerEmail}
         </p>
       </div>
 
@@ -146,26 +146,21 @@ export function TicketSuccessClient({ orderRef, isSimulated }: TicketSuccessClie
         {tickets.map((t, idx) => (
           <div
             key={t.id}
-            className="p-6 sm:p-8 rounded-3xl bg-[#0e1627] border-2 border-amber-500/40 flex flex-col md:flex-row items-center justify-between gap-6 shadow-2xl relative overflow-hidden"
+            className="p-6 sm:p-8 rounded-3xl bg-[#0a0a0a] border border-white/15 flex flex-col md:flex-row items-center justify-between gap-6 shadow-2xl relative overflow-hidden"
           >
-            {/* Background watermark */}
-            <div className="absolute right-0 bottom-0 text-white/[0.02] font-black text-8xl pointer-events-none select-none">
-              CNA
-            </div>
-
             <div className="space-y-3 text-center md:text-left">
-              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-500/10 border border-amber-500/20 text-amber-400 text-xs font-bold uppercase tracking-wider">
+              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/10 border border-white/15 text-white text-xs font-semibold uppercase tracking-wider">
                 <Ticket className="w-3.5 h-3.5" />
-                {orderDetails?.tierName || "General Pass"} • Ticket #{idx + 1}
+                {orderDetails?.tierName || "General Pass"} • Pass #{idx + 1}
               </span>
-              <h3 className="text-2xl font-extrabold text-white uppercase">
+              <h3 className="text-2xl font-bold text-white uppercase tracking-tight">
                 Coastal Nganya Awards Night
               </h3>
-              <div className="text-xs text-slate-400 space-y-1 font-mono">
+              <div className="text-xs text-white/50 space-y-1 font-mono">
                 <div>Holder: <span className="text-white font-bold">{orderDetails?.buyerName}</span></div>
-                <div>Code: <span className="text-amber-400 font-bold tracking-widest">{t.ticket_code}</span></div>
+                <div>Code: <span className="text-white font-bold tracking-widest">{t.ticket_code}</span></div>
                 <div>Venue: Mombasa Cement Grounds, Mombasa</div>
-                <div>Date: Saturday, Dec 6, 2025 • 6:00 PM</div>
+                <div>Date: Saturday, Dec 6, 2025 • 6:00 PM EAT</div>
               </div>
             </div>
 
@@ -175,17 +170,17 @@ export function TicketSuccessClient({ orderRef, isSimulated }: TicketSuccessClie
                 // eslint-disable-next-line @next/next/no-img-element
                 <img
                   src={qrImages[t.id]}
-                  alt="Ticket QR Code"
+                  alt={`Ticket QR Code for ${t.ticket_code}`}
                   width={200}
                   height={200}
                   className="rounded-lg"
                 />
               ) : (
-                <div className="w-[200px] h-[200px] flex items-center justify-center text-slate-400 text-xs">
+                <div className="w-[200px] h-[200px] flex items-center justify-center text-black text-xs font-mono">
                   Generating QR...
                 </div>
               )}
-              <div className="text-[10px] text-slate-600 font-mono font-bold mt-1 tracking-wider uppercase">
+              <div className="text-[10px] text-black font-mono font-bold mt-1 tracking-wider uppercase">
                 Scan at Gate
               </div>
             </div>
@@ -198,7 +193,7 @@ export function TicketSuccessClient({ orderRef, isSimulated }: TicketSuccessClie
         <Button
           onClick={handlePrint}
           variant="outline"
-          className="w-full sm:w-auto bg-white/5 hover:bg-white/10 text-white border-white/20 font-bold"
+          className="w-full sm:w-auto bg-transparent hover:bg-white/5 text-white border-white/20 font-semibold focus-visible:ring-2 focus-visible:ring-white"
         >
           <Printer className="w-4 h-4 mr-2" />
           Print / Save PDF
@@ -206,10 +201,10 @@ export function TicketSuccessClient({ orderRef, isSimulated }: TicketSuccessClie
 
         <Button
           asChild
-          className="w-full sm:w-auto bg-amber-500 hover:bg-amber-400 text-black font-extrabold"
+          className="w-full sm:w-auto bg-white hover:bg-white/90 text-black font-semibold focus-visible:ring-2 focus-visible:ring-white"
         >
           <Link href="/vote">
-            Now Cast Your Votes in 61 Categories
+            Cast Your Votes
             <ArrowRight className="w-4 h-4 ml-2" />
           </Link>
         </Button>
