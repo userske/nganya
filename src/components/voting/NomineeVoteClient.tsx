@@ -250,7 +250,7 @@ export function NomineeVoteClient({
             <div
               key={nominee.id}
               onClick={() => handleNomineeClick(nominee.id)}
-              className={`relative p-6 rounded-2xl transition-all duration-300 border text-left select-none ${
+              className={`relative p-6 rounded-2xl transition-[background-color,border-color,box-shadow,transform] duration-200 ease-out border text-left select-none ${
                 isThisVoted
                   ? "bg-[#0c1f1a] border-emerald-500 shadow-[0_0_30px_rgba(16,185,129,0.2)]"
                   : isSelected && !isLocked
@@ -305,7 +305,7 @@ export function NomineeVoteClient({
               <div className="mt-4 pt-3 border-t border-white/5">
                 <div className="w-full bg-white/5 h-1.5 rounded-full overflow-hidden">
                   <div
-                    className={`h-full transition-all duration-700 ${
+                    className={`h-full transition-[width] duration-500 ease-out ${
                       isThisVoted
                         ? "bg-emerald-500"
                         : isSelected
@@ -325,7 +325,7 @@ export function NomineeVoteClient({
       {!isLocked && (
         <div className="fixed bottom-6 left-1/2 -translate-x-1/2 w-[92%] max-w-xl z-30">
           <div className="p-4 rounded-2xl bg-slate-900/95 border border-amber-500/40 shadow-[0_0_40px_rgba(245,158,11,0.25)] backdrop-blur-xl flex items-center justify-between gap-4">
-            <div className="truncate">
+            <div className="min-w-0 truncate">
               {selectedNominee ? (
                 <div>
                   <div className="text-[11px] uppercase tracking-wider text-slate-400">

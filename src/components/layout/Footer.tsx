@@ -35,7 +35,7 @@ export function Footer({ eventData }: FooterProps) {
               </span>
             </Link>
             <p className="text-slate-400 text-sm leading-relaxed max-w-sm">
-              Mombasa’s official celebration of matatu culture, urban art, acoustic innovation, and transport industry excellence.
+              Mombasa’s official awards recognizing custom matatu fabrication, competition acoustics, crew discipline, and coastal route excellence.
             </p>
             <div className="pt-2 text-xs text-slate-500 space-y-1">
               <div className="flex items-center gap-2">

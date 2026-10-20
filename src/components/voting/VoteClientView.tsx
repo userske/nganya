@@ -144,7 +144,7 @@ export function VoteClientView({
             <button
               key={group}
               onClick={() => setSelectedGroup(group)}
-              className={`px-4 py-2 rounded-xl text-xs font-semibold whitespace-nowrap transition-all ${
+              className={`px-4 py-2 rounded-xl text-xs font-semibold whitespace-nowrap transition-[background-color,color,box-shadow] duration-150 ease-out active:scale-[0.96] ${
                 selectedGroup === group
                   ? "bg-amber-500 text-black shadow-lg shadow-amber-500/20 font-bold"
                   : "bg-white/[0.04] text-slate-400 hover:text-white hover:bg-white/[0.08] border border-white/5"

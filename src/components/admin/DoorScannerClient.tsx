@@ -146,7 +146,7 @@ export function DoorScannerClient() {
           {/* Result Alert */}
           {scanResult ? (
             <div
-              className={`p-6 rounded-3xl border-2 text-center transition-all ${
+              className={`p-6 rounded-3xl border-2 text-center transition-[background-color,border-color,box-shadow] duration-200 ease-out ${
                 scanResult.success
                   ? "bg-emerald-950/70 border-emerald-500 text-emerald-300 shadow-[0_0_40px_rgba(16,185,129,0.3)]"
                   : "bg-red-950/70 border-red-500 text-red-300 shadow-[0_0_40px_rgba(239,68,68,0.3)]"
@@ -208,7 +208,7 @@ export function DoorScannerClient() {
                     key={i}
                     className="p-2.5 rounded-lg bg-white/[0.03] border border-white/5 flex items-center justify-between text-xs font-mono"
                   >
-                    <div className="truncate mr-2">
+                    <div className="min-w-0 truncate mr-2">
                       <span className={h.success ? "text-emerald-400 font-bold" : "text-red-400 font-bold"}>
                         {h.success ? "✓ IN" : "✗ REJECT"}
                       </span>

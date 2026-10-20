@@ -35,7 +35,7 @@ export function Navbar() {
     <>
       <header
         className={cn(
-          "fixed top-0 left-0 right-0 z-50 transition-all duration-500",
+          "fixed top-0 left-0 right-0 z-50 transition-[background-color,border-color,backdrop-filter,box-shadow] duration-500",
           scrolled
             ? "bg-[#050810]/90 backdrop-blur-xl border-b border-white/5 shadow-2xl"
             : "bg-transparent"
@@ -65,7 +65,7 @@ export function Navbar() {
                   key={link.href}
                   href={link.href}
                   className={cn(
-                    "px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200",
+                    "px-4 py-2 rounded-lg text-sm font-medium motion-safe:transition-[color,background-color] motion-safe:duration-150 motion-safe:ease-out",
                     "hover:text-white hover:bg-white/5",
                     pathname === link.href
                       ? "text-[#c9a227]"
@@ -79,25 +79,27 @@ export function Navbar() {
 
             {/* CTA */}
             <div className="hidden lg:flex items-center gap-3">
-              <Link href="/vote">
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="text-[#c9a227] border border-[#c9a227]/30 hover:bg-[#c9a227]/10 hover:border-[#c9a227]/60"
-                >
+              <Button
+                asChild
+                variant="ghost"
+                size="sm"
+                className="text-[#c9a227] border border-[#c9a227]/30 hover:bg-[#c9a227]/10 hover:border-[#c9a227]/60"
+              >
+                <Link href="/vote">
                   <Vote className="w-4 h-4 mr-2" />
                   Vote Now
-                </Button>
-              </Link>
-              <Link href="/tickets">
-                <Button
-                  size="sm"
-                  className="bg-gradient-to-r from-[#c9a227] to-[#e8602c] hover:opacity-90 text-white font-semibold shadow-lg shadow-[#c9a227]/20"
-                >
+                </Link>
+              </Button>
+              <Button
+                asChild
+                size="sm"
+                className="bg-gradient-to-r from-[#c9a227] to-[#e8602c] hover:opacity-90 text-white font-semibold shadow-lg shadow-[#c9a227]/20"
+              >
+                <Link href="/tickets">
                   <Ticket className="w-4 h-4 mr-2" />
                   Buy Tickets
-                </Button>
-              </Link>
+                </Link>
+              </Button>
             </div>
 
             {/* Mobile menu button */}
@@ -116,11 +118,11 @@ export function Navbar() {
       <AnimatePresence>
         {menuOpen && (
           <motion.div
-            initial={{ opacity: 0, y: -20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -20 }}
-            transition={{ duration: 0.2 }}
-            className="fixed inset-0 z-40 lg:hidden"
+            initial={{ opacity: 0, y: -12, filter: "blur(4px)" }}
+            animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+            exit={{ opacity: 0, y: -12, filter: "blur(4px)" }}
+            transition={{ duration: 0.15, ease: "easeOut" }}
+            className="fixed inset-0 z-40 lg:hidden overscroll-contain"
           >
             <div
               className="absolute inset-0 bg-black/60 backdrop-blur-sm"
@@ -133,7 +135,7 @@ export function Navbar() {
                     key={link.href}
                     href={link.href}
                     className={cn(
-                      "px-4 py-3 rounded-xl text-base font-medium transition-all",
+                      "px-4 py-3 rounded-xl text-base font-medium motion-safe:transition-[color,background-color] motion-safe:duration-150 motion-safe:ease-out",
                       "hover:bg-white/5 hover:text-white",
                       pathname === link.href ? "text-[#c9a227]" : "text-white/80"
                     )}

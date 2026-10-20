@@ -24,6 +24,29 @@ interface HeroSectionProps {
   eventData: EventData;
 }
 
+const PARTICLES = [
+  { left: "12%", top: "24%", duration: 4.2, delay: 0.5 },
+  { left: "28%", top: "68%", duration: 5.1, delay: 1.2 },
+  { left: "45%", top: "15%", duration: 3.8, delay: 2.1 },
+  { left: "62%", top: "82%", duration: 6.0, delay: 0.8 },
+  { left: "75%", top: "35%", duration: 4.5, delay: 3.0 },
+  { left: "88%", top: "54%", duration: 5.5, delay: 1.7 },
+  { left: "19%", top: "79%", duration: 4.8, delay: 2.5 },
+  { left: "33%", top: "42%", duration: 6.2, delay: 0.2 },
+  { left: "53%", top: "88%", duration: 3.9, delay: 3.4 },
+  { left: "68%", top: "18%", duration: 5.3, delay: 1.9 },
+  { left: "82%", top: "72%", duration: 4.1, delay: 0.7 },
+  { left: "94%", top: "29%", duration: 5.8, delay: 2.8 },
+  { left: "8%", top: "58%", duration: 4.6, delay: 1.4 },
+  { left: "23%", top: "12%", duration: 6.4, delay: 3.1 },
+  { left: "41%", top: "64%", duration: 3.7, delay: 0.9 },
+  { left: "57%", top: "38%", duration: 5.0, delay: 2.3 },
+  { left: "71%", top: "91%", duration: 4.4, delay: 1.1 },
+  { left: "85%", top: "16%", duration: 6.1, delay: 3.6 },
+  { left: "91%", top: "85%", duration: 4.9, delay: 0.4 },
+  { left: "4%", top: "33%", duration: 5.2, delay: 2.0 },
+];
+
 function formatEventDate(date: string) {
   try {
     return format(new Date(date), "EEEE, d MMMM yyyy");
@@ -49,7 +72,7 @@ export function HeroSection({ eventData }: HeroSectionProps) {
   return (
     <section
       id="home"
-      className="relative min-h-screen flex flex-col items-center justify-center overflow-hidden"
+      className="relative min-h-[100dvh] flex flex-col items-center justify-center overflow-hidden"
       aria-label="Hero – Coastal Nganya Awards"
     >
       {/* Background image */}
@@ -70,22 +93,22 @@ export function HeroSection({ eventData }: HeroSectionProps) {
 
       {/* Floating particles */}
       <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
-        {[...Array(20)].map((_, i) => (
+        {PARTICLES.map((p, i) => (
           <motion.div
             key={i}
             className="absolute w-1 h-1 rounded-full bg-[#c9a227]/40"
             style={{
-              left: `${Math.random() * 100}%`,
-              top: `${Math.random() * 100}%`,
+              left: p.left,
+              top: p.top,
             }}
             animate={{
               y: [0, -30, 0],
               opacity: [0, 1, 0],
             }}
             transition={{
-              duration: 3 + Math.random() * 4,
+              duration: p.duration,
               repeat: Infinity,
-              delay: Math.random() * 5,
+              delay: p.delay,
             }}
           />
         ))}
@@ -123,7 +146,7 @@ export function HeroSection({ eventData }: HeroSectionProps) {
           transition={{ duration: 0.6, delay: 0.3 }}
           className="text-white/60 text-lg sm:text-xl max-w-2xl mx-auto mb-10"
         >
-          {eventData.tagline ?? "Celebrating the heartbeat of Mombasa's roads"}
+          {eventData.tagline ?? "Mombasa's biggest night for custom builds, sound setups, and route culture"}
         </motion.p>
 
         {/* Event info bar */}
@@ -187,26 +210,28 @@ export function HeroSection({ eventData }: HeroSectionProps) {
           className="flex flex-col sm:flex-row items-center justify-center gap-4"
         >
           {eventData.ticket_sales_open && (
-            <Link href="/tickets">
-              <Button
-                size="lg"
-                className="bg-gradient-to-r from-[#c9a227] to-[#e8602c] hover:opacity-90 text-white font-bold text-base px-8 py-6 shadow-2xl shadow-[#c9a227]/20 hover:shadow-[#c9a227]/40 transition-shadow duration-300"
-              >
+            <Button
+              asChild
+              size="lg"
+              className="bg-gradient-to-r from-amber-400 via-yellow-400 to-amber-500 hover:opacity-95 text-black font-extrabold text-base px-8 py-6 shadow-2xl shadow-amber-500/25 hover:shadow-amber-500/40 transition-[box-shadow,opacity] duration-200"
+            >
+              <Link href="/tickets">
                 <Ticket className="w-5 h-5 mr-2" />
                 Buy Tickets
-              </Button>
-            </Link>
-          )}
-          <Link href="/vote">
-            <Button
-              size="lg"
-              variant="outline"
-              className="border-white/20 text-white hover:bg-white/5 hover:border-[#c9a227]/60 text-base px-8 py-6 backdrop-blur-sm"
-            >
-              <Vote className="w-5 h-5 mr-2" />
-              Vote Now
+              </Link>
             </Button>
-          </Link>
+          )}
+          <Button
+            asChild
+            size="lg"
+            variant="outline"
+            className="border-white/20 text-white hover:bg-white/5 hover:border-[#c9a227]/60 text-base px-8 py-6 backdrop-blur-sm transition-[border-color,background-color] duration-150"
+          >
+            <Link href="/vote">
+              <Vote className="w-5 h-5 mr-2 text-[#c9a227]" />
+              Vote Now
+            </Link>
+          </Button>
         </motion.div>
       </div>
 

@@ -113,7 +113,7 @@ function LoginForm() {
           <Button
             type="submit"
             disabled={isLoading || !email}
-            className="w-full bg-amber-500 hover:bg-amber-400 text-black font-extrabold h-12 rounded-xl text-sm transition-all"
+            className="w-full bg-amber-500 hover:bg-amber-400 text-black font-extrabold h-12 rounded-xl text-sm transition-[background-color,color] duration-150 ease-out"
           >
             {isLoading ? (
               <>
@@ -167,7 +167,7 @@ function LoginForm() {
           <Button
             type="submit"
             disabled={isLoading || otpCode.length < 6}
-            className="w-full bg-amber-500 hover:bg-amber-400 text-black font-extrabold h-12 rounded-xl text-sm transition-all"
+            className="w-full bg-amber-500 hover:bg-amber-400 text-black font-extrabold h-12 rounded-xl text-sm transition-[background-color,color] duration-150 ease-out"
           >
             {isLoading ? (
               <>
@@ -194,7 +194,7 @@ function LoginForm() {
 
 export default function LoginPage() {
   return (
-    <div className="min-h-screen bg-[#050810] text-white flex flex-col justify-center items-center px-4 relative overflow-hidden">
+    <div className="min-h-[100dvh] bg-[#050810] text-white flex flex-col justify-center items-center px-4 relative overflow-hidden">
       {/* Background radial glow */}
       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[300px] bg-amber-500/10 blur-[130px] pointer-events-none rounded-full" />
 

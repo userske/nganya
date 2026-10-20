@@ -30,9 +30,9 @@ export function AboutSection({ aboutHtml }: AboutSectionProps) {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.5, delay: i * 0.1 }}
-              className="glass-card p-6 text-center hover:border-[#c9a227]/30 transition-all duration-300 group"
+              className="glass-card p-6 text-center hover:border-[#c9a227]/30 transition-[border-color,background-color] duration-200 group"
             >
-              <div className="w-12 h-12 rounded-xl bg-[#c9a227]/10 flex items-center justify-center mx-auto mb-3 group-hover:bg-[#c9a227]/20 transition-colors">
+              <div className="w-12 h-12 rounded-xl bg-[#c9a227]/10 flex items-center justify-center mx-auto mb-3 group-hover:bg-[#c9a227]/20 transition-colors duration-150">
                 <stat.icon className="w-6 h-6 text-[#c9a227]" />
               </div>
               <div className="text-3xl lg:text-4xl font-black text-white mb-1">
@@ -52,11 +52,11 @@ export function AboutSection({ aboutHtml }: AboutSectionProps) {
             transition={{ duration: 0.7 }}
           >
             <span className="inline-block px-3 py-1 rounded-full bg-[#c9a227]/10 border border-[#c9a227]/20 text-[#c9a227] text-xs font-bold uppercase tracking-widest mb-4">
-              Our Story
+              Our Scene
             </span>
             <h2 className="heading-lg text-4xl lg:text-5xl text-white mb-6">
-              The Pulse of{" "}
-              <span className="text-gold-gradient">Mombasa's Roads</span>
+              Mombasa&apos;s Signature{" "}
+              <span className="text-gold-gradient">Street Engineering</span>
             </h2>
             <div
               className="prose prose-invert prose-p:text-white/70 prose-p:leading-relaxed prose-strong:text-white max-w-none"
@@ -76,7 +76,7 @@ export function AboutSection({ aboutHtml }: AboutSectionProps) {
               {highlights.map((h, i) => (
                 <div
                   key={h.title}
-                  className={`glass-card p-6 hover:border-[#c9a227]/20 transition-all duration-300 ${
+                  className={`glass-card p-6 hover:border-[#c9a227]/20 transition-[border-color,background-color] duration-200 ${
                     i === 1 ? "mt-8" : ""
                   } ${i === 3 ? "-mt-8" : ""}`}
                 >
@@ -94,29 +94,29 @@ export function AboutSection({ aboutHtml }: AboutSectionProps) {
 }
 
 const DEFAULT_ABOUT = `
-  <p>The <strong>Coastal Nganya Awards</strong> is the premier celebration of Mombasa's vibrant matatu and nganya culture. We honour the drivers, conductors, fleet owners, and businesses that make our roads a moving canvas of art, music, and community.</p>
-  <p>From the iconic routes of Jomvu to Kisauni, Mikindani to Likoni — this night belongs to the people who keep Mombasa moving. One evening. 61 categories. 500+ nominees. Your vote matters.</p>
+  <p>The <strong>Coastal Nganya Awards</strong> honors the fabrication workshops, acoustic engineers, airbrush artists, and crews behind Mombasa's most revered matatus.</p>
+  <p>From high-bass runs between Jomvu and Posta, to custom aerodynamic fiberglass body kits cutting through Kisauni, Mikindani, and the Likoni ferry lines, this is coastal street engineering at full volume. 61 categories. Over 500 nominees. Every vote locked to one verified ballot per person.</p>
 `;
 
 const highlights = [
   {
     emoji: "🏆",
     title: "61 Categories",
-    desc: "Covering every route and every role in the nganya ecosystem.",
+    desc: "Every major corridor—Jomvu, Kisauni, Bamburi, Likoni—plus custom builders, sound technicians, and crew.",
   },
   {
-    emoji: "🎭",
-    title: "Live Entertainment",
-    desc: "An awards night to remember with performances and celebrations.",
+    emoji: "🔊",
+    title: "Live Audio & Showcase",
+    desc: "A full night of sound clashes, fabrication showcases, and category coronations.",
   },
   {
     emoji: "🗳️",
-    title: "Public Voting",
-    desc: "Real-time live vote counts. One vote per category. Your voice matters.",
+    title: "Verifiable Voting",
+    desc: "One verified vote per person per category. Direct real-time tallying with zero ballot tampering.",
   },
   {
     emoji: "🎟️",
-    title: "Get Your Ticket",
-    desc: "VIP, VVIP, Regular and Group tiers available. Buy now before they sell out.",
+    title: "Instant Gate Passes",
+    desc: "Secure HMAC-signed QR tickets delivered instantly to your inbox via M-Pesa or Card.",
   },
 ];

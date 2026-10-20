@@ -52,7 +52,7 @@ function CountdownUnit({
     <div className="flex flex-col items-center gap-2">
       <div className="relative">
         <div className="w-20 h-20 sm:w-28 sm:h-28 lg:w-32 lg:h-32 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-sm flex items-center justify-center overflow-hidden">
-          <AnimatePresence mode="popLayout">
+          <AnimatePresence mode="popLayout" initial={false}>
             <motion.span
               key={value}
               initial={{ y: flipping ? -40 : 0, opacity: 0 }}

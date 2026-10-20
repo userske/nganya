@@ -191,7 +191,7 @@ export function ResultsClientView({ categories, initialCounts }: ResultsClientVi
             <button
               key={group}
               onClick={() => setSelectedGroup(group)}
-              className={`px-4 py-2 rounded-xl text-xs font-semibold whitespace-nowrap transition-all ${
+              className={`px-4 py-2 rounded-xl text-xs font-semibold whitespace-nowrap transition-[background-color,color,box-shadow] duration-150 ease-out active:scale-[0.96] ${
                 selectedGroup === group
                   ? "bg-amber-500 text-black shadow-lg shadow-amber-500/20 font-bold"
                   : "bg-white/[0.04] text-slate-400 hover:text-white hover:bg-white/[0.08] border border-white/5"
@@ -275,7 +275,7 @@ export function ResultsClientView({ categories, initialCounts }: ResultsClientVi
                   return (
                     <div
                       key={nominee.id}
-                      className={`relative p-4 rounded-xl border transition-all ${
+                      className={`relative p-4 rounded-xl border transition-[background-color,border-color,box-shadow] duration-200 ease-out ${
                         isFirst
                           ? "bg-amber-500/10 border-amber-500/40 shadow-[0_0_20px_rgba(245,158,11,0.1)]"
                           : "bg-white/[0.02] border-white/5 hover:border-white/15"
@@ -324,7 +324,7 @@ export function ResultsClientView({ categories, initialCounts }: ResultsClientVi
                       {/* Vote share bar */}
                       <div className="w-full bg-white/5 h-2 rounded-full overflow-hidden">
                         <div
-                          className={`h-full transition-all duration-700 ${
+                          className={`h-full transition-[width] duration-500 ease-out ${
                             isFirst
                               ? "bg-gradient-to-r from-amber-500 to-yellow-300"
                               : "bg-amber-500/50"

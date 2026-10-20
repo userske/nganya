@@ -88,7 +88,7 @@ export function TicketCheckoutClient({ tiers }: TicketCheckoutClientProps) {
               <div
                 key={tier.id}
                 onClick={() => !isSoldOut && setSelectedTierId(tier.id)}
-                className={`relative p-6 rounded-2xl transition-all duration-300 border text-left ${
+                className={`relative p-6 rounded-2xl transition-[background-color,border-color,box-shadow] duration-200 ease-out border text-left ${
                   isSoldOut
                     ? "bg-white/[0.01] border-white/5 opacity-50 cursor-not-allowed"
                     : isSelected
@@ -174,7 +174,7 @@ export function TicketCheckoutClient({ tiers }: TicketCheckoutClientProps) {
                     key={num}
                     type="button"
                     onClick={() => setQuantity(num)}
-                    className={`flex-1 py-2 rounded-xl text-xs font-bold transition-all ${
+                    className={`flex-1 py-2 rounded-xl text-xs font-bold transition-[background-color,color,border-color] duration-150 ease-out active:scale-[0.96] ${
                       quantity === num
                         ? "bg-amber-500 text-black shadow-md shadow-amber-500/20"
                         : "bg-white/5 text-slate-300 hover:bg-white/10 border border-white/10"
@@ -255,7 +255,7 @@ export function TicketCheckoutClient({ tiers }: TicketCheckoutClientProps) {
             <Button
               type="submit"
               disabled={isLoading || !buyerName || !buyerEmail || !buyerPhone}
-              className="w-full mt-6 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-black font-black text-sm h-13 rounded-xl shadow-[0_0_30px_rgba(245,158,11,0.3)] transition-all"
+              className="w-full mt-6 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-black font-black text-sm h-13 rounded-xl shadow-[0_0_30px_rgba(245,158,11,0.3)] transition-[box-shadow,opacity] duration-150 ease-out"
             >
               {isLoading ? (
                 <>

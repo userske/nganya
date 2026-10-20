@@ -10,13 +10,17 @@ import { createClient } from "@/lib/supabase/server";
 export const revalidate = 60; // ISR – refresh every minute
 
 async function getEventSettings() {
-  const supabase = await createClient();
-  const { data } = await supabase
-    .from("event_settings")
-    .select("*")
-    .eq("id", 1)
-    .single();
-  return data;
+  try {
+    const supabase = await createClient();
+    const { data } = await supabase
+      .from("event_settings")
+      .select("*")
+      .eq("id", 1)
+      .single();
+    return data;
+  } catch {
+    return null;
+  }
 }
 
 export default async function HomePage() {
@@ -25,11 +29,11 @@ export default async function HomePage() {
   // Fallback values when DB isn't configured yet
   const eventData = event ?? {
     event_name: "Coastal Nganya Awards",
-    tagline: "Celebrating the heartbeat of Mombasa's roads",
+    tagline: "Mombasa's biggest night for custom builds, sound setups, and route culture",
     event_date: "2025-12-06",
     event_time: "18:00",
-    venue_name: "Mombasa Cement, Mombasa",
-    about_html: `<p>The <strong>Coastal Nganya Awards</strong> is the premier celebration of Mombasa's vibrant matatu and nganya culture. We honour the drivers, conductors, fleet owners, and businesses that make our roads a moving canvas of art, music, and community.</p><p>From the iconic routes of Jomvu to Kisauni, Mikindani to Likoni — this night belongs to the people who keep Mombasa moving.</p>`,
+    venue_name: "Mombasa Cement Grounds, Mombasa",
+    about_html: `<p>The <strong>Coastal Nganya Awards</strong> honors the fabricators, audio engineers, airbrush artists, and crews behind Mombasa's most revered matatus.</p><p>From high-bass battles on the Jomvu line to custom aerodynamic kits rolling through Kisauni, Mikindani, and Likoni, this is street engineering at full volume. 61 categories. Over 500 nominees. One verified vote per category.</p>`,
     social_links: {},
     voting_opens_at: null,
     voting_closes_at: null,

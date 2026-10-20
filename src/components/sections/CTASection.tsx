@@ -40,7 +40,7 @@ export function CTASection() {
             <Button
               asChild
               size="lg"
-              className="w-full sm:w-auto bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-black font-extrabold text-base px-8 py-6 rounded-xl shadow-[0_0_30px_rgba(245,158,11,0.35)] hover:shadow-[0_0_45px_rgba(245,158,11,0.5)] transition-all transform hover:-translate-y-0.5"
+              className="w-full sm:w-auto bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-black font-extrabold text-base px-8 py-6 rounded-xl shadow-[0_0_30px_rgba(245,158,11,0.35)] hover:shadow-[0_0_45px_rgba(245,158,11,0.5)] transition-[box-shadow,transform] duration-200 ease-out hover:-translate-y-0.5"
             >
               <Link href="/tickets">
                 <Ticket className="w-5 h-5 mr-2" />
@@ -52,7 +52,7 @@ export function CTASection() {
               asChild
               variant="outline"
               size="lg"
-              className="w-full sm:w-auto bg-white/5 hover:bg-white/10 text-white border-white/20 hover:border-amber-400/50 font-bold text-base px-8 py-6 rounded-xl transition-all"
+              className="w-full sm:w-auto bg-white/5 hover:bg-white/10 text-white border-white/20 hover:border-amber-400/50 font-bold text-base px-8 py-6 rounded-xl transition-[background-color,border-color,color] duration-150 ease-out"
             >
               <Link href="/vote">
                 <Vote className="w-5 h-5 mr-2 text-amber-400" />

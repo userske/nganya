@@ -97,12 +97,12 @@ export function SponsorsSection() {
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true }}
                   transition={{ delay: idx * 0.1, duration: 0.5 }}
-                  className="group relative p-8 rounded-2xl bg-white/[0.03] border border-amber-500/20 hover:border-amber-500/50 transition-all duration-300 hover:shadow-[0_0_30px_rgba(245,158,11,0.12)] flex flex-col items-center text-center backdrop-blur-sm"
+                  className="group relative p-8 rounded-2xl bg-white/[0.03] border border-amber-500/20 hover:border-amber-500/50 transition-[border-color,box-shadow] duration-200 ease-out hover:shadow-[0_0_30px_rgba(245,158,11,0.12)] flex flex-col items-center text-center backdrop-blur-sm"
                 >
-                  <div className="w-14 h-14 rounded-xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-amber-400 mb-4 group-hover:scale-110 transition-transform">
+                  <div className="w-14 h-14 rounded-xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-amber-400 mb-4 group-hover:scale-110 transition-transform duration-200">
                     <ShieldCheck className="w-7 h-7" />
                   </div>
-                  <h3 className="text-xl font-bold text-white tracking-wide group-hover:text-amber-400 transition-colors">
+                  <h3 className="text-xl font-bold text-white tracking-wide group-hover:text-amber-400 transition-colors duration-150">
                     {sponsor.name}
                   </h3>
                   <p className="text-xs text-slate-400 mt-1 uppercase tracking-wider">
@@ -124,9 +124,9 @@ export function SponsorsSection() {
                 whileInView={{ opacity: 1, scale: 1 }}
                 viewport={{ once: true }}
                 transition={{ delay: 0.2 + idx * 0.05, duration: 0.4 }}
-                className="p-5 rounded-xl bg-white/[0.02] border border-white/5 hover:border-white/20 transition-all duration-300 hover:bg-white/[0.04] text-center flex flex-col justify-center items-center group"
+                className="p-5 rounded-xl bg-white/[0.02] border border-white/5 hover:border-white/20 transition-[border-color,background-color] duration-150 ease-out hover:bg-white/[0.04] text-center flex flex-col justify-center items-center group"
               >
-                <div className="text-xs uppercase font-mono font-bold tracking-widest text-slate-300 group-hover:text-white transition-colors">
+                <div className="text-xs uppercase font-mono font-bold tracking-widest text-slate-300 group-hover:text-white transition-colors duration-150">
                   {sponsor.logoText}
                 </div>
                 <div className="text-[11px] text-slate-500 mt-1 line-clamp-1">

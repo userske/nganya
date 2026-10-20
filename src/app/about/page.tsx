@@ -23,10 +23,10 @@ export default function AboutPage() {
               The Culture & Vision
             </div>
             <h1 className="text-3xl sm:text-5xl font-black text-white uppercase tracking-tight">
-              Honouring the Heartbeat of Coast Roads
+              Mombasa&apos;s Arena for Fabricators, Crews, and Route Culture
             </h1>
             <p className="text-slate-400 text-sm sm:text-base mt-4 leading-relaxed">
-              Mombasa’s nganyas are more than transport — they are rolling canvases of custom art, acoustic innovation, youth empowerment, and coastal resilience.
+              Mombasa’s nganyas are street engineering at full tilt: bespoke fiberglass aero kits, competition-grade audio rigs, custom airbrushing, and the disciplined crews running coastal corridors daily.
             </p>
           </div>
 
@@ -36,10 +36,10 @@ export default function AboutPage() {
               Why Coastal Nganya Awards?
             </h2>
             <p>
-              For decades, the Coast matatu culture has pioneered some of the country&apos;s most breathtaking graphic art, bespoke fabrication, and state-of-the-art audio installations. From the bustling streets of Jomvu to Kisauni, Mikindani, Likoni, and Mombasa Island, these vehicles define the daily pulse of our city.
+              Coast matatu culture has spent years driving Kenya&apos;s most distinctive fabrication, audio tuning, and graphics. From high-bass runs between Jomvu and Posta, to custom body kits cutting through Kisauni, Mikindani, and the Likoni ferry queues, these machines are built with serious workshop discipline.
             </p>
             <p>
-              The <strong>Coastal Nganya Awards</strong> was established to give overdue recognition to the dedicated men and women behind the wheel, the conductors keeping commuters safe and energized, the fabrication workshops sculpting aerodynamic body kits, the audio engineers, and the visionary sacco leaderships elevating our transport sector.
+              The <strong>Coastal Nganya Awards</strong> was established to give concrete recognition to the fabricators shaping custom panels, the audio technicians wiring multi-amp rigs, the drivers and conductors managing grueling shifts, and the sacco leaderships maintaining route order.
             </p>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 pt-6 my-6 border-y border-white/10">

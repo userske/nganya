@@ -21,7 +21,7 @@ export function CategoryCard({ category, userVotedNomineeName }: CategoryCardPro
   return (
     <Link
       href={`/vote/${category.slug}`}
-      className={`group relative block p-6 rounded-2xl transition-all duration-300 border ${
+      className={`group relative block p-6 rounded-2xl transition-[background-color,border-color,box-shadow] duration-200 ease-out border ${
         isVoted
           ? "bg-[#0b1622]/80 border-emerald-500/30 hover:border-emerald-500/60 shadow-[0_0_20px_rgba(16,185,129,0.08)]"
           : "bg-white/[0.03] border-white/10 hover:border-amber-500/40 hover:bg-white/[0.05] hover:shadow-[0_0_25px_rgba(245,158,11,0.08)]"

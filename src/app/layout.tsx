@@ -1,9 +1,18 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import "./globals.css";
 import { Toaster } from "@/components/ui/sonner";
 import { ThemeProvider } from "next-themes";
 
+import { MotionProvider } from "@/components/providers/MotionProvider";
+
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "https://coastalngayaawards.com";
+
+export const viewport: Viewport = {
+  themeColor: "#050810",
+  width: "device-width",
+  initialScale: 1,
+  viewportFit: "cover",
+};
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
@@ -87,7 +96,9 @@ export default function RootLayout({
       </head>
       <body className="min-h-screen antialiased">
         <ThemeProvider attribute="class" defaultTheme="dark" forcedTheme="dark">
-          {children}
+          <MotionProvider>
+            {children}
+          </MotionProvider>
           <Toaster
             theme="dark"
             toastOptions={{

@@ -132,7 +132,7 @@ export function VoteAuthDialog({
             <Button
               type="submit"
               disabled={isLoading || !email}
-              className="w-full bg-amber-500 hover:bg-amber-400 text-black font-bold h-11 rounded-xl transition-all"
+              className="w-full bg-amber-500 hover:bg-amber-400 text-black font-bold h-11 rounded-xl transition-[background-color,color] duration-150 ease-out"
             >
               {isLoading ? (
                 <>
@@ -186,7 +186,7 @@ export function VoteAuthDialog({
             <Button
               type="submit"
               disabled={isLoading || otpCode.length < 6}
-              className="w-full bg-amber-500 hover:bg-amber-400 text-black font-bold h-11 rounded-xl transition-all"
+              className="w-full bg-amber-500 hover:bg-amber-400 text-black font-bold h-11 rounded-xl transition-[background-color,color] duration-150 ease-out"
             >
               {isLoading ? (
                 <>
