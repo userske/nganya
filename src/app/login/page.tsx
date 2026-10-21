@@ -107,7 +107,7 @@ function LoginForm() {
               className="bg-white/5 border-white/10 text-white placeholder:text-white/30 h-12 focus-visible:ring-2 focus-visible:ring-white"
             />
             <p className="text-[11px] text-white/40">
-              One verified email = one vote per category across all 61 categories.
+              One verified email = one vote per category across all 62 categories.
             </p>
           </div>
 

@@ -8,7 +8,7 @@ interface AboutSectionProps {
 }
 
 const stats = [
-  { icon: Trophy, value: "61", label: "Award Categories" },
+  { icon: Trophy, value: "62", label: "Award Categories" },
   { icon: Users, value: "500+", label: "Nominees" },
   { icon: Mic, value: "1", label: "Epic Night" },
   { icon: Star, value: "∞", label: "Nganya Culture" },
@@ -16,7 +16,7 @@ const stats = [
 
 const highlights = [
   {
-    title: "61 Categories",
+    title: "62 Categories",
     desc: "Every major corridor — Jomvu, Kisauni, Bamburi, Likoni — plus custom builders, sound technicians, and crew.",
   },
   {
@@ -35,7 +35,7 @@ const highlights = [
 
 const DEFAULT_ABOUT = `
   <p>The <strong>Coastal Nganya Awards</strong> honors the fabrication workshops, acoustic engineers, airbrush artists, and crews behind Mombasa's most revered matatus.</p>
-  <p>From high-bass runs between Jomvu and Posta, to custom aerodynamic fiberglass body kits cutting through Kisauni, Mikindani, and the Likoni ferry lines, this is coastal street engineering at full volume. 61 categories. Over 500 nominees. Every vote locked to one verified ballot per person.</p>
+  <p>From high-bass runs between Jomvu and Posta, to custom aerodynamic fiberglass body kits cutting through Kisauni, Mikindani, and the Likoni ferry lines, this is coastal street engineering at full volume. 62 categories. Over 500 nominees. Every vote locked to one verified ballot per person.</p>
 `;
 
 export function AboutSection({ aboutHtml }: AboutSectionProps) {

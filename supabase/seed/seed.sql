@@ -330,7 +330,10 @@ BEGIN
   VALUES (v_cat_id, 'Kings', NULL, 1, true)
   ON CONFLICT (category_id, name) DO NOTHING;
   INSERT INTO nominees (category_id, name, subtitle, sort_order, is_active)
-  VALUES (v_cat_id, 'Paperlife', NULL, 2, true)
+  VALUES (v_cat_id, 'McQueen', NULL, 2, true)
+  ON CONFLICT (category_id, name) DO NOTHING;
+  INSERT INTO nominees (category_id, name, subtitle, sort_order, is_active)
+  VALUES (v_cat_id, 'Paperlife', NULL, 3, true)
   ON CONFLICT (category_id, name) DO NOTHING;
   INSERT INTO nominees (category_id, name, subtitle, sort_order, is_active)
   VALUES (v_cat_id, 'Madtown', 'batman', 3, true)
@@ -2284,6 +2287,48 @@ BEGIN
   ON CONFLICT (category_id, name) DO NOTHING;
   INSERT INTO nominees (category_id, name, subtitle, sort_order, is_active)
   VALUES (v_cat_id, 'Certified adventures', NULL, 6, true)
+  ON CONFLICT (category_id, name) DO NOTHING;
+END $$;
+
+-- Category: Best 14 Seater Nairobi
+DO $$
+DECLARE
+  v_cat_id uuid;
+BEGIN
+  INSERT INTO categories (slug, name, group_name, sort_order, is_active)
+  VALUES ('best-14-seater-nairobi', 'Best 14 Seater Nairobi', 'Special Awards', 62, true)
+  ON CONFLICT (slug) DO UPDATE
+  SET name = EXCLUDED.name, group_name = EXCLUDED.group_name, sort_order = EXCLUDED.sort_order, is_active = EXCLUDED.is_active
+  RETURNING id INTO v_cat_id;
+  INSERT INTO nominees (category_id, name, subtitle, sort_order, is_active)
+  VALUES (v_cat_id, 'Frakas', NULL, 1, true)
+  ON CONFLICT (category_id, name) DO NOTHING;
+  INSERT INTO nominees (category_id, name, subtitle, sort_order, is_active)
+  VALUES (v_cat_id, 'Kichele', NULL, 2, true)
+  ON CONFLICT (category_id, name) DO NOTHING;
+  INSERT INTO nominees (category_id, name, subtitle, sort_order, is_active)
+  VALUES (v_cat_id, 'Fortunez', NULL, 3, true)
+  ON CONFLICT (category_id, name) DO NOTHING;
+  INSERT INTO nominees (category_id, name, subtitle, sort_order, is_active)
+  VALUES (v_cat_id, 'Brainchild', NULL, 4, true)
+  ON CONFLICT (category_id, name) DO NOTHING;
+  INSERT INTO nominees (category_id, name, subtitle, sort_order, is_active)
+  VALUES (v_cat_id, 'Tuffgong', NULL, 5, true)
+  ON CONFLICT (category_id, name) DO NOTHING;
+  INSERT INTO nominees (category_id, name, subtitle, sort_order, is_active)
+  VALUES (v_cat_id, 'Fumerz', NULL, 6, true)
+  ON CONFLICT (category_id, name) DO NOTHING;
+  INSERT INTO nominees (category_id, name, subtitle, sort_order, is_active)
+  VALUES (v_cat_id, 'Fatality', NULL, 7, true)
+  ON CONFLICT (category_id, name) DO NOTHING;
+  INSERT INTO nominees (category_id, name, subtitle, sort_order, is_active)
+  VALUES (v_cat_id, 'Chaplin', NULL, 8, true)
+  ON CONFLICT (category_id, name) DO NOTHING;
+  INSERT INTO nominees (category_id, name, subtitle, sort_order, is_active)
+  VALUES (v_cat_id, 'Kong', NULL, 9, true)
+  ON CONFLICT (category_id, name) DO NOTHING;
+  INSERT INTO nominees (category_id, name, subtitle, sort_order, is_active)
+  VALUES (v_cat_id, 'Alladin', NULL, 10, true)
   ON CONFLICT (category_id, name) DO NOTHING;
 END $$;
 

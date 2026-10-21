@@ -116,6 +116,7 @@
   "name": "Kisauni 1",
   "nominees": [
    "Kings",
+   "McQueen",
    "Paperlife",
    "Madtown (batman)",
    "Buruklyn boyz",
@@ -933,5 +934,22 @@
   ],
   "slug": "best-adventure-group",
   "sort_order": 61
+ },
+ {
+  "name": "Best 14 Seater Nairobi",
+  "slug": "best-14-seater-nairobi",
+  "sort_order": 62,
+  "nominees": [
+   "Frakas",
+   "Kichele",
+   "Fortunez",
+   "Brainchild",
+   "Tuffgong",
+   "Fumerz",
+   "Fatality",
+   "Chaplin",
+   "Kong",
+   "Alladin"
+  ]
  }
 ]

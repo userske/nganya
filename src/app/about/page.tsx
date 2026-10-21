@@ -44,7 +44,7 @@ export default function AboutPage() {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 pt-6 my-6 border-y border-white/10">
               <div className="p-4 rounded-xl bg-white/[0.03]">
                 <Trophy className="w-6 h-6 text-white/80 mb-2" />
-                <h4 className="font-bold text-white text-sm mb-1">61 Award Headings</h4>
+                <h4 className="font-bold text-white text-sm mb-1">62 Award Headings</h4>
                 <p className="text-xs text-white/50">Covering every major route, custom craftsmanship, acoustics, and fleet leadership.</p>
               </div>
               <div className="p-4 rounded-xl bg-white/[0.03]">

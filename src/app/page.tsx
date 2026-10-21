@@ -33,7 +33,7 @@ export default async function HomePage() {
     event_date: "2026-12-06",
     event_time: "18:00",
     venue_name: "Mombasa Cement Grounds, Mombasa",
-    about_html: `<p>The <strong>Coastal Nganya Awards</strong> honors the fabricators, audio engineers, airbrush artists, and crews behind Mombasa's most revered matatus.</p><p>From high-bass battles on the Jomvu line to custom aerodynamic kits rolling through Kisauni, Mikindani, and Likoni, this is street engineering at full volume. 61 categories. Over 500 nominees. One verified vote per category.</p>`,
+    about_html: `<p>The <strong>Coastal Nganya Awards</strong> honors the fabricators, audio engineers, airbrush artists, and crews behind Mombasa's most revered matatus.</p><p>From high-bass battles on the Jomvu line to custom aerodynamic kits rolling through Kisauni, Mikindani, and Likoni, this is street engineering at full volume. 62 categories. Over 500 nominees. One verified vote per category.</p>`,
     social_links: {},
     voting_opens_at: null,
     voting_closes_at: null,

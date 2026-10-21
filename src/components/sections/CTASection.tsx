@@ -43,7 +43,7 @@ export function CTASection() {
                 href="/vote"
                 className="inline-flex items-center justify-center gap-2 w-full sm:w-auto px-8 py-4 border border-white/20 text-white font-medium text-base rounded-xl hover:bg-white/5 hover:border-white/35 active:scale-[0.97] transition-[background-color,border-color,transform] duration-150"
               >
-                Vote in 61 Categories
+                Vote in 62 Categories
                 <span aria-hidden className="text-white/40">→</span>
               </Link>
             </div>
