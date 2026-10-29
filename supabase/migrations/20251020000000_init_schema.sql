@@ -24,8 +24,8 @@ CREATE TABLE IF NOT EXISTS event_settings (
   event_name text NOT NULL DEFAULT 'Coastal Nganya Awards',
   tagline text DEFAULT 'Celebrating the heartbeat of Mombasa''s roads',
   event_date text DEFAULT '2025-12-06',
-  event_time text DEFAULT '18:00',
-  venue_name text DEFAULT 'Mombasa Cement, Mombasa',
+  event_time text DEFAULT '14:00',
+  venue_name text DEFAULT 'Mamba Village, Mombasa',
   venue_map_url text,
   hero_image_url text DEFAULT '/hero-bg.jpg',
   about_html text,
@@ -39,7 +39,7 @@ CREATE TABLE IF NOT EXISTS event_settings (
 
 -- Insert default single row
 INSERT INTO event_settings (id, event_name, venue_name, event_date, event_time)
-VALUES (1, 'Coastal Nganya Awards', 'Mombasa Cement, Mombasa', '2025-12-06', '18:00')
+VALUES (1, 'Coastal Nganya Awards', 'Mamba Village, Mombasa', '2026-12-06', '14:00')
 ON CONFLICT (id) DO NOTHING;
 
 -- 3. Profiles
@@ -552,3 +552,4 @@ EXCEPTION WHEN duplicate_object THEN
   NULL;
 END;
 $$;
+

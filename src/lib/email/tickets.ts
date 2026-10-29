@@ -80,8 +80,8 @@ export async function sendTicketEmail({
           <div style="margin-bottom: 24px; padding: 16px; border-left: 3px solid #ffffff; background-color: rgba(255, 255, 255, 0.03);">
             <p style="margin: 0; font-size: 13px; color: #d4d4d4; line-height: 1.6;">
               <strong>Date:</strong> Sunday, December 6, 2026<br />
-              <strong>Time:</strong> 6:00 PM EAT<br />
-              <strong>Venue:</strong> Mombasa Cement Grounds, Mombasa
+              <strong>Time:</strong> 2:00 PM EAT<br />
+              <strong>Venue:</strong> Mamba Village, Mombasa
             </p>
           </div>
 

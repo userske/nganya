@@ -70,7 +70,7 @@ export default function ContactPage() {
                   Event Secretariat
                 </div>
                 <div className="text-sm font-semibold text-white">
-                  Mombasa Cement Grounds, Mombasa, Kenya
+                  Mamba Village, Mombasa, Kenya
                 </div>
                 <p className="text-xs text-white/50">
                   Coast Matatu Owners Association Advisory Desk.
@@ -115,7 +115,7 @@ export default function ContactPage() {
         </div>
       </main>
 
-      <Footer eventData={{ event_name: "Coastal Nganya Awards" }} />
+      <Footer eventData={{ event_name: "Coastal Nganya Awards", venue_name: "Mamba Village, Mombasa", event_time: "2:00 PM EAT" }} />
     </div>
   );
 }

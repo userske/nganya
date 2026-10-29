@@ -20,10 +20,10 @@ function pad(n: number) {
 }
 
 function parseTargetDate(targetDateStr: string): Date {
-  if (!targetDateStr) return new Date("2026-12-06T18:00:00+03:00");
-  // If pure YYYY-MM-DD, set to 6:00 PM East Africa Time (UTC+3)
+  if (!targetDateStr) return new Date("2026-12-06T14:00:00+03:00");
+  // If pure YYYY-MM-DD, set to 2:00 PM East Africa Time (UTC+3)
   if (/^\d{4}-\d{2}-\d{2}$/.test(targetDateStr)) {
-    return new Date(`${targetDateStr}T18:00:00+03:00`);
+    return new Date(`${targetDateStr}T14:00:00+03:00`);
   }
   // If YYYY-MM-DDTHH:mm(:ss)? without timezone offset, append +03:00
   if (/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}(:\d{2})?$/.test(targetDateStr)) {

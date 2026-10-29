@@ -2,7 +2,7 @@
 -- Generated from categories_seed.json (61 categories)
 
 INSERT INTO event_settings (id, event_name, venue_name, event_date, event_time, tagline)
-VALUES (1, 'Coastal Nganya Awards', 'Mombasa Cement, Mombasa', '2025-12-06', '18:00', 'Celebrating the heartbeat of Mombasa''s roads')
+VALUES (1, 'Coastal Nganya Awards', 'Mamba Village, Mombasa', '2026-12-06', '14:00', 'Celebrating the heartbeat of Mombasa''s roads')
 ON CONFLICT (id) DO UPDATE SET
   event_name = EXCLUDED.event_name,
   venue_name = EXCLUDED.venue_name;
@@ -12,7 +12,7 @@ INSERT INTO ticket_tiers (name, description, price_kes, capacity, perks, sort_or
 VALUES (
   'Early Bird Regular',
   'Standard event admission with main acoustic arena access.',
-  1000,
+  500,
   500,
   '["Event Entry","Standard Seating","Live Sound Access"]'::jsonb,
   1,
@@ -32,7 +32,7 @@ INSERT INTO ticket_tiers (name, description, price_kes, capacity, perks, sort_or
 VALUES (
   'VVIP Table of 5',
   'Reserved high-profile table for 5 with bottle service & parking pass.',
-  20000,
+  30000,
   30,
   '["Reserved Table of 5","Dedicated Host Service","Full Bottle Service & Platter","Backstage & VIP Parking Passes"]'::jsonb,
   3,
@@ -2337,3 +2337,4 @@ INSERT INTO vote_counts (category_id, nominee_id, count)
 SELECT category_id, id, 0
 FROM nominees
 ON CONFLICT (category_id, nominee_id) DO NOTHING;
+

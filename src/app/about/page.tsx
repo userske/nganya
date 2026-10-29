@@ -69,11 +69,11 @@ export default function AboutPage() {
               </div>
               <div className="flex items-center gap-2 p-3 rounded-lg bg-white/[0.02] border border-white/10">
                 <Clock className="w-4 h-4 text-white/60" />
-                <span>6:00 PM EAT Gala Entry</span>
+                <span>2:00 PM EAT Gala Entry</span>
               </div>
               <div className="flex items-center gap-2 p-3 rounded-lg bg-white/[0.02] border border-white/10">
                 <MapPin className="w-4 h-4 text-white/60" />
-                <span>Mombasa Cement Grounds</span>
+                <span>Mamba Village, Mombasa</span>
               </div>
             </div>
           </div>
@@ -96,7 +96,7 @@ export default function AboutPage() {
         </div>
       </main>
 
-      <Footer eventData={{ event_name: "Coastal Nganya Awards" }} />
+      <Footer eventData={{ event_name: "Coastal Nganya Awards", venue_name: "Mamba Village, Mombasa", event_time: "2:00 PM EAT" }} />
     </div>
   );
 }

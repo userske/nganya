@@ -75,7 +75,7 @@ async function runSeed() {
 
   // Default Event Settings
   sqlOutput += `INSERT INTO event_settings (id, event_name, venue_name, event_date, event_time, tagline)
-VALUES (1, 'Coastal Nganya Awards', 'Mombasa Cement, Mombasa', '2025-12-06', '18:00', 'Celebrating the heartbeat of Mombasa''s roads')
+VALUES (1, 'Coastal Nganya Awards', 'Mamba Village, Mombasa', '2026-12-06', '14:00', 'Celebrating the heartbeat of Mombasa''s roads')
 ON CONFLICT (id) DO UPDATE SET
   event_name = EXCLUDED.event_name,
   venue_name = EXCLUDED.venue_name;\n\n`;
@@ -86,7 +86,7 @@ ON CONFLICT (id) DO UPDATE SET
     {
       name: "Early Bird Regular",
       description: "Standard event admission with main acoustic arena access.",
-      price: 1000,
+      price: 500,
       capacity: 500,
       perks: ["Event Entry", "Standard Seating", "Live Sound Access"],
       sort: 1,
@@ -102,7 +102,7 @@ ON CONFLICT (id) DO UPDATE SET
     {
       name: "VVIP Table of 5",
       description: "Reserved high-profile table for 5 with bottle service & parking pass.",
-      price: 20000,
+      price: 30000,
       capacity: 30,
       perks: ["Reserved Table of 5", "Dedicated Host Service", "Full Bottle Service & Platter", "Backstage & VIP Parking Passes"],
       sort: 3,
@@ -250,3 +250,4 @@ runSeed().catch((err) => {
   console.error("Seed execution failed:", err);
   process.exit(1);
 });
+

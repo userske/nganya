@@ -33,11 +33,11 @@ export function Footer({ eventData }: FooterProps) {
             <div className="text-xs text-white/25 space-y-1.5">
               <div className="flex items-center gap-2">
                 <Calendar className="w-3.5 h-3.5 shrink-0 text-amber-400" strokeWidth={1.5} />
-                <span>{eventData.event_date ?? "December 2026"} · {eventData.event_time ?? "6:00 PM EAT"}</span>
+                <span>{eventData.event_date ?? "December 2026"} · {eventData.event_time ?? "2:00 PM EAT"}</span>
               </div>
               <div className="flex items-center gap-2">
                 <MapPin className="w-3.5 h-3.5 shrink-0" strokeWidth={1.5} />
-                <span>{eventData.venue_name ?? "Mombasa Cement Grounds, Mombasa, Kenya"}</span>
+                <span>{eventData.venue_name ?? "Mamba Village, Mombasa, Kenya"}</span>
               </div>
             </div>
           </div>
@@ -101,7 +101,7 @@ export function Footer({ eventData }: FooterProps) {
               </li>
               <li>
                 <span className="text-white/20 block text-[10px] uppercase tracking-wider mb-0.5">Location</span>
-                <span className="text-white/60">Mombasa Cement Grounds, Mombasa</span>
+                <span className="text-white/60">Mamba Village, Mombasa</span>
               </li>
             </ul>
           </div>

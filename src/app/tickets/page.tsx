@@ -10,7 +10,7 @@ const DEFAULT_TIERS = [
     id: "default-tier-regular",
     name: "Early Bird Regular",
     description: "Standard event admission with full acoustic arena access.",
-    price_kes: 1000,
+    price_kes: 500,
     capacity: 500,
     sold_count: 0,
     perks: ["Gate Entry", "Standard Arena Seating", "Live Sound Access", "Digital QR Ticket"],
@@ -30,7 +30,7 @@ const DEFAULT_TIERS = [
     id: "default-tier-vvip",
     name: "VVIP Table of 5",
     description: "Reserved high-profile table for 5 with bottle service & parking pass.",
-    price_kes: 20000,
+    price_kes: 30000,
     capacity: 30,
     sold_count: 0,
     perks: ["Reserved Table of 5", "Dedicated Host Service", "Full Bottle Service & Platter", "Backstage & VIP Parking Passes"],
@@ -69,7 +69,7 @@ export default async function TicketsPage() {
         <TicketCheckoutClient tiers={tiers} />
       </main>
 
-      <Footer eventData={{ event_name: "Coastal Nganya Awards" }} />
+      <Footer eventData={{ event_name: "Coastal Nganya Awards", venue_name: "Mamba Village, Mombasa", event_time: "2:00 PM EAT" }} />
     </div>
   );
 }

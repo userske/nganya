@@ -158,8 +158,8 @@ export function MyTicketsClient() {
                     <div className="text-xs text-white/50 space-y-1 font-mono">
                       <div>Code: <span className="text-white font-bold tracking-widest">{t.ticket_code}</span></div>
                       <div>Status: <span className="text-white font-semibold uppercase">{t.status}</span></div>
-                      <div>Venue: Mombasa Cement Grounds, Mombasa</div>
-                      <div>Date: Sunday, Dec 6, 2026 • 6:00 PM EAT</div>
+                      <div>Venue: Mamba Village, Mombasa</div>
+                      <div>Date: Sunday, Dec 6, 2026 • 2:00 PM EAT</div>
                     </div>
                   </div>
 
@@ -174,13 +174,10 @@ export function MyTicketsClient() {
                         className="rounded-lg"
                       />
                     ) : (
-                      <div className="w-[180px] h-[180px] flex items-center justify-center text-black text-xs font-mono">
-                        QR Code
+                      <div className="w-[180px] h-[180px] flex items-center justify-center text-black/40 text-xs">
+                        Loading QR...
                       </div>
                     )}
-                    <div className="text-[10px] text-black font-mono font-bold mt-1 tracking-wider uppercase">
-                      Gate Entry Pass
-                    </div>
                   </div>
                 </div>
               ))}

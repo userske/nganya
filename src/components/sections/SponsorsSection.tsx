@@ -17,9 +17,15 @@ const sponsors: Sponsor[] = [
     logoText: "Mombasa County",
   },
   {
+    name: "Mamba Village Centre",
+    tier: "headline",
+    tagline: "Official Venue & Host Partner",
+    logoText: "Mamba Village",
+  },
+  {
     name: "Mombasa Cement",
     tier: "headline",
-    tagline: "Official Venue & Logistics Partner",
+    tagline: "Official Logistics & Build Partner",
     logoText: "Mombasa Cement",
   },
   {
