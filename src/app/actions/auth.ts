@@ -11,6 +11,13 @@ export interface AuthActionResult {
 
 /**
  * Sends a 6-digit email OTP to the voter or admin.
+ * 
+ * IMPORTANT: For OTP codes (not magic links) to be sent, the Supabase project
+ * must have "Email OTP" enabled and magic links disabled in:
+ * Dashboard → Authentication → Providers → Email → "Enable Email OTP"
+ * 
+ * The emailRedirectTo is set to /auth/callback as a fallback for clients
+ * that use the link instead of typing the code.
  */
 export async function sendOtpAction(
   rawEmail: string,
@@ -45,17 +52,21 @@ export async function sendOtpAction(
         return { success: false, error: "Bot verification failed. Please try again." };
       }
     } catch {
-      // In non-blocking network failure, proceed
+      // Non-blocking network failure — proceed
     }
   }
 
   const supabase = await createClient();
 
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://coastalnganyaawards.com";
+
   const { error } = await supabase.auth.signInWithOtp({
     email,
     options: {
       shouldCreateUser: true,
-      // We use email OTP codes (6 digits), not links
+      // This sets where the magic link (fallback) redirects to.
+      // The /auth/callback route handles the code exchange.
+      emailRedirectTo: `${siteUrl}/auth/callback`,
     },
   });
 
@@ -66,7 +77,7 @@ export async function sendOtpAction(
 
   return {
     success: true,
-    message: `A 6-digit verification code was sent to ${email}`,
+    message: `A verification code was sent to ${email}. Check your inbox and enter the 6-digit code below.`,
   };
 }
 
