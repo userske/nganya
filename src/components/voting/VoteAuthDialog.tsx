@@ -1,13 +1,13 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
-import { Mail, CheckCircle2, Loader2, ShieldCheck, ArrowRight, KeyRound } from "lucide-react";
+import { usePathname } from "next/navigation";
+import { Mail, Loader2, ShieldCheck, ArrowRight, MailCheck, RefreshCw } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { sendOtpAction, verifyOtpAction } from "@/app/actions/auth";
+import { sendOtpAction } from "@/app/actions/auth";
 import { toast } from "sonner";
 
 interface VoteAuthDialogProps {
@@ -21,31 +21,30 @@ interface VoteAuthDialogProps {
 export function VoteAuthDialog({
   open,
   onOpenChange,
-  onVerified,
   nomineeName,
   categoryName,
 }: VoteAuthDialogProps) {
-  const router = useRouter();
-  const [step, setStep] = useState<"email" | "otp">("email");
+  const pathname = usePathname();
+  const [step, setStep] = useState<"email" | "sent">("email");
   const [email, setEmail] = useState("");
-  const [otpCode, setOtpCode] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
-  const handleSendOtp = async (e: React.FormEvent) => {
+  const handleSendLink = async (e: React.FormEvent) => {
     e.preventDefault();
     setErrorMessage(null);
     setIsLoading(true);
 
     try {
-      const result = await sendOtpAction(email);
+      // Pass current pathname so the magic link returns user to this vote page
+      const result = await sendOtpAction(email, undefined, pathname);
       if (result.success) {
-        setStep("otp");
-        toast.success("Verification code sent", {
+        setStep("sent");
+        toast.success("Magic link sent!", {
           description: `Check your inbox at ${email}`,
         });
       } else {
-        setErrorMessage(result.error || "Failed to send verification code.");
+        setErrorMessage(result.error || "Failed to send link. Please try again.");
       }
     } catch {
       setErrorMessage("Network error. Please try again.");
@@ -54,22 +53,14 @@ export function VoteAuthDialog({
     }
   };
 
-  const handleVerifyOtp = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setErrorMessage(null);
+  const handleResend = async () => {
     setIsLoading(true);
-
     try {
-      const result = await verifyOtpAction(email, otpCode);
+      const result = await sendOtpAction(email, undefined, pathname);
       if (result.success) {
-        toast.success("Email verified", {
-          description: "Your session is active. You can now vote in all categories.",
-        });
-        router.refresh();
-        onVerified();
-        onOpenChange(false);
+        toast.success("Link resent!", { description: `Check your inbox at ${email}` });
       } else {
-        setErrorMessage(result.error || "Invalid code. Please try again.");
+        setErrorMessage(result.error || "Failed to resend.");
       }
     } catch {
       setErrorMessage("Network error. Please try again.");
@@ -83,10 +74,10 @@ export function VoteAuthDialog({
       <DialogContent className="sm:max-w-md bg-[#0a0a0a] border border-white/10 text-white p-6 rounded-2xl shadow-2xl">
         <DialogHeader className="text-left">
           <div className="w-12 h-12 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center text-white mb-3">
-            {step === "email" ? <Mail className="w-5 h-5" /> : <KeyRound className="w-5 h-5" />}
+            {step === "email" ? <Mail className="w-5 h-5" /> : <MailCheck className="w-5 h-5 text-green-400" />}
           </div>
           <DialogTitle className="text-xl font-bold text-white tracking-tight">
-            {step === "email" ? "Verify Your Email to Vote" : "Enter Verification Code"}
+            {step === "email" ? "Verify Your Email to Vote" : "Check Your Inbox"}
           </DialogTitle>
           <DialogDescription className="text-white/50 text-sm">
             {step === "email" ? (
@@ -100,7 +91,9 @@ export function VoteAuthDialog({
               </>
             ) : (
               <>
-                We sent a 6-digit code to <span className="text-white font-medium">{email}</span>. Enter it below to cast your vote.
+                We sent a sign-in link to{" "}
+                <span className="text-white font-medium">{email}</span>.{" "}
+                Click the link in your email to verify and cast your vote.
               </>
             )}
           </DialogDescription>
@@ -113,7 +106,7 @@ export function VoteAuthDialog({
         )}
 
         {step === "email" ? (
-          <form onSubmit={handleSendOtp} className="space-y-4 mt-2">
+          <form onSubmit={handleSendLink} className="space-y-4 mt-2">
             <div className="space-y-2">
               <Label htmlFor="voter-email" className="text-xs uppercase tracking-wider text-white/60">
                 Your Email Address
@@ -141,72 +134,50 @@ export function VoteAuthDialog({
               {isLoading ? (
                 <>
                   <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                  Sending code...
+                  Sending link...
                 </>
               ) : (
                 <>
-                  Send Verification Code
+                  Send Sign-In Link
                   <ArrowRight className="w-4 h-4 ml-2" />
                 </>
               )}
             </Button>
           </form>
         ) : (
-          <form onSubmit={handleVerifyOtp} className="space-y-4 mt-2">
-            <div className="space-y-2">
-              <Label htmlFor="otp-code" className="text-xs uppercase tracking-wider text-white/60">
-                6-Digit Code
-              </Label>
-              <Input
-                id="otp-code"
-                type="text"
-                inputMode="numeric"
-                autoComplete="one-time-code"
-                maxLength={6}
-                placeholder="123456"
-                value={otpCode}
-                onChange={(e) => setOtpCode(e.target.value.replace(/\D/g, ""))}
-                required
-                className="bg-white/5 border-white/10 text-white text-center font-mono text-2xl tracking-[0.3em] h-12 placeholder:text-white/20 focus-visible:ring-2 focus-visible:ring-white"
-              />
+          <div className="space-y-4 mt-2">
+            {/* Inbox illustration */}
+            <div className="rounded-xl bg-white/5 border border-white/10 p-4 text-center space-y-1">
+              <p className="text-white text-sm font-medium">Link sent to</p>
+              <p className="text-white/70 text-sm font-mono truncate">{email}</p>
+              <p className="text-white/40 text-xs mt-2">
+                Open your email app and click <strong className="text-white/60">Sign in to Coastal Nganya Awards</strong>. The link expires in 1 hour.
+              </p>
             </div>
 
             <div className="flex items-center justify-between text-xs text-white/50">
               <button
                 type="button"
-                onClick={() => setStep("email")}
+                onClick={() => { setStep("email"); setErrorMessage(null); }}
                 className="hover:text-white underline underline-offset-4 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-white rounded"
               >
-                Change email
+                Use different email
               </button>
               <button
                 type="button"
-                onClick={handleSendOtp}
+                onClick={handleResend}
                 disabled={isLoading}
-                className="hover:text-white underline underline-offset-4 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-white rounded disabled:opacity-50"
+                className="flex items-center gap-1 hover:text-white underline underline-offset-4 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-white rounded disabled:opacity-50"
               >
-                Resend code
+                {isLoading ? <Loader2 className="w-3 h-3 animate-spin" /> : <RefreshCw className="w-3 h-3" />}
+                Resend link
               </button>
             </div>
 
-            <Button
-              type="submit"
-              disabled={isLoading || otpCode.length < 6}
-              className="w-full bg-white hover:bg-white/90 text-black font-semibold h-11 rounded-xl transition-[background-color,color] duration-150 ease-out focus-visible:ring-2 focus-visible:ring-white"
-            >
-              {isLoading ? (
-                <>
-                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                  Verifying...
-                </>
-              ) : (
-                <>
-                  <CheckCircle2 className="w-4 h-4 mr-2" />
-                  Verify & Continue
-                </>
-              )}
-            </Button>
-          </form>
+            <p className="text-[11px] text-white/30 text-center">
+              Didn&apos;t receive it? Check your spam folder.
+            </p>
+          </div>
         )}
 
         <div className="mt-2 pt-4 border-t border-white/10 flex items-center justify-center gap-2 text-[11px] text-white/40 font-mono">

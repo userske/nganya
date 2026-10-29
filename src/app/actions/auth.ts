@@ -10,18 +10,14 @@ export interface AuthActionResult {
 }
 
 /**
- * Sends a 6-digit email OTP to the voter or admin.
- * 
- * IMPORTANT: For OTP codes (not magic links) to be sent, the Supabase project
- * must have "Email OTP" enabled and magic links disabled in:
- * Dashboard → Authentication → Providers → Email → "Enable Email OTP"
- * 
- * The emailRedirectTo is set to /auth/callback as a fallback for clients
- * that use the link instead of typing the code.
+ * Sends a magic link email for passwordless sign-in.
+ * After clicking the link, the user is sent to /auth/callback which
+ * exchanges the code for a session and redirects to `redirectPath`.
  */
 export async function sendOtpAction(
   rawEmail: string,
-  turnstileToken?: string
+  turnstileToken?: string,
+  redirectPath?: string
 ): Promise<AuthActionResult> {
   const email = normalizeEmail(rawEmail);
 
@@ -36,7 +32,7 @@ export async function sendOtpAction(
     };
   }
 
-  // Optional Cloudflare Turnstile verification if secret key is configured
+  // Optional Cloudflare Turnstile verification
   if (process.env.TURNSTILE_SECRET_KEY && turnstileToken) {
     try {
       const res = await fetch("https://challenges.cloudflare.com/turnstile/v0/siteverify", {
@@ -52,37 +48,40 @@ export async function sendOtpAction(
         return { success: false, error: "Bot verification failed. Please try again." };
       }
     } catch {
-      // Non-blocking network failure — proceed
+      // Non-blocking
     }
   }
 
   const supabase = await createClient();
 
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://coastalnganyaawards.com";
+  const siteUrl = (process.env.NEXT_PUBLIC_SITE_URL || "https://coastalnganyaawards.com").replace(/\/$/, "");
+
+  // Build the callback URL — includes ?next= so the user lands back on their vote page
+  const callbackUrl = redirectPath
+    ? `${siteUrl}/auth/callback?next=${encodeURIComponent(redirectPath)}`
+    : `${siteUrl}/auth/callback`;
 
   const { error } = await supabase.auth.signInWithOtp({
     email,
     options: {
       shouldCreateUser: true,
-      // This sets where the magic link (fallback) redirects to.
-      // The /auth/callback route handles the code exchange.
-      emailRedirectTo: `${siteUrl}/auth/callback`,
+      emailRedirectTo: callbackUrl,
     },
   });
 
   if (error) {
-    console.error("Supabase OTP send error:", error.message);
+    console.error("Supabase magic link error:", error.message);
     return { success: false, error: error.message };
   }
 
   return {
     success: true,
-    message: `A verification code was sent to ${email}. Check your inbox and enter the 6-digit code below.`,
+    message: `Sign-in link sent to ${email}`,
   };
 }
 
 /**
- * Verifies the 6-digit email OTP and sets up the session.
+ * Verifies a 6-digit OTP token (kept for admin login page fallback).
  */
 export async function verifyOtpAction(
   rawEmail: string,
@@ -92,7 +91,7 @@ export async function verifyOtpAction(
   const cleanToken = token.trim();
 
   if (!email || !cleanToken) {
-    return { success: false, error: "Email and 6-digit code are required." };
+    return { success: false, error: "Email and verification code are required." };
   }
 
   const supabase = await createClient();
@@ -110,38 +109,30 @@ export async function verifyOtpAction(
     };
   }
 
-  // Ensure voter/admin profile exists with normalized email
+  // Ensure profile exists and assign admin role if applicable
   if (data.user) {
     const adminEmail = (process.env.ADMIN_EMAIL || "info@coastalnganyaawards.com").toLowerCase().trim();
     const isAdmin = email.toLowerCase().trim() === adminEmail;
 
-    // Check existing profile so we never demote an admin
     const { data: existingProfile } = await supabase
       .from("profiles")
       .select("role")
       .eq("id", data.user.id)
       .maybeSingle();
 
-    const roleToAssign = isAdmin || existingProfile?.role === "admin" ? "admin" : (existingProfile?.role ?? "voter");
+    const roleToAssign =
+      isAdmin || existingProfile?.role === "admin"
+        ? "admin"
+        : (existingProfile?.role ?? "voter");
 
-    const { error: profileError } = await supabase
-      .from("profiles")
-      .upsert(
-        {
-          id: data.user.id,
-          email_normalized: email,
-          role: roleToAssign,
-        },
-        { onConflict: "id" }
-      );
-
-    if (profileError) {
-      console.error("Profile upsert warning:", profileError.message);
-    }
+    await supabase.from("profiles").upsert(
+      { id: data.user.id, email_normalized: email, role: roleToAssign },
+      { onConflict: "id" }
+    );
   }
 
   return {
     success: true,
-    message: "Verified successfully! You can now cast your votes across all categories.",
+    message: "Verified successfully!",
   };
 }
