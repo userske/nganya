@@ -5,9 +5,9 @@ import { createClient } from "@/lib/supabase/server";
 
 export const revalidate = 60; // Refresh ticket availability every minute
 
-const DEFAULT_TIERS = [
+export const DEFAULT_TIERS = [
   {
-    id: "default-tier-regular",
+    id: "11111111-1111-4111-8111-111111111111",
     name: "Early Bird Regular",
     description: "Standard event admission with full acoustic arena access.",
     price_kes: 500,
@@ -17,7 +17,7 @@ const DEFAULT_TIERS = [
     is_active: true,
   },
   {
-    id: "default-tier-vip",
+    id: "22222222-2222-4222-8222-222222222222",
     name: "VIP Lounge Pass",
     description: "Priority entrance, VIP lounge seating & complimentary drink.",
     price_kes: 3500,
@@ -27,7 +27,7 @@ const DEFAULT_TIERS = [
     is_active: true,
   },
   {
-    id: "default-tier-vvip",
+    id: "33333333-3333-4333-8333-333333333333",
     name: "VVIP Table of 5",
     description: "Reserved high-profile table for 5 with bottle service & parking pass.",
     price_kes: 30000,
