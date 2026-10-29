@@ -50,6 +50,16 @@ export async function submitVoteAction(
 
   const supabase = await createClient();
 
+  // Validate session and ensure user authorization headers are attached
+  const {
+    data: { user },
+    error: userError,
+  } = await supabase.auth.getUser();
+
+  if (userError || !user) {
+    return { success: false, error: "NOT_AUTHENTICATED" };
+  }
+
   // Call the atomic cast_vote Postgres function
   const { data, error } = await supabase.rpc("cast_vote", {
     p_category_id: categoryId,

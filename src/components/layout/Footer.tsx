@@ -119,6 +119,9 @@ export function Footer({ eventData }: FooterProps) {
             <Link href="/terms" className="hover:text-white/40 transition-colors duration-150">
               Terms
             </Link>
+            <Link href="/login?next=/admin" className="hover:text-white/40 transition-colors duration-150">
+              Admin Portal
+            </Link>
             <span>Kenya Data Protection Act Compliant</span>
           </div>
         </div>

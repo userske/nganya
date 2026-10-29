@@ -10,7 +10,7 @@ export interface AuthActionResult {
 }
 
 /**
- * Sends a 6-digit email OTP to the voter.
+ * Sends a 6-digit email OTP to the voter or admin.
  */
 export async function sendOtpAction(
   rawEmail: string,
@@ -99,15 +99,27 @@ export async function verifyOtpAction(
     };
   }
 
-  // Ensure voter profile exists with normalized email
+  // Ensure voter/admin profile exists with normalized email
   if (data.user) {
+    const adminEmail = (process.env.ADMIN_EMAIL || "info@coastalnganyaawards.com").toLowerCase().trim();
+    const isAdmin = email.toLowerCase().trim() === adminEmail;
+
+    // Check existing profile so we never demote an admin
+    const { data: existingProfile } = await supabase
+      .from("profiles")
+      .select("role")
+      .eq("id", data.user.id)
+      .maybeSingle();
+
+    const roleToAssign = isAdmin || existingProfile?.role === "admin" ? "admin" : (existingProfile?.role ?? "voter");
+
     const { error: profileError } = await supabase
       .from("profiles")
       .upsert(
         {
           id: data.user.id,
           email_normalized: email,
-          role: "voter",
+          role: roleToAssign,
         },
         { onConflict: "id" }
       );

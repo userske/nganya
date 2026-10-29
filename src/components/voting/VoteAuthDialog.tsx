@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { Mail, CheckCircle2, Loader2, ShieldCheck, ArrowRight, KeyRound } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
@@ -24,6 +25,7 @@ export function VoteAuthDialog({
   nomineeName,
   categoryName,
 }: VoteAuthDialogProps) {
+  const router = useRouter();
   const [step, setStep] = useState<"email" | "otp">("email");
   const [email, setEmail] = useState("");
   const [otpCode, setOtpCode] = useState("");
@@ -63,6 +65,7 @@ export function VoteAuthDialog({
         toast.success("Email verified", {
           description: "Your session is active. You can now vote in all categories.",
         });
+        router.refresh();
         onVerified();
         onOpenChange(false);
       } else {

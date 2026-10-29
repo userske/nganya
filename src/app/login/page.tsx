@@ -13,7 +13,8 @@ import { toast } from "sonner";
 function LoginForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const nextUrl = searchParams.get("next") || "/vote";
+  const nextUrl = searchParams.get("next") || searchParams.get("redirectTo") || "/vote";
+  const isAdminLogin = nextUrl.startsWith("/admin");
 
   const [step, setStep] = useState<"email" | "otp">("email");
   const [email, setEmail] = useState("");
@@ -52,7 +53,7 @@ function LoginForm() {
       const result = await verifyOtpAction(email, otpCode);
       if (result.success) {
         toast.success("Verified successfully", {
-          description: "Your voter session is active.",
+          description: isAdminLogin ? "Admin session authenticated." : "Your voter session is active.",
         });
         router.push(nextUrl);
         router.refresh();
@@ -75,11 +76,15 @@ function LoginForm() {
           </div>
         </Link>
         <h1 className="text-2xl sm:text-3xl font-black text-white uppercase tracking-tight">
-          {step === "email" ? "Voter Verification" : "Enter 6-Digit Code"}
+          {step === "email" 
+            ? (isAdminLogin ? "Admin Authentication" : "Voter Verification") 
+            : "Enter 6-Digit Code"}
         </h1>
         <p className="text-white/50 text-xs sm:text-sm mt-2 leading-relaxed">
           {step === "email"
-            ? "Enter your email to verify your voting session. No passwords needed."
+            ? (isAdminLogin
+                ? "Enter your administrator email to receive a secure login code."
+                : "Enter your email to verify your voting session. No passwords needed.")
             : `We sent a 6-digit code to ${email}`}
         </p>
       </div>
@@ -100,14 +105,16 @@ function LoginForm() {
               id="email"
               type="email"
               autoComplete="email"
-              placeholder="name@example.com"
+              placeholder={isAdminLogin ? "info@coastalnganyaawards.com" : "name@example.com"}
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
               className="bg-white/5 border-white/10 text-white placeholder:text-white/30 h-12 focus-visible:ring-2 focus-visible:ring-white"
             />
             <p className="text-[11px] text-white/40">
-              One verified email = one vote per category across all 62 categories.
+              {isAdminLogin 
+                ? "Use your registered admin address (e.g. info@coastalnganyaawards.com)." 
+                : "One verified email = one vote per category across all 62 categories."}
             </p>
           </div>
 
@@ -180,7 +187,7 @@ function LoginForm() {
             ) : (
               <>
                 <CheckCircle2 className="w-4 h-4 mr-2" />
-                Verify & Continue Voting
+                {isAdminLogin ? "Enter Admin Dashboard" : "Verify & Continue Voting"}
               </>
             )}
           </Button>
