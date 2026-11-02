@@ -259,6 +259,37 @@ ALTER TABLE tickets ENABLE ROW LEVEL SECURITY;
 ALTER TABLE checkins ENABLE ROW LEVEL SECURITY;
 ALTER TABLE audit_log ENABLE ROW LEVEL SECURITY;
 
+-- Drop existing policies first so this script is idempotent (safe to re-run)
+DROP POLICY IF EXISTS "Public read event settings" ON event_settings;
+DROP POLICY IF EXISTS "Admin update event settings" ON event_settings;
+
+DROP POLICY IF EXISTS "Users read own profile" ON profiles;
+DROP POLICY IF EXISTS "Admins read all profiles" ON profiles;
+DROP POLICY IF EXISTS "Admins update profiles" ON profiles;
+
+DROP POLICY IF EXISTS "Public read active categories" ON categories;
+DROP POLICY IF EXISTS "Admin manage categories" ON categories;
+
+DROP POLICY IF EXISTS "Public read active nominees" ON nominees;
+DROP POLICY IF EXISTS "Admin manage nominees" ON nominees;
+
+DROP POLICY IF EXISTS "Voters read own votes" ON votes;
+DROP POLICY IF EXISTS "Admin read all votes" ON votes;
+
+DROP POLICY IF EXISTS "Public read vote counts" ON vote_counts;
+
+DROP POLICY IF EXISTS "Public read active tiers" ON ticket_tiers;
+DROP POLICY IF EXISTS "Admin manage tiers" ON ticket_tiers;
+
+DROP POLICY IF EXISTS "Admin read all orders" ON orders;
+
+DROP POLICY IF EXISTS "Public read ticket by code" ON tickets;
+DROP POLICY IF EXISTS "Staff manage tickets" ON tickets;
+
+DROP POLICY IF EXISTS "Staff manage checkins" ON checkins;
+
+DROP POLICY IF EXISTS "Admin read audit log" ON audit_log;
+
 -- event_settings
 CREATE POLICY "Public read event settings" ON event_settings FOR SELECT USING (true);
 CREATE POLICY "Admin update event settings" ON event_settings FOR UPDATE USING (is_admin());
