@@ -20,21 +20,16 @@ export interface CheckoutResult {
   error?: string;
 }
 
-export async function createTicketCheckoutAction(
-  formData: {
-    tierId: string;
-    quantity: number;
-    buyerName: string;
-    buyerEmail: string;
-    buyerPhone: string;
-  }
-): Promise<CheckoutResult> {
+export async function createTicketCheckoutAction(formData: {
+  tierId: string;
+  quantity: number;
+  buyerName: string;
+  buyerEmail: string;
+  buyerPhone: string;
+}): Promise<CheckoutResult> {
   const parsed = CheckoutSchema.safeParse(formData);
   if (!parsed.success) {
-    return {
-      success: false,
-      error: parsed.error.issues[0].message,
-    };
+    return { success: false, error: parsed.error.issues[0].message };
   }
 
   const { tierId, quantity, buyerName, buyerEmail, buyerPhone } = parsed.data;
@@ -54,53 +49,52 @@ export async function createTicketCheckoutAction(
       return { success: false, error: "Ticket sales are currently paused by the event organizers." };
     }
   } catch {
-    // Proceed if event settings are offline/unreachable
+    // Proceed if event_settings table is unreachable
   }
 
   let orderId: string | undefined;
   let orderNumber: string | undefined;
   let amountKes: number | undefined;
 
-  // 2. Try reserving tickets via Postgres atomic function
+  // 2. Try atomic reservation via Postgres RPC
   try {
-    const { data: reservation, error: reserveError } = await supabase.rpc(
-      "reserve_tickets",
-      {
-        p_tier_id: tierId,
-        p_quantity: quantity,
-        p_buyer_name: buyerName,
-        p_buyer_email: normalizedEmail,
-        p_buyer_phone: buyerPhone,
-      }
-    );
+    const { data: reservation, error: reserveError } = await supabase.rpc("reserve_tickets", {
+      p_tier_id: tierId,
+      p_quantity: quantity,
+      p_buyer_name: buyerName,
+      p_buyer_email: normalizedEmail,
+      p_buyer_phone: buyerPhone,
+    });
 
     if (!reserveError && reservation) {
       orderId = (reservation as any).order_id;
       orderNumber = (reservation as any).order_number;
-      amountKes = (reservation as any).amount_kes;
+      amountKes = Number((reservation as any).amount_kes);
     }
   } catch {
-    // Fallback to direct insertion below
+    // Fall through to direct insert below
   }
 
-  // Fallback: If RPC reservation didn't succeed (e.g. custom/seed tier ID or direct order flow)
+  // 3. Fallback: create order directly via admin client (handles unseeded DB / missing RPC)
   if (!orderId || !orderNumber || !amountKes) {
     try {
       const adminClient = await createAdminClient();
 
+      // Determine tier price — check DB first, then use hardcoded defaults
       let tierPrice = 500;
-      let tierName = "Early Bird Regular";
+      let tierName = "Regular";
 
       const { data: dbTier } = await adminClient
         .from("ticket_tiers")
-        .select("*")
+        .select("id, name, price_kes, capacity, is_active")
         .eq("id", tierId)
         .maybeSingle();
 
       if (dbTier) {
-        tierPrice = dbTier.price_kes;
+        tierPrice = Number(dbTier.price_kes);
         tierName = dbTier.name;
       } else {
+        // Tier not in DB — determine from ID pattern and insert it
         if (tierId.includes("3333") || tierId.toLowerCase().includes("vvip")) {
           tierPrice = 30000;
           tierName = "VVIP Table of 5";
@@ -109,24 +103,26 @@ export async function createTicketCheckoutAction(
           tierName = "VIP Lounge Pass";
         } else {
           tierPrice = 500;
-          tierName = "Early Bird Regular";
+          tierName = "Regular";
         }
 
-        // Try ensuring tier exists in ticket_tiers table
-        await adminClient
-          .from("ticket_tiers")
-          .upsert(
-            {
-              id: tierId,
-              name: tierName,
-              description: "Official event admission pass",
-              price_kes: tierPrice,
-              capacity: 500,
-              perks: ["Event Entry", "Sound Access"],
-              is_active: true,
-            },
-            { onConflict: "id" }
-          );
+        // Insert the tier so it exists for FK constraint on orders
+        await adminClient.from("ticket_tiers").upsert(
+          {
+            id: tierId,
+            name: tierName,
+            description: "Official event admission pass",
+            price_kes: tierPrice,
+            capacity: 500,
+            sold_count: 0,
+            reserved_count: 0,
+            per_order_max: 10,
+            perks: ["Event Entry"],
+            is_active: true,
+            sort_order: 0,
+          },
+          { onConflict: "id" }
+        );
       }
 
       amountKes = tierPrice * quantity;
@@ -136,27 +132,30 @@ export async function createTicketCheckoutAction(
         .from("orders")
         .insert({
           order_number: orderNumber,
-          buyer_name: buyerName,
-          buyer_email: normalizedEmail,
-          buyer_phone: buyerPhone,
+          tier_id: tierId,
           quantity,
           total_amount_kes: amountKes,
+          buyer_name: buyerName,
+          buyer_email: normalizedEmail,
+          buyer_email_normalized: normalizedEmail,   // ← required NOT NULL column
+          buyer_phone: buyerPhone,
           status: "pending",
-          tier_id: tierId,
           reservation_expires_at: new Date(Date.now() + 15 * 60 * 1000).toISOString(),
         })
         .select("id")
         .single();
 
       if (orderErr || !newOrder) {
+        console.error("Order insert error:", orderErr?.message);
         return {
           success: false,
-          error: orderErr?.message || "Could not create ticket reservation.",
+          error: orderErr?.message || "Could not create ticket reservation. Please try again.",
         };
       }
 
       orderId = newOrder.id;
     } catch (fallbackErr: any) {
+      console.error("Ticket checkout fallback error:", fallbackErr?.message);
       return {
         success: false,
         error: fallbackErr?.message || "Failed to reserve tickets. Please try again.",
@@ -164,8 +163,8 @@ export async function createTicketCheckoutAction(
     }
   }
 
-  // 3. Initialize Paystack Transaction
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://coastalnganyaawards.com";
+  // 4. Initialize Paystack transaction
+  const siteUrl = (process.env.NEXT_PUBLIC_SITE_URL || "https://coastalnganyaawards.com").replace(/\/$/, "");
   const callbackUrl = `${siteUrl}/tickets/success?ref=${orderNumber}`;
 
   const paystack = new PaystackClient();
@@ -176,15 +175,18 @@ export async function createTicketCheckoutAction(
     callbackUrl,
     metadata: {
       order_id: orderId,
+      order_number: orderNumber,
       buyer_name: buyerName,
       tier_id: tierId,
+      quantity,
     },
   });
 
   if (!paystackInit.status || !paystackInit.data?.authorization_url) {
+    console.error("Paystack init error:", paystackInit.message);
     return {
       success: false,
-      error: paystackInit.message || "Failed to initialize payment gateway. Please try again.",
+      error: paystackInit.message || "Failed to initialize payment. Please try again.",
     };
   }
 
@@ -223,8 +225,5 @@ export async function lookupGuestTicketsAction(rawEmail: string): Promise<GuestT
     return { success: false, error: "Unable to retrieve tickets right now." };
   }
 
-  return {
-    success: true,
-    tickets: tickets ?? [],
-  };
+  return { success: true, tickets: tickets ?? [] };
 }
