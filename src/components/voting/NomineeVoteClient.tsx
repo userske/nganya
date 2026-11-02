@@ -43,7 +43,7 @@ interface NomineeVoteClientProps {
     description?: string | null;
   };
   nominees: Nominee[];
-  initialCounts: Record<string, number>; // nominee_id -> count
+  initialCounts: Record<string, number>;
   existingVoteNomineeId?: string | null;
   isAuthenticated: boolean;
   userEmail?: string;
@@ -64,19 +64,62 @@ export function NomineeVoteClient({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [confirmModalOpen, setConfirmModalOpen] = useState(false);
   const [authModalOpen, setAuthModalOpen] = useState(false);
+  // Start with server-passed value; client check below will override if session exists
   const [isAuthenticated, setIsAuthenticated] = useState(initialAuth);
+  const [authChecked, setAuthChecked] = useState(false);
 
   const isLocked = Boolean(votedNomineeId);
-
-  // Compute total votes for percentage calculation
   const totalCategoryVotes = Object.values(counts).reduce((acc, c) => acc + c, 0);
 
-  // Supabase Realtime subscription with 5-second polling fallback
+  // ─── CLIENT-SIDE AUTH CHECK ──────────────────────────────────────────────
+  // This runs on mount and after every magic-link redirect.
+  // It is the source of truth for whether the user is logged in — the server
+  // prop can be stale if the session cookie was just set by /auth/callback.
+  useEffect(() => {
+    const supabase = createClient();
+
+    const checkSession = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      const authed = Boolean(user);
+      setIsAuthenticated(authed);
+      setAuthChecked(true);
+
+      // If user is now authenticated but we had a pending nominee selected,
+      // skip showing the auth dialog and go straight to confirm.
+      if (authed && selectedNomineeId && authModalOpen) {
+        setAuthModalOpen(false);
+        setConfirmModalOpen(true);
+      }
+    };
+
+    checkSession();
+
+    // Also listen for auth state changes (e.g. magic link lands in same tab)
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      (_event, session) => {
+        const authed = Boolean(session?.user);
+        setIsAuthenticated(authed);
+        setAuthChecked(true);
+
+        if (authed && authModalOpen) {
+          setAuthModalOpen(false);
+          // Small delay so dialog closes cleanly before confirm opens
+          setTimeout(() => setConfirmModalOpen(true), 150);
+        }
+      }
+    );
+
+    return () => {
+      subscription.unsubscribe();
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // ─── REALTIME VOTE COUNTS ────────────────────────────────────────────────
   useEffect(() => {
     let isMounted = true;
     const supabase = createClient();
 
-    // 1. Setup Realtime channel
     const channel = supabase
       .channel(`category-counts-${category.id}`)
       .on(
@@ -91,16 +134,12 @@ export function NomineeVoteClient({
           if (!isMounted) return;
           const { nominee_id, count } = payload.new;
           if (nominee_id && typeof count === "number") {
-            setCounts((prev) => ({
-              ...prev,
-              [nominee_id]: count,
-            }));
+            setCounts((prev) => ({ ...prev, [nominee_id]: count }));
           }
         }
       )
       .subscribe();
 
-    // 2. Setup 5-second polling fallback
     const interval = setInterval(async () => {
       try {
         const res = await fetch(`/api/vote/counts?categoryId=${category.id}`);
@@ -125,6 +164,7 @@ export function NomineeVoteClient({
     };
   }, [category.id]);
 
+  // ─── HANDLERS ────────────────────────────────────────────────────────────
   const handleNomineeClick = (nomineeId: string) => {
     if (isLocked) return;
     setSelectedNomineeId(nomineeId);
@@ -157,16 +197,16 @@ export function NomineeVoteClient({
 
       if (result.success) {
         setVotedNomineeId(selectedNomineeId);
-        // Optimistic count update
         setCounts((prev) => ({
           ...prev,
           [selectedNomineeId]: (prev[selectedNomineeId] ?? 0) + 1,
         }));
-        toast.success("Vote confirmed", {
+        toast.success("Vote confirmed!", {
           description: `Your vote for ${result.nominee_name} has been counted in real time.`,
         });
       } else {
         if (result.error === "NOT_AUTHENTICATED") {
+          // Session may have expired — re-check and show auth dialog
           setIsAuthenticated(false);
           setAuthModalOpen(true);
         } else {
@@ -185,6 +225,7 @@ export function NomineeVoteClient({
   const selectedNominee = nominees.find((n) => n.id === selectedNomineeId);
   const votedNominee = nominees.find((n) => n.id === votedNomineeId);
 
+  // ─── RENDER ──────────────────────────────────────────────────────────────
   return (
     <div>
       {/* Back button and group badge */}
@@ -317,7 +358,7 @@ export function NomineeVoteClient({
                 </p>
               )}
 
-              {/* Progress bar for live percentage */}
+              {/* Progress bar */}
               <div className="mt-4 pt-3 border-t border-white/5">
                 <div className="w-full bg-white/5 h-1.5 rounded-full overflow-hidden" role="progressbar" aria-valuenow={percentage} aria-valuemin={0} aria-valuemax={100}>
                   <div
@@ -337,7 +378,7 @@ export function NomineeVoteClient({
         })}
       </div>
 
-      {/* Floating Action Bar when nominee is selected and not locked */}
+      {/* Floating Action Bar */}
       {!isLocked && (
         <div className="fixed bottom-6 left-1/2 -translate-x-1/2 w-[92%] max-w-xl z-30 pb-safe">
           <div className="p-4 rounded-2xl bg-[#0a0a0a]/95 border border-amber-500/25 shadow-2xl backdrop-blur-xl flex items-center justify-between gap-4">
@@ -354,7 +395,9 @@ export function NomineeVoteClient({
                 </div>
               ) : (
                 <div className="text-xs text-white/50">
-                  Select a nominee above to cast your vote
+                  {authChecked && isAuthenticated
+                    ? "Select a nominee above to cast your vote"
+                    : "Select a nominee — you'll verify your email once to vote"}
                 </div>
               )}
             </div>
@@ -372,7 +415,7 @@ export function NomineeVoteClient({
               ) : (
                 <>
                   <Vote className="w-4 h-4 mr-2" />
-                  Confirm Vote
+                  {isAuthenticated ? "Confirm Vote" : "Vote (Verify Email)"}
                 </>
               )}
             </Button>
@@ -419,7 +462,7 @@ export function NomineeVoteClient({
         </DialogContent>
       </Dialog>
 
-      {/* Auth Dialog */}
+      {/* Auth Dialog — only shown when user is not authenticated */}
       <VoteAuthDialog
         open={authModalOpen}
         onOpenChange={setAuthModalOpen}
