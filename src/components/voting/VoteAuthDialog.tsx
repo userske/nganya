@@ -1,13 +1,14 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { usePathname } from "next/navigation";
-import { Mail, Loader2, ShieldCheck, ArrowRight, MailCheck, RefreshCw } from "lucide-react";
+import { Mail, Loader2, ShieldCheck, ArrowRight, MailCheck, RefreshCw, Sparkles } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { sendOtpAction } from "@/app/actions/auth";
+import { checkEmailTypo } from "@/lib/auth/email";
 import { toast } from "sonner";
 
 interface VoteAuthDialogProps {
@@ -27,8 +28,14 @@ export function VoteAuthDialog({
   const pathname = usePathname();
   const [step, setStep] = useState<"email" | "sent">("email");
   const [email, setEmail] = useState("");
+  const [suggestedEmail, setSuggestedEmail] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+
+  useEffect(() => {
+    const fix = checkEmailTypo(email);
+    setSuggestedEmail(fix);
+  }, [email]);
 
   const handleSendLink = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -36,7 +43,6 @@ export function VoteAuthDialog({
     setIsLoading(true);
 
     try {
-      // Pass current pathname so the magic link returns user to this vote page
       const result = await sendOtpAction(email, undefined, pathname);
       if (result.success) {
         setStep("sent");
@@ -45,6 +51,9 @@ export function VoteAuthDialog({
         });
       } else {
         setErrorMessage(result.error || "Failed to send link. Please try again.");
+        if (result.suggestedEmail) {
+          setSuggestedEmail(result.suggestedEmail);
+        }
       }
     } catch {
       setErrorMessage("Network error. Please try again.");
@@ -71,10 +80,10 @@ export function VoteAuthDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-md bg-[#0a0a0a] border border-white/10 text-white p-6 rounded-2xl shadow-2xl">
+      <DialogContent className="sm:max-w-md bg-[#0a0a0a] border border-white/10 text-white p-6 rounded-3xl shadow-2xl">
         <DialogHeader className="text-left">
-          <div className="w-12 h-12 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center text-white mb-3">
-            {step === "email" ? <Mail className="w-5 h-5" /> : <MailCheck className="w-5 h-5 text-green-400" />}
+          <div className="w-12 h-12 rounded-2xl bg-amber-400/10 border border-amber-400/25 flex items-center justify-center text-amber-400 mb-3 shadow-[0_0_20px_rgba(245,158,11,0.15)]">
+            {step === "email" ? <Mail className="w-6 h-6" /> : <MailCheck className="w-6 h-6 text-emerald-400" />}
           </div>
           <DialogTitle className="text-xl font-bold text-white tracking-tight">
             {step === "email" ? "Verify Your Email to Vote" : "Check Your Inbox"}
@@ -84,7 +93,7 @@ export function VoteAuthDialog({
               <>
                 To ensure a fair competition (<strong>one verified voter = one vote per category</strong>), please verify your email. No passwords needed.
                 {nomineeName && categoryName && (
-                  <span className="block mt-2 text-white/80 font-medium text-xs">
+                  <span className="block mt-2 text-amber-400 font-semibold text-xs">
                     Voting for: {nomineeName} in {categoryName}
                   </span>
                 )}
@@ -100,7 +109,7 @@ export function VoteAuthDialog({
         </DialogHeader>
 
         {errorMessage && (
-          <div role="alert" className="p-3 rounded-lg bg-white/5 border border-white/20 text-white text-xs leading-relaxed">
+          <div role="alert" className="p-3.5 rounded-xl bg-rose-500/10 border border-rose-500/20 text-rose-300 text-xs leading-relaxed">
             {errorMessage}
           </div>
         )}
@@ -119,8 +128,30 @@ export function VoteAuthDialog({
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
-                className="bg-white/5 border-white/10 text-white placeholder:text-white/30 focus-visible:ring-2 focus-visible:ring-white"
+                className="bg-white/5 border-white/10 text-white placeholder:text-white/30 h-11 rounded-xl focus-visible:ring-2 focus-visible:ring-amber-400"
               />
+
+              {/* Typo Suggestion Chip */}
+              {suggestedEmail && (
+                <div className="p-2.5 rounded-lg bg-amber-400/10 border border-amber-400/25 flex items-center justify-between text-xs">
+                  <span className="text-amber-300 flex items-center gap-1.5">
+                    <Sparkles className="w-3.5 h-3.5" />
+                    Did you mean <strong className="text-white">{suggestedEmail}</strong>?
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setEmail(suggestedEmail);
+                      setSuggestedEmail(null);
+                      setErrorMessage(null);
+                    }}
+                    className="text-black bg-amber-400 hover:bg-amber-300 font-bold px-2 py-0.5 rounded text-[11px] transition-colors"
+                  >
+                    Apply Fix
+                  </button>
+                </div>
+              )}
+
               <p className="text-[11px] text-white/40">
                 You will only verify once for the entire awards season.
               </p>
@@ -129,7 +160,7 @@ export function VoteAuthDialog({
             <Button
               type="submit"
               disabled={isLoading || !email}
-              className="w-full bg-white hover:bg-white/90 text-black font-semibold h-11 rounded-xl transition-[background-color,color] duration-150 ease-out focus-visible:ring-2 focus-visible:ring-white"
+              className="w-full bg-amber-400 hover:bg-amber-300 text-black font-bold h-11 rounded-xl transition-[background-color,color] duration-150 ease-out focus-visible:ring-2 focus-visible:ring-amber-400"
             >
               {isLoading ? (
                 <>
@@ -146,12 +177,11 @@ export function VoteAuthDialog({
           </form>
         ) : (
           <div className="space-y-4 mt-2">
-            {/* Inbox illustration */}
-            <div className="rounded-xl bg-white/5 border border-white/10 p-4 text-center space-y-1">
-              <p className="text-white text-sm font-medium">Link sent to</p>
-              <p className="text-white/70 text-sm font-mono truncate">{email}</p>
-              <p className="text-white/40 text-xs mt-2">
-                Open your email app and click <strong className="text-white/60">Sign in to Coastal Nganya Awards</strong>. The link expires in 1 hour.
+            <div className="rounded-2xl bg-white/5 border border-white/10 p-5 text-center space-y-1">
+              <p className="text-white text-sm font-semibold">Link sent to</p>
+              <p className="text-white/80 text-sm font-mono truncate">{email}</p>
+              <p className="text-white/40 text-xs mt-2 leading-relaxed">
+                Open your email app and click <strong className="text-white/70">Sign in to Coastal Nganya Awards</strong>. The link expires in 1 hour.
               </p>
             </div>
 
@@ -169,20 +199,20 @@ export function VoteAuthDialog({
                 disabled={isLoading}
                 className="flex items-center gap-1 hover:text-white underline underline-offset-4 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-white rounded disabled:opacity-50"
               >
-                {isLoading ? <Loader2 className="w-3 h-3 animate-spin" /> : <RefreshCw className="w-3 h-3" />}
+                {isLoading ? (
+                  <Loader2 className="w-3 h-3 animate-spin" />
+                ) : (
+                  <RefreshCw className="w-3 h-3" />
+                )}
                 Resend link
               </button>
             </div>
-
-            <p className="text-[11px] text-white/30 text-center">
-              Didn&apos;t receive it? Check your spam folder.
-            </p>
           </div>
         )}
 
-        <div className="mt-2 pt-4 border-t border-white/10 flex items-center justify-center gap-2 text-[11px] text-white/40 font-mono">
-          <ShieldCheck className="w-3.5 h-3.5 text-white/60" />
-          <span>One verified voter per category • Anonymous tallies</span>
+        <div className="pt-3 border-t border-white/10 flex items-center justify-center gap-2 text-xs text-white/40 font-mono">
+          <ShieldCheck className="w-3.5 h-3.5 text-amber-400" />
+          <span>One-click voter verification</span>
         </div>
       </DialogContent>
     </Dialog>

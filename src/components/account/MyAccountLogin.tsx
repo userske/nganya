@@ -1,19 +1,36 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
-import { Mail, Loader2, ArrowRight, ShieldCheck, MailCheck, RefreshCw, ChevronLeft, UserCheck } from "lucide-react";
+import {
+  Mail,
+  Loader2,
+  ArrowRight,
+  ShieldCheck,
+  MailCheck,
+  RefreshCw,
+  UserCheck,
+  Sparkles,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { sendOtpAction } from "@/app/actions/auth";
+import { checkEmailTypo } from "@/lib/auth/email";
 import { toast } from "sonner";
 
 export function MyAccountLogin() {
   const [step, setStep] = useState<"email" | "sent">("email");
   const [email, setEmail] = useState("");
+  const [suggestedEmail, setSuggestedEmail] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+
+  // Proactive typo detection
+  useEffect(() => {
+    const fix = checkEmailTypo(email);
+    setSuggestedEmail(fix);
+  }, [email]);
 
   const handleSendLink = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -29,6 +46,9 @@ export function MyAccountLogin() {
         });
       } else {
         setErrorMessage(result.error || "Failed to send link. Please try again.");
+        if (result.suggestedEmail) {
+          setSuggestedEmail(result.suggestedEmail);
+        }
       }
     } catch {
       setErrorMessage("Network error. Please try again.");
@@ -80,7 +100,7 @@ export function MyAccountLogin() {
       {errorMessage && (
         <div
           role="alert"
-          className="mb-6 p-3 rounded-xl bg-white/5 border border-white/20 text-white text-xs leading-relaxed"
+          className="mb-6 p-3 rounded-xl bg-rose-500/10 border border-rose-500/20 text-rose-300 text-xs leading-relaxed"
         >
           {errorMessage}
         </div>
@@ -100,8 +120,30 @@ export function MyAccountLogin() {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
-              className="bg-white/5 border-white/10 text-white placeholder:text-white/30 h-12 focus-visible:ring-2 focus-visible:ring-white"
+              className="bg-white/5 border-white/10 text-white placeholder:text-white/30 h-12 rounded-xl focus-visible:ring-2 focus-visible:ring-amber-400"
             />
+
+            {/* Smart Typo Suggestion Chip */}
+            {suggestedEmail && (
+              <div className="p-2.5 rounded-lg bg-amber-400/10 border border-amber-400/25 flex items-center justify-between text-xs">
+                <span className="text-amber-300 flex items-center gap-1.5">
+                  <Sparkles className="w-3.5 h-3.5" />
+                  Did you mean <strong className="text-white">{suggestedEmail}</strong>?
+                </span>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setEmail(suggestedEmail);
+                    setSuggestedEmail(null);
+                    setErrorMessage(null);
+                  }}
+                  className="text-black bg-amber-400 hover:bg-amber-300 font-bold px-2 py-0.5 rounded text-[11px] transition-colors"
+                >
+                  Apply Fix
+                </button>
+              </div>
+            )}
+
             <p className="text-[11px] text-white/40">
               Use the email address you used to vote or purchase event tickets.
             </p>
@@ -127,12 +169,12 @@ export function MyAccountLogin() {
         </form>
       ) : (
         <div className="space-y-5">
-          <div className="rounded-xl bg-white/5 border border-white/10 p-5 text-center space-y-2">
-            <MailCheck className="w-8 h-8 text-emerald-400 mx-auto" />
+          <div className="rounded-2xl bg-white/5 border border-white/10 p-6 text-center space-y-2">
+            <MailCheck className="w-10 h-10 text-emerald-400 mx-auto mb-2" />
             <p className="text-white text-sm font-semibold">Link sent to</p>
-            <p className="text-white/70 text-sm font-mono truncate">{email}</p>
-            <p className="text-white/40 text-xs mt-1">
-              Open your email app and click <strong className="text-white/60">Sign in to Coastal Nganya Awards</strong>.
+            <p className="text-white/80 text-sm font-mono truncate">{email}</p>
+            <p className="text-white/40 text-xs mt-2 leading-relaxed">
+              Open your email app and click <strong className="text-white/70">Sign in to Coastal Nganya Awards</strong>.
             </p>
           </div>
 
@@ -162,10 +204,9 @@ export function MyAccountLogin() {
       )}
 
       <div className="mt-8 pt-6 border-t border-white/10 flex items-center justify-center gap-2 text-xs text-white/40 font-mono">
-        <ShieldCheck className="w-4 h-4 text-white/60" />
+        <ShieldCheck className="w-4 h-4 text-amber-400" />
         <span>Passwordless · Secure sign-in</span>
       </div>
     </div>
   );
 }
-

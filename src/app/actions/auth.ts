@@ -1,12 +1,18 @@
 "use server";
 
 import { createClient } from "@/lib/supabase/server";
-import { normalizeEmail, isDisposableEmail } from "@/lib/auth/email";
+import {
+  normalizeEmail,
+  isDisposableEmail,
+  isValidEmailFormat,
+  checkEmailTypo,
+} from "@/lib/auth/email";
 
 export interface AuthActionResult {
   success: boolean;
   message?: string;
   error?: string;
+  suggestedEmail?: string;
 }
 
 /**
@@ -21,8 +27,17 @@ export async function sendOtpAction(
 ): Promise<AuthActionResult> {
   const email = normalizeEmail(rawEmail);
 
-  if (!email || !email.includes("@")) {
-    return { success: false, error: "Please provide a valid email address." };
+  if (!email || !isValidEmailFormat(email)) {
+    return { success: false, error: "Please enter a valid, complete email address." };
+  }
+
+  const typoFix = checkEmailTypo(rawEmail);
+  if (typoFix) {
+    return {
+      success: false,
+      error: `Did you mean ${typoFix}? Please check your email spelling.`,
+      suggestedEmail: typoFix,
+    };
   }
 
   if (isDisposableEmail(email)) {
