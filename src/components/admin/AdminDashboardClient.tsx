@@ -20,7 +20,6 @@ import {
   Unlock,
   Loader2,
   RefreshCw,
-  Sparkles,
   DollarSign,
   TrendingUp,
   Activity,

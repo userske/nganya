@@ -10,7 +10,6 @@ import {
   MailCheck,
   RefreshCw,
   UserCheck,
-  Sparkles,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -126,8 +125,7 @@ export function MyAccountLogin() {
             {/* Smart Typo Suggestion Chip */}
             {suggestedEmail && (
               <div className="p-2.5 rounded-lg bg-amber-400/10 border border-amber-400/25 flex items-center justify-between text-xs">
-                <span className="text-amber-300 flex items-center gap-1.5">
-                  <Sparkles className="w-3.5 h-3.5" />
+                <span className="text-amber-300">
                   Did you mean <strong className="text-white">{suggestedEmail}</strong>?
                 </span>
                 <button

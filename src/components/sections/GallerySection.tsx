@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback } from "react";
 import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
-import { X, ChevronLeft, ChevronRight, Maximize2, Sparkles } from "lucide-react";
+import { X, ChevronLeft, ChevronRight, Maximize2 } from "lucide-react";
 
 export interface GalleryItem {
   id: number;
@@ -87,7 +87,7 @@ export function GallerySection() {
             viewport={{ once: true }}
             className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-amber-400/10 border border-amber-400/20 text-amber-400 text-xs font-semibold uppercase tracking-widest mb-4"
           >
-            <Sparkles className="w-3.5 h-3.5" />
+            <span className="w-1.5 h-1.5 rounded-full bg-amber-400" />
             Culture In Motion
           </motion.div>
 

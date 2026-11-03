@@ -119,7 +119,7 @@ function ValidCard({ ticket }: { ticket: TicketRecord }) {
         </div>
         <div>
           <h1 className="text-xl font-black text-white uppercase tracking-tight">
-            Ticket Valid ✓
+            Ticket Valid
           </h1>
           <p className="text-emerald-400 text-sm font-medium mt-0.5">
             Authentic and unused — allow gate entry.
@@ -150,7 +150,7 @@ function ValidCard({ ticket }: { ticket: TicketRecord }) {
           <InfoRow label="Event" value="Coastal Nganya Awards Night" />
           <InfoRow label="Venue" value="Mamba Village, Mombasa" />
           <InfoRow label="Date" value="Dec 6, 2026 · 2:00 PM EAT" />
-          <InfoRow label="Signature" value="✓ Cryptographically verified" accent />
+          <InfoRow label="Signature" value="Cryptographically verified" accent />
         </div>
 
         <div className="rounded-xl bg-emerald-950/30 border border-emerald-800/30 px-5 py-4 text-sm text-emerald-300/80 leading-relaxed">

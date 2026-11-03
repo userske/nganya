@@ -16,7 +16,6 @@ import {
   ExternalLink,
   ShieldCheck,
   Award,
-  Sparkles,
   Download,
   Search,
   ChevronRight,
@@ -24,7 +23,6 @@ import {
   Check,
   Printer,
   Share2,
-  Flame,
   ArrowUpRight,
   User,
   Info,
@@ -305,7 +303,7 @@ export function MyAccountClient({ user, votes, tickets }: MyAccountClientProps) 
                   Complete ballot &rarr;
                 </Link>
               ) : (
-                <span className="text-emerald-400 text-[11px] font-bold">All Voted ✓</span>
+                <span className="text-emerald-400 text-[11px] font-bold">All Voted</span>
               )}
             </div>
           </div>
@@ -390,7 +388,7 @@ export function MyAccountClient({ user, votes, tickets }: MyAccountClientProps) 
             {activeTab === "votes" ? (
               <Button asChild size="sm" className="bg-amber-400 hover:bg-amber-300 text-black font-bold">
                 <Link href="/vote">
-                  <Flame className="w-3.5 h-3.5 mr-1.5" />
+                  <Vote className="w-3.5 h-3.5 mr-1.5" />
                   Vote More Nominees
                 </Link>
               </Button>
@@ -625,7 +623,6 @@ export function MyAccountClient({ user, votes, tickets }: MyAccountClientProps) 
                               : "bg-white/10 text-white font-bold uppercase text-xs border-white/20"
                           }
                         >
-                          <Sparkles className="w-3 h-3 mr-1" />
                           {tierName}
                         </Badge>
                         <span className="text-white/40 text-xs font-mono">

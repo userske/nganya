@@ -185,7 +185,7 @@ export async function sendTicketEmail({
             <td style="padding: 28px 32px 20px 32px;">
               <p style="margin: 0 0 8px 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
                 font-size: 22px; font-weight: 800; color: #ffffff;">
-                Your ${pluralTickets} ${tickets.length === 1 ? "is" : "are"} confirmed ✓
+                Your ${pluralTickets} ${tickets.length === 1 ? "is" : "are"} confirmed
               </p>
               <p style="margin: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
                 font-size: 14px; color: #a3a3a3; line-height: 1.6;">
