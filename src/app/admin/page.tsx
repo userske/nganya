@@ -20,16 +20,37 @@ export default async function AdminPage() {
     data: { user },
   } = await supabase.auth.getUser();
 
+  const adminEmails = [
+    "info@coastalnganyaawards.com",
+    "usersessionsio@gmail.com",
+    ...(process.env.ADMIN_EMAIL
+      ? process.env.ADMIN_EMAIL.split(",").map((e: string) => e.trim().toLowerCase())
+      : []),
+  ];
+
   let isAdmin = false;
+
   if (user) {
-    const { data: profile } = await supabase
+    const userEmail = (user.email || "").toLowerCase().trim();
+    const isEmailAdmin = adminEmails.includes(userEmail);
+
+    const adminClient = await createAdminClient();
+    const { data: profile } = await adminClient
       .from("profiles")
       .select("role")
       .eq("id", user.id)
       .maybeSingle();
 
-    if (profile?.role === "admin") {
+    if (isEmailAdmin || profile?.role === "admin") {
       isAdmin = true;
+
+      // Auto-heal / persist admin role in DB so any Postgres RPC functions recognize the admin
+      if (profile?.role !== "admin") {
+        await adminClient.from("profiles").upsert(
+          { id: user.id, email_normalized: userEmail, role: "admin" },
+          { onConflict: "id" }
+        );
+      }
     }
   }
 
@@ -98,9 +119,9 @@ export default async function AdminPage() {
   // 5. Audit Log
   const { data: auditLogs } = await adminClient
     .from("audit_log")
-    .select("id, action, entity_type, entity_id, created_at")
+    .select("*")
     .order("created_at", { ascending: false })
-    .limit(20);
+    .limit(30);
 
   return (
     <div className="min-h-screen bg-black text-white flex flex-col justify-between">
@@ -108,7 +129,7 @@ export default async function AdminPage() {
 
       <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-28">
         <AdminDashboardClient
-          initialSettings={settings}
+          initialSettings={settings || {}}
           categories={categories || []}
           orders={orders || []}
           suspiciousIps={[]}

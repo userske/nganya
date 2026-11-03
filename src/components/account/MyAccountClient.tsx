@@ -480,3 +480,4 @@ export function MyAccountClient({ user, votes, tickets }: MyAccountClientProps) 
     </div>
   );
 }
+

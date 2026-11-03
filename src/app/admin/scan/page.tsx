@@ -1,7 +1,7 @@
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
 import { DoorScannerClient } from "@/components/admin/DoorScannerClient";
-import { createClient } from "@/lib/supabase/server";
+import { createClient, createAdminClient } from "@/lib/supabase/server";
 import Link from "next/link";
 import { ShieldAlert } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -20,16 +20,36 @@ export default async function AdminScanPage() {
     data: { user },
   } = await supabase.auth.getUser();
 
+  const adminEmails = [
+    "info@coastalnganyaawards.com",
+    "usersessionsio@gmail.com",
+    ...(process.env.ADMIN_EMAIL
+      ? process.env.ADMIN_EMAIL.split(",").map((e: string) => e.trim().toLowerCase())
+      : []),
+  ];
+
   let isAuthorized = false;
+
   if (user) {
-    const { data: profile } = await supabase
+    const userEmail = (user.email || "").toLowerCase().trim();
+    const isEmailAdmin = adminEmails.includes(userEmail);
+
+    const adminClient = await createAdminClient();
+    const { data: profile } = await adminClient
       .from("profiles")
       .select("role")
       .eq("id", user.id)
       .maybeSingle();
 
-    if (profile && (profile.role === "admin" || profile.role === "staff")) {
+    if (isEmailAdmin || profile?.role === "admin" || profile?.role === "staff") {
       isAuthorized = true;
+
+      if (isEmailAdmin && profile?.role !== "admin") {
+        await adminClient.from("profiles").upsert(
+          { id: user.id, email_normalized: userEmail, role: "admin" },
+          { onConflict: "id" }
+        );
+      }
     }
   }
 
@@ -49,14 +69,14 @@ export default async function AdminScanPage() {
               Staff Access Required
             </h1>
             <p className="text-white/50 text-xs sm:text-sm mb-6 leading-relaxed">
-              This door scanning terminal is restricted to authorized event security, ushers, and administrators. Please log in with an authorized staff account.
+              You must be signed in with a Staff or Administrator account to operate the gate scanner.
             </p>
             <div className="space-y-3">
-              <Button asChild className="w-full bg-white hover:bg-white/90 text-black font-semibold focus-visible:ring-2 focus-visible:ring-white">
+              <Button asChild className="w-full bg-white hover:bg-white/90 text-black font-semibold">
                 <Link href="/login?next=/admin/scan">Log In as Staff</Link>
               </Button>
-              <Button asChild variant="outline" className="w-full border-white/20 hover:bg-white/5 text-white focus-visible:ring-2 focus-visible:ring-white">
-                <Link href="/">Return to Home</Link>
+              <Button asChild variant="outline" className="w-full border-white/20 hover:bg-white/5 text-white">
+                <Link href="/">Back to Website</Link>
               </Button>
             </div>
           </div>

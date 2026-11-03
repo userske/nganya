@@ -13,14 +13,33 @@ async function verifyAdminRole() {
     throw new Error("UNAUTHORIZED: Not logged in");
   }
 
-  const { data: profile } = await supabase
+  const adminEmails = [
+    "info@coastalnganyaawards.com",
+    "usersessionsio@gmail.com",
+    ...(process.env.ADMIN_EMAIL
+      ? process.env.ADMIN_EMAIL.split(",").map((e: string) => e.trim().toLowerCase())
+      : []),
+  ];
+  const userEmail = (user.email || "").toLowerCase().trim();
+  const isEmailAdmin = adminEmails.includes(userEmail);
+
+  const adminClient = await createAdminClient();
+  const { data: profile } = await adminClient
     .from("profiles")
     .select("role")
     .eq("id", user.id)
-    .single();
+    .maybeSingle();
 
-  if (!profile || profile.role !== "admin") {
+  if (!isEmailAdmin && profile?.role !== "admin") {
     throw new Error("FORBIDDEN: Admin role required");
+  }
+
+  // Ensure role is admin in DB so any direct database RPC policies pass
+  if (isEmailAdmin && profile?.role !== "admin") {
+    await adminClient.from("profiles").upsert(
+      { id: user.id, email_normalized: userEmail, role: "admin" },
+      { onConflict: "id" }
+    );
   }
 
   return user;
@@ -60,6 +79,7 @@ export async function updateEventSettingsAction(formData: {
     return { success: false, error: error.message };
   }
 
+  // Log in audit log
   await adminClient.from("audit_log").insert({
     actor_id: adminUser.id,
     action: "UPDATE_EVENT_SETTINGS",
@@ -69,9 +89,7 @@ export async function updateEventSettingsAction(formData: {
   });
 
   revalidatePath("/");
-  revalidatePath("/vote");
   revalidatePath("/admin");
-
   return { success: true };
 }
 
@@ -90,15 +108,13 @@ export async function toggleCategoryStatusAction(categoryId: string, isActive: b
 
   await adminClient.from("audit_log").insert({
     actor_id: adminUser.id,
-    action: isActive ? "ACTIVATE_CATEGORY" : "DEACTIVATE_CATEGORY",
-    entity_type: "categories",
+    action: isActive ? "ENABLE_CATEGORY" : "DISABLE_CATEGORY",
+    entity_type: "category",
     entity_id: categoryId,
   });
 
   revalidatePath("/vote");
-  revalidatePath("/results");
   revalidatePath("/admin");
-
   return { success: true };
 }
 
@@ -106,7 +122,7 @@ export async function voidVoteAction(voteId: string, reason: string) {
   const adminUser = await verifyAdminRole();
   const adminClient = await createAdminClient();
 
-  // 1. Fetch vote
+  // Find vote first to decrement count
   const { data: vote } = await adminClient
     .from("votes")
     .select("category_id, nominee_id, voided")
@@ -114,47 +130,44 @@ export async function voidVoteAction(voteId: string, reason: string) {
     .single();
 
   if (!vote || vote.voided) {
-    return { success: false, error: "Vote already voided or not found" };
+    return { success: false, error: "Vote not found or already voided" };
   }
 
-  // 2. Mark voided
-  await adminClient
+  // Mark void
+  const { error } = await adminClient
     .from("votes")
     .update({ voided: true })
     .eq("id", voteId);
 
-  // 3. Decrement count atomically
-  const { error: rpcErr } = await adminClient.rpc("decrement_vote_count", {
-    p_category_id: vote.category_id,
-    p_nominee_id: vote.nominee_id,
-  });
+  if (error) {
+    return { success: false, error: error.message };
+  }
 
-  if (rpcErr) {
-    // Direct decrement fallback
-    const { data: countRec } = await adminClient
+  // Decrement vote_counts
+  const { data: currentCount } = await adminClient
+    .from("vote_counts")
+    .select("count")
+    .eq("category_id", vote.category_id)
+    .eq("nominee_id", vote.nominee_id)
+    .single();
+
+  if (currentCount && currentCount.count > 0) {
+    await adminClient
       .from("vote_counts")
-      .select("count")
+      .update({ count: currentCount.count - 1 })
       .eq("category_id", vote.category_id)
-      .eq("nominee_id", vote.nominee_id)
-      .single();
-
-    if (countRec) {
-      await adminClient
-        .from("vote_counts")
-        .update({ count: Math.max(0, Number(countRec.count) - 1) })
-        .eq("category_id", vote.category_id)
-        .eq("nominee_id", vote.nominee_id);
-    }
+      .eq("nominee_id", vote.nominee_id);
   }
 
   await adminClient.from("audit_log").insert({
     actor_id: adminUser.id,
     action: "VOID_VOTE",
-    entity_type: "votes",
+    entity_type: "vote",
     entity_id: voteId,
     details: { reason },
   });
 
   revalidatePath("/results");
+  revalidatePath("/admin");
   return { success: true };
 }
