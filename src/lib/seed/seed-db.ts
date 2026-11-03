@@ -1,6 +1,5 @@
 import { createAdminClient } from "@/lib/supabase/server";
-import fs from "fs";
-import path from "path";
+import rawData from "./categories_seed.json";
 
 interface RawCategory {
   name: string;
@@ -50,92 +49,97 @@ function extractSubtitle(nomineeStr: string): { name: string; subtitle: string |
 export async function seedDatabaseFromLocalJson() {
   const adminClient = await createAdminClient();
 
-  const seedFilePath = path.join(process.cwd(), "supabase/seed/categories_seed.json");
-  if (!fs.existsSync(seedFilePath)) {
-    console.error("categories_seed.json not found");
-    return { success: false, error: "Seed file not found" };
-  }
-
-  const rawData: RawCategory[] = JSON.parse(fs.readFileSync(seedFilePath, "utf8"));
-
-  const emptyCategoriesToDeactivate = [
-    "mombasa-1-matatu",
-    "best-driver-mombasa",
-    "best-conductor-mombasa",
-  ];
-
-  let seededCategories = 0;
-  let seededNominees = 0;
-
-  for (const cat of rawData) {
+  const categoriesToSeed = (rawData as RawCategory[]).map((cat) => {
     const groupName = assignGroup(cat.name);
     const hasNominees = Array.isArray(cat.nominees) && cat.nominees.length > 0;
-    const isActive = hasNominees && !emptyCategoriesToDeactivate.includes(cat.slug);
+    const emptyDeactivate = [
+      "mombasa-1-matatu",
+      "best-driver-mombasa",
+      "best-conductor-mombasa",
+    ];
+    return {
+      slug: cat.slug,
+      name: cat.name,
+      group_name: groupName,
+      sort_order: cat.sort_order,
+      is_active: hasNominees && !emptyDeactivate.includes(cat.slug),
+    };
+  });
 
-    // Upsert Category
-    const { data: catData, error: catError } = await adminClient
-      .from("categories")
-      .upsert(
-        {
-          slug: cat.slug,
-          name: cat.name,
-          group_name: groupName,
-          sort_order: cat.sort_order,
-          is_active: isActive,
-        },
-        { onConflict: "slug" }
-      )
-      .select("id")
-      .single();
+  // 1. Batch upsert all categories in one query
+  const { data: insertedCategories, error: catError } = await adminClient
+    .from("categories")
+    .upsert(categoriesToSeed, { onConflict: "slug" })
+    .select("id, slug");
 
-    if (catError || !catData) {
-      console.error(`Error seeding category ${cat.name}:`, catError?.message);
-      continue;
-    }
+  if (catError || !insertedCategories) {
+    console.error("Categories batch upsert error:", catError);
+    return { success: false, error: catError?.message || "Failed to upsert categories" };
+  }
 
-    seededCategories++;
+  const categoryIdMap = new Map<string, string>();
+  for (const c of insertedCategories) {
+    categoryIdMap.set(c.slug, c.id);
+  }
 
-    // Upsert Nominees for this Category
-    if (hasNominees) {
-      for (let i = 0; i < cat.nominees.length; i++) {
-        const rawNom = cat.nominees[i];
-        const { name, subtitle } = extractSubtitle(rawNom);
+  // 2. Prepare all nominees
+  const allNominees: {
+    category_id: string;
+    name: string;
+    subtitle: string | null;
+    sort_order: number;
+    is_active: boolean;
+  }[] = [];
 
-        const { data: nomData, error: nomError } = await adminClient
-          .from("nominees")
-          .upsert(
-            {
-              category_id: catData.id,
-              name,
-              subtitle,
-              sort_order: i + 1,
-              is_active: true,
-            },
-            { onConflict: "category_id,name" }
-          )
-          .select("id")
-          .single();
+  for (const cat of rawData as RawCategory[]) {
+    const catId = categoryIdMap.get(cat.slug);
+    if (!catId || !Array.isArray(cat.nominees)) continue;
 
-        if (!nomError && nomData) {
-          seededNominees++;
-
-          // Initialize vote_counts
-          await adminClient
-            .from("vote_counts")
-            .upsert(
-              {
-                category_id: catData.id,
-                nominee_id: nomData.id,
-                count: 0,
-              },
-              { onConflict: "category_id,nominee_id" }
-            );
-        }
-      }
+    for (let i = 0; i < cat.nominees.length; i++) {
+      const { name, subtitle } = extractSubtitle(cat.nominees[i]);
+      allNominees.push({
+        category_id: catId,
+        name,
+        subtitle,
+        sort_order: i + 1,
+        is_active: true,
+      });
     }
   }
 
-  // Ensure default ticket tiers exist
+  // 3. Batch upsert nominees in chunks of 100 for high performance
+  const insertedNominees: { id: string; category_id: string }[] = [];
+  const chunkSize = 100;
+
+  for (let i = 0; i < allNominees.length; i += chunkSize) {
+    const chunk = allNominees.slice(i, i + chunkSize);
+    const { data: nomData, error: nomError } = await adminClient
+      .from("nominees")
+      .upsert(chunk, { onConflict: "category_id,name" })
+      .select("id, category_id");
+
+    if (nomError) {
+      console.error("Nominees chunk error:", nomError);
+    } else if (nomData) {
+      insertedNominees.push(...nomData);
+    }
+  }
+
+  // 4. Batch upsert vote_counts in chunks
+  const voteCounts = insertedNominees.map((n) => ({
+    category_id: n.category_id,
+    nominee_id: n.id,
+    count: 0,
+  }));
+
+  for (let i = 0; i < voteCounts.length; i += chunkSize) {
+    const chunk = voteCounts.slice(i, i + chunkSize);
+    await adminClient
+      .from("vote_counts")
+      .upsert(chunk, { onConflict: "category_id,nominee_id" });
+  }
+
+  // 5. Ensure ticket tiers exist
   await adminClient.from("ticket_tiers").upsert(
     [
       {
@@ -171,7 +175,7 @@ export async function seedDatabaseFromLocalJson() {
 
   return {
     success: true,
-    categoriesCount: seededCategories,
-    nomineesCount: seededNominees,
+    categoriesCount: insertedCategories.length,
+    nomineesCount: insertedNominees.length,
   };
 }
