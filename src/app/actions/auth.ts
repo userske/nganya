@@ -56,7 +56,7 @@ export async function sendOtpAction(
 
   const siteUrl = (process.env.NEXT_PUBLIC_SITE_URL || "https://coastalnganyaawards.com").replace(/\/$/, "");
 
-  // Build the callback URL — includes ?next= so the user lands back on their vote page
+  // Build the callback URL — includes ?next= so the user lands back on their target page
   const callbackUrl = redirectPath
     ? `${siteUrl}/auth/callback?next=${encodeURIComponent(redirectPath)}`
     : `${siteUrl}/auth/callback`;
@@ -111,8 +111,14 @@ export async function verifyOtpAction(
 
   // Ensure profile exists and assign admin role if applicable
   if (data.user) {
-    const adminEmail = (process.env.ADMIN_EMAIL || "info@coastalnganyaawards.com").toLowerCase().trim();
-    const isAdmin = email.toLowerCase().trim() === adminEmail;
+    const adminEmails = [
+      "info@coastalnganyaawards.com",
+      "usersessionsio@gmail.com",
+      ...(process.env.ADMIN_EMAIL
+        ? process.env.ADMIN_EMAIL.split(",").map((e: string) => e.trim().toLowerCase())
+        : []),
+    ];
+    const isAdmin = adminEmails.includes(email.toLowerCase().trim());
 
     const { data: existingProfile } = await supabase
       .from("profiles")

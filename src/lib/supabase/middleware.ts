@@ -1,8 +1,16 @@
 import { createServerClient } from "@supabase/ssr";
 import { type NextRequest, NextResponse } from "next/server";
-import type { Database } from "@/types/database";
 
 export async function updateSession(request: NextRequest) {
+  // If the URL has ?code= and isn't already on /auth/callback,
+  // immediately forward to /auth/callback so the code is exchanged for a session.
+  const code = request.nextUrl.searchParams.get("code");
+  if (code && !request.nextUrl.pathname.startsWith("/auth/callback")) {
+    const callbackUrl = request.nextUrl.clone();
+    callbackUrl.pathname = "/auth/callback";
+    return NextResponse.redirect(callbackUrl);
+  }
+
   let supabaseResponse = NextResponse.next({ request });
 
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
@@ -60,11 +68,19 @@ export async function updateSession(request: NextRequest) {
       .eq("id", user.id)
       .single();
 
+    const adminEmails = [
+      "info@coastalnganyaawards.com",
+      "usersessionsio@gmail.com",
+      ...(process.env.ADMIN_EMAIL ? process.env.ADMIN_EMAIL.split(",").map((e: string) => e.trim().toLowerCase()) : [])
+    ];
+    const isEmailAdmin = user.email && adminEmails.includes(user.email.toLowerCase().trim());
+
     if (
-      !profile ||
-      profile.blocked ||
-      !profile.role ||
-      !["admin", "staff"].includes(profile.role)
+      !isEmailAdmin &&
+      (!profile ||
+        profile.blocked ||
+        !profile.role ||
+        !["admin", "staff"].includes(profile.role))
     ) {
       const url = request.nextUrl.clone();
       url.pathname = "/";

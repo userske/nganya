@@ -1,27 +1,27 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import { createServerClient } from "@supabase/ssr";
-import { cookies } from "next/headers";
 
 /**
  * Handles Supabase auth redirects (magic link clicks).
- * URL shape: /auth/callback?code=xxx&next=/vote/sound-beast
  *
- * 1. Exchanges the code for a session (sets auth cookies)
- * 2. Upserts the user's profile and assigns admin role if applicable
- * 3. Redirects to `next` param (defaults to /)
+ * 1. Exchanges the one-time code for session cookies
+ * 2. Writes session cookies directly to the redirect response
+ * 3. Upserts profile and assigns admin role if email matches
+ * 4. Redirects to destination (Admin -> /admin, Voter -> next or /vote)
  */
 export async function GET(request: NextRequest) {
   const { searchParams, origin } = new URL(request.url);
 
   const code = searchParams.get("code");
-  const next = searchParams.get("next") ?? "/";
+  const nextParam = searchParams.get("next");
 
   if (!code) {
     return NextResponse.redirect(`${origin}/login?error=missing_code`);
   }
 
-  const cookieStore = await cookies();
+  // Temporary response to capture session cookies
+  let cookieCaptureResponse = NextResponse.next();
 
   const supabase = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -29,12 +29,12 @@ export async function GET(request: NextRequest) {
     {
       cookies: {
         getAll() {
-          return cookieStore.getAll();
+          return request.cookies.getAll();
         },
         setAll(cookiesToSet) {
-          cookiesToSet.forEach(({ name, value, options }) =>
-            cookieStore.set(name, value, options)
-          );
+          cookiesToSet.forEach(({ name, value, options }) => {
+            cookieCaptureResponse.cookies.set(name, value, options);
+          });
         },
       },
     }
@@ -43,39 +43,60 @@ export async function GET(request: NextRequest) {
   const { data, error } = await supabase.auth.exchangeCodeForSession(code);
 
   if (error || !data.user) {
-    console.error("Auth callback error:", error?.message);
+    console.error("Auth callback error exchanging code:", error?.message);
     return NextResponse.redirect(`${origin}/login?error=auth_failed`);
   }
 
-  // Upsert profile and assign admin role if email matches
-  const adminEmail = (
-    process.env.ADMIN_EMAIL || "info@coastalnganyaawards.com"
-  ).toLowerCase().trim();
-
   const userEmail = (data.user.email || "").toLowerCase().trim();
-  const isAdmin = userEmail === adminEmail;
 
-  const { data: existingProfile } = await supabase
-    .from("profiles")
-    .select("role")
-    .eq("id", data.user.id)
-    .maybeSingle();
+  // Recognized admin emails
+  const adminEmails = [
+    "info@coastalnganyaawards.com",
+    "usersessionsio@gmail.com",
+    ...(process.env.ADMIN_EMAIL
+      ? process.env.ADMIN_EMAIL.split(",").map((e: string) => e.trim().toLowerCase())
+      : []),
+  ];
+  const isAdmin = adminEmails.includes(userEmail);
 
-  const roleToAssign =
-    isAdmin || existingProfile?.role === "admin"
-      ? "admin"
-      : (existingProfile?.role ?? "voter");
+  // Upsert profile in Supabase
+  try {
+    const { data: existingProfile } = await supabase
+      .from("profiles")
+      .select("role")
+      .eq("id", data.user.id)
+      .maybeSingle();
 
-  await supabase.from("profiles").upsert(
-    {
-      id: data.user.id,
-      email_normalized: userEmail,
-      role: roleToAssign,
-    },
-    { onConflict: "id" }
-  );
+    const roleToAssign =
+      isAdmin || existingProfile?.role === "admin"
+        ? "admin"
+        : (existingProfile?.role ?? "voter");
 
-  // Safe redirect — only allow relative paths to prevent open redirect
-  const safePath = next.startsWith("/") ? next : "/";
-  return NextResponse.redirect(`${origin}${safePath}`);
+    await supabase.from("profiles").upsert(
+      {
+        id: data.user.id,
+        email_normalized: userEmail,
+        role: roleToAssign,
+      },
+      { onConflict: "id" }
+    );
+  } catch (err) {
+    console.error("Profile upsert warning:", err);
+  }
+
+  // Target destination
+  let finalDestination = "/vote";
+  if (nextParam && nextParam.startsWith("/")) {
+    finalDestination = nextParam;
+  } else if (isAdmin) {
+    finalDestination = "/admin";
+  }
+
+  // Create final redirect response and copy all captured cookies
+  const finalResponse = NextResponse.redirect(`${origin}${finalDestination}`);
+  cookieCaptureResponse.cookies.getAll().forEach((cookie) => {
+    finalResponse.cookies.set(cookie.name, cookie.value, cookie);
+  });
+
+  return finalResponse;
 }
