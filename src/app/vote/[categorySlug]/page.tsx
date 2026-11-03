@@ -2,68 +2,13 @@ import { notFound } from "next/navigation";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
 import { NomineeVoteClient } from "@/components/voting/NomineeVoteClient";
-import { createClient } from "@/lib/supabase/server";
-import fs from "fs";
-import path from "path";
+import { createClient, createAdminClient } from "@/lib/supabase/server";
+import { seedDatabaseFromLocalJson } from "@/lib/seed/seed-db";
 
-export const revalidate = 0; // Dynamic for live voting state
+export const dynamic = "force-dynamic";
 
 interface PageProps {
   params: Promise<{ categorySlug: string }>;
-}
-
-function getLocalCategoryBySlug(slug: string) {
-  try {
-    const seedPath = path.join(process.cwd(), "supabase/seed/categories_seed.json");
-    if (fs.existsSync(seedPath)) {
-      const raw = JSON.parse(fs.readFileSync(seedPath, "utf8"));
-      const found = raw.find((c: any) => c.slug === slug);
-      if (found) {
-        return {
-          id: `local-${found.slug}`,
-          slug: found.slug,
-          name: found.name,
-          group_name: found.name.toLowerCase().includes("mombasa 1")
-            ? "Nganya – Mombasa 1"
-            : found.name.toLowerCase().includes("jomvu")
-            ? "Nganya – Jomvu"
-            : found.name.toLowerCase().includes("kisauni")
-            ? "Nganya – Kisauni"
-            : found.name.toLowerCase().includes("mikindani")
-            ? "Nganya – Mikindani"
-            : found.name.toLowerCase().includes("likoni")
-            ? "Nganya – Likoni"
-            : found.name.toLowerCase().includes("driver") || found.name.toLowerCase().includes("conductor")
-            ? "Drivers & Conductors"
-            : "Special Awards",
-          description: null,
-          nominees: (found.nominees || []).map((name: string, i: number) => {
-            const parenMatch = name.trim().match(/^(.+?)\s*\(([^)]+)\)$/);
-            const dashMatch = name.trim().match(/^(.+?)\s*[-–]\s*(.+)$/);
-            let parsedName = name.trim();
-            let subtitle = null;
-            if (parenMatch) {
-              parsedName = parenMatch[1].trim();
-              subtitle = parenMatch[2].trim();
-            } else if (dashMatch) {
-              parsedName = dashMatch[1].trim();
-              subtitle = dashMatch[2].trim();
-            }
-            return {
-              id: `nom-${found.slug}-${i + 1}`,
-              name: parsedName,
-              subtitle,
-              image_url: null,
-              sort_order: i + 1,
-            };
-          }),
-        };
-      }
-    }
-  } catch (e) {
-    console.error("Local fallback error:", e);
-  }
-  return null;
 }
 
 export default async function CategoryVotePage({ params }: PageProps) {
@@ -71,35 +16,44 @@ export default async function CategoryVotePage({ params }: PageProps) {
   const supabase = await createClient();
 
   // 1. Fetch category from database
-  let categoryData: any = null;
-  const { data: catDb } = (await supabase
+  let { data: catDb } = (await supabase
     .from("categories")
     .select("id, slug, name, group_name, description, is_active")
     .eq("slug", categorySlug)
-    .single()) as any;
+    .maybeSingle()) as any;
 
-  if (catDb) {
-    if (!catDb.is_active) {
-      notFound();
-    }
-    // Fetch nominees
-    const { data: nomDb } = (await supabase
-      .from("nominees")
-      .select("id, name, subtitle, image_url, sort_order, is_active")
-      .eq("category_id", catDb.id)
-      .eq("is_active", true)
-      .order("sort_order", { ascending: true })) as any;
+  // If category not found in DB, auto-seed the database from categories_seed.json
+  if (!catDb) {
+    await seedDatabaseFromLocalJson();
 
-    categoryData = {
-      ...catDb,
-      nominees: nomDb ?? [],
-    };
-  } else {
-    // Seed fallback
-    categoryData = getLocalCategoryBySlug(categorySlug);
+    const adminClient = await createAdminClient();
+    const { data: refreshedCat } = (await adminClient
+      .from("categories")
+      .select("id, slug, name, group_name, description, is_active")
+      .eq("slug", categorySlug)
+      .maybeSingle()) as any;
+
+    catDb = refreshedCat;
   }
 
-  if (!categoryData || !categoryData.nominees || categoryData.nominees.length === 0) {
+  if (!catDb || !catDb.is_active) {
+    notFound();
+  }
+
+  // Fetch real nominees from DB with valid UUIDs
+  const { data: nomDb } = (await supabase
+    .from("nominees")
+    .select("id, name, subtitle, image_url, sort_order, is_active")
+    .eq("category_id", catDb.id)
+    .eq("is_active", true)
+    .order("sort_order", { ascending: true })) as any;
+
+  const categoryData = {
+    ...catDb,
+    nominees: nomDb ?? [],
+  };
+
+  if (!categoryData.nominees || categoryData.nominees.length === 0) {
     notFound();
   }
 

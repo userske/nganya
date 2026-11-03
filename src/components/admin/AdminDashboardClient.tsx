@@ -19,6 +19,8 @@ import {
   Lock,
   Unlock,
   Loader2,
+  RefreshCw,
+  Sparkles,
 } from "lucide-react";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
@@ -51,6 +53,7 @@ export function AdminDashboardClient({
   const [categoriesList, setCategoriesList] = useState(categories || []);
   const [categorySearch, setCategorySearch] = useState("");
   const [orderSearch, setOrderSearch] = useState("");
+  const [isSeeding, setIsSeeding] = useState(false);
 
   const handleSaveSettings = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -80,62 +83,81 @@ export function AdminDashboardClient({
     }
   };
 
-  const handleToggleCategory = async (catId: string, currentStatus: boolean) => {
-    const newStatus = !currentStatus;
+  const handleToggleCategory = async (categoryId: string, currentStatus: boolean) => {
+    const nextStatus = !currentStatus;
     setCategoriesList((prev) =>
-      prev.map((c) => (c.id === catId ? { ...c, is_active: newStatus } : c))
+      prev.map((c) => (c.id === categoryId ? { ...c, is_active: nextStatus } : c))
     );
 
     try {
-      const res = await toggleCategoryStatusAction(catId, newStatus);
+      const res = await toggleCategoryStatusAction(categoryId, nextStatus);
       if (res.success) {
-        toast.success(`Category ${newStatus ? "Activated" : "Deactivated"}`);
+        toast.success(`Category ${nextStatus ? "activated" : "deactivated"}`);
       } else {
         toast.error("Failed to update category status");
       }
     } catch {
-      toast.error("Network error");
+      toast.error("Network error while updating category status.");
+    }
+  };
+
+  const handleSeedDatabase = async () => {
+    setIsSeeding(true);
+    try {
+      const res = await fetch("/api/seed", { method: "POST" });
+      const json = await res.json();
+      if (json.success) {
+        toast.success(`Database populated! Seeded ${json.categoriesCount} categories & ${json.nomineesCount} nominees.`);
+        setTimeout(() => window.location.reload(), 1200);
+      } else {
+        toast.error("Failed to seed database", { description: json.error });
+      }
+    } catch {
+      toast.error("Network error while seeding database");
+    } finally {
+      setIsSeeding(false);
     }
   };
 
   const filteredCategories = categoriesList.filter((c) =>
-    c.name.toLowerCase().includes(categorySearch.toLowerCase()) ||
-    (c.group_name && c.group_name.toLowerCase().includes(categorySearch.toLowerCase()))
+    (c.name || "").toLowerCase().includes(categorySearch.toLowerCase()) ||
+    (c.group_name || "").toLowerCase().includes(categorySearch.toLowerCase())
   );
 
   const filteredOrders = (orders || []).filter((o) =>
-    o.order_number?.toLowerCase().includes(orderSearch.toLowerCase()) ||
-    o.buyer_name?.toLowerCase().includes(orderSearch.toLowerCase()) ||
-    o.buyer_phone?.includes(orderSearch)
+    (o.order_number || "").toLowerCase().includes(orderSearch.toLowerCase()) ||
+    (o.buyer_name || "").toLowerCase().includes(orderSearch.toLowerCase()) ||
+    (o.buyer_phone || "").toLowerCase().includes(orderSearch.toLowerCase())
   );
 
   return (
     <div className="space-y-8">
-      {/* Admin Header */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-6 border-b border-white/10">
+      {/* Top Banner */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-6 sm:p-8 rounded-3xl bg-[#0a0a0a]/95 border border-white/10 shadow-2xl backdrop-blur-xl">
         <div>
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/5 border border-white/10 text-white/70 text-xs font-semibold uppercase tracking-widest mb-2">
-            Administrator Command Center
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/5 border border-white/10 text-white/70 text-xs font-semibold uppercase tracking-widest mb-3">
+            <span className="w-1.5 h-1.5 rounded-full bg-amber-400" />
+            Executive Operations Panel
           </div>
-          <h1 className="text-3xl font-black text-white uppercase tracking-tight">
-            Awards Event Operations
+          <h1 className="text-2xl sm:text-4xl font-black text-white uppercase tracking-tight">
+            Awards Operations
           </h1>
+          <p className="text-xs sm:text-sm text-white/50 mt-1">
+            Real-time control over voting windows, ticket sales, categories, and gate admissions.
+          </p>
         </div>
 
         <div className="flex items-center gap-3">
-          <Button
-            asChild
-            className="bg-white hover:bg-white/90 text-black font-semibold text-xs h-10 rounded-xl focus-visible:ring-2 focus-visible:ring-white"
-          >
+          <Button asChild className="bg-amber-400 hover:bg-amber-300 text-black font-bold h-11 px-5 rounded-xl shadow-lg">
             <Link href="/admin/scan">
               <Camera className="w-4 h-4 mr-2" />
-              Open Door Scanner Terminal
+              Door QR Scanner
             </Link>
           </Button>
         </div>
       </div>
 
-      {/* Top Metrics Cards */}
+      {/* KPI Stats Grid */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         <div className="p-5 rounded-2xl bg-white/[0.03] border border-white/10">
           <div className="flex items-center justify-between text-white/50 text-xs mb-2">
@@ -187,7 +209,7 @@ export function AdminDashboardClient({
           </TabsTrigger>
           <TabsTrigger value="categories" className="rounded-xl text-xs py-2 px-4 data-[state=active]:bg-white data-[state=active]:text-black font-semibold">
             <Trophy className="w-3.5 h-3.5 mr-1.5" />
-            Categories & Nominees
+            Categories & Nominees ({categoriesList.length})
           </TabsTrigger>
           <TabsTrigger value="tickets" className="rounded-xl text-xs py-2 px-4 data-[state=active]:bg-white data-[state=active]:text-black font-semibold">
             <Ticket className="w-3.5 h-3.5 mr-1.5" />
@@ -256,27 +278,27 @@ export function AdminDashboardClient({
                 </div>
               </div>
 
-              {/* Master Toggles */}
-              <div className="pt-6 border-t border-white/10 space-y-4">
-                <div className="flex items-center justify-between p-4 rounded-xl bg-white/[0.03] border border-white/5">
+              {/* Toggles */}
+              <div className="pt-4 border-t border-white/10 space-y-4">
+                <div className="flex items-center justify-between p-4 rounded-2xl bg-white/[0.02] border border-white/5">
                   <div>
-                    <div className="text-sm font-bold text-white">Ticket Sales Master Switch</div>
-                    <div className="text-xs text-slate-400">Controls whether guest checkout is open to the public</div>
+                    <div className="text-sm font-bold text-white">Ticket Sales Gate</div>
+                    <div className="text-xs text-white/50">Allow attendees to purchase passes on /tickets</div>
                   </div>
                   <Switch
                     checked={Boolean(settings.ticket_sales_open)}
-                    onCheckedChange={(val) => setSettings({ ...settings, ticket_sales_open: val })}
+                    onCheckedChange={(checked) => setSettings({ ...settings, ticket_sales_open: checked })}
                   />
                 </div>
 
-                <div className="flex items-center justify-between p-4 rounded-xl bg-white/[0.03] border border-white/5">
+                <div className="flex items-center justify-between p-4 rounded-2xl bg-white/[0.02] border border-white/5">
                   <div>
-                    <div className="text-sm font-bold text-white">Freeze Live Results Leaderboard</div>
-                    <div className="text-xs text-slate-400">Locks public live tallies after voting period closes</div>
+                    <div className="text-sm font-bold text-white">Freeze Public Results</div>
+                    <div className="text-xs text-white/50">Lock leaderboard counts from updating publicly on /results</div>
                   </div>
                   <Switch
                     checked={Boolean(settings.results_frozen)}
-                    onCheckedChange={(val) => setSettings({ ...settings, results_frozen: val })}
+                    onCheckedChange={(checked) => setSettings({ ...settings, results_frozen: checked })}
                   />
                 </div>
               </div>
@@ -284,15 +306,15 @@ export function AdminDashboardClient({
               <Button
                 type="submit"
                 disabled={isSavingSettings}
-                className="bg-white hover:bg-white/90 text-black font-semibold px-8 h-12 rounded-xl focus-visible:ring-2 focus-visible:ring-white"
+                className="w-full bg-white hover:bg-white/90 text-black font-bold h-12 rounded-xl"
               >
                 {isSavingSettings ? (
                   <>
                     <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                    Saving Changes...
+                    Saving Configuration...
                   </>
                 ) : (
-                  "Save Event Settings"
+                  "Save Changes"
                 )}
               </Button>
             </form>
@@ -301,8 +323,8 @@ export function AdminDashboardClient({
 
         {/* Tab 2: Categories */}
         <TabsContent value="categories" className="mt-6 space-y-4">
-          <div className="p-4 rounded-2xl bg-white/[0.02] border border-white/10 flex items-center justify-between gap-4">
-            <div className="relative flex-1 max-w-md">
+          <div className="p-4 rounded-2xl bg-white/[0.02] border border-white/10 flex flex-col sm:flex-row items-center justify-between gap-4">
+            <div className="relative flex-1 max-w-md w-full">
               <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
               <Input
                 placeholder="Search categories..."
@@ -311,8 +333,29 @@ export function AdminDashboardClient({
                 className="pl-9 bg-white/5 border-white/10 text-white h-10 text-xs"
               />
             </div>
-            <div className="text-xs text-slate-400">
-              Showing {filteredCategories.length} categories
+
+            <div className="flex items-center gap-3 w-full sm:w-auto justify-between sm:justify-end">
+              <div className="text-xs text-slate-400">
+                Showing {filteredCategories.length} categories
+              </div>
+              <Button
+                size="sm"
+                onClick={handleSeedDatabase}
+                disabled={isSeeding}
+                className="bg-amber-400 hover:bg-amber-300 text-black font-bold text-xs h-9 px-3.5 rounded-xl"
+              >
+                {isSeeding ? (
+                  <>
+                    <Loader2 className="w-3.5 h-3.5 mr-1.5 animate-spin" />
+                    Seeding...
+                  </>
+                ) : (
+                  <>
+                    <RefreshCw className="w-3.5 h-3.5 mr-1.5" />
+                    Seed Categories from JSON
+                  </>
+                )}
+              </Button>
             </div>
           </div>
 
@@ -327,30 +370,38 @@ export function AdminDashboardClient({
                 </tr>
               </thead>
               <tbody className="divide-y divide-white/5">
-                {filteredCategories.map((c) => (
-                  <tr key={c.id} className="hover:bg-white/[0.02]">
-                    <td className="p-3.5 font-bold text-white">{c.name}</td>
-                    <td className="p-3.5 text-slate-400 font-mono">{c.group_name || "Special"}</td>
-                    <td className="p-3.5">
-                      <Badge
-                        variant={c.is_active ? "default" : "secondary"}
-                        className={c.is_active ? "bg-white/15 text-white border border-white/20 text-[10px]" : "bg-white/5 text-white/40 text-[10px]"}
-                      >
-                        {c.is_active ? "Active" : "Inactive"}
-                      </Badge>
-                    </td>
-                    <td className="p-3.5 text-right">
-                      <Button
-                        size="sm"
-                        variant="ghost"
-                        onClick={() => handleToggleCategory(c.id, c.is_active)}
-                        className="text-xs text-white/70 hover:text-white"
-                      >
-                        {c.is_active ? "Deactivate" : "Activate"}
-                      </Button>
+                {filteredCategories.length === 0 ? (
+                  <tr>
+                    <td colSpan={4} className="p-8 text-center text-slate-400">
+                      No categories found in database. Click &ldquo;Seed Categories from JSON&rdquo; above to populate all 61 categories.
                     </td>
                   </tr>
-                ))}
+                ) : (
+                  filteredCategories.map((c) => (
+                    <tr key={c.id} className="hover:bg-white/[0.02]">
+                      <td className="p-3.5 font-bold text-white">{c.name}</td>
+                      <td className="p-3.5 text-slate-400 font-mono">{c.group_name || "Special"}</td>
+                      <td className="p-3.5">
+                        <Badge
+                          variant={c.is_active ? "default" : "secondary"}
+                          className={c.is_active ? "bg-white/15 text-white border border-white/20 text-[10px]" : "bg-white/5 text-white/40 text-[10px]"}
+                        >
+                          {c.is_active ? "Active" : "Inactive"}
+                        </Badge>
+                      </td>
+                      <td className="p-3.5 text-right">
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          onClick={() => handleToggleCategory(c.id, c.is_active)}
+                          className="text-xs text-white/70 hover:text-white"
+                        >
+                          {c.is_active ? "Deactivate" : "Activate"}
+                        </Button>
+                      </td>
+                    </tr>
+                  ))
+                )}
               </tbody>
             </table>
           </div>
