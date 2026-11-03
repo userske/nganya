@@ -1,41 +1,48 @@
 "use client";
 
 import { useState, Suspense } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import Link from "next/link";
-import { Mail, KeyRound, Loader2, CheckCircle2, ArrowRight, ShieldCheck, ChevronLeft } from "lucide-react";
+import {
+  Mail,
+  Loader2,
+  ArrowRight,
+  ShieldCheck,
+  ChevronLeft,
+  MailCheck,
+  RefreshCw,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { sendOtpAction, verifyOtpAction } from "@/app/actions/auth";
+import { sendOtpAction } from "@/app/actions/auth";
 import { toast } from "sonner";
 
 function LoginForm() {
-  const router = useRouter();
   const searchParams = useSearchParams();
   const nextUrl = searchParams.get("next") || searchParams.get("redirectTo") || "/vote";
   const isAdminLogin = nextUrl.startsWith("/admin");
 
-  const [step, setStep] = useState<"email" | "otp">("email");
+  const [step, setStep] = useState<"email" | "sent">("email");
   const [email, setEmail] = useState("");
-  const [otpCode, setOtpCode] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
-  const handleSendOtp = async (e: React.FormEvent) => {
+  const handleSendLink = async (e: React.FormEvent) => {
     e.preventDefault();
     setErrorMessage(null);
     setIsLoading(true);
 
     try {
-      const result = await sendOtpAction(email);
+      // Pass nextUrl so the magic link returns the user to the right page
+      const result = await sendOtpAction(email, undefined, nextUrl);
       if (result.success) {
-        setStep("otp");
-        toast.success("Verification code sent", {
+        setStep("sent");
+        toast.success("Sign-in link sent!", {
           description: `Check your inbox at ${email}`,
         });
       } else {
-        setErrorMessage(result.error || "Failed to send code.");
+        setErrorMessage(result.error || "Failed to send link. Please try again.");
       }
     } catch {
       setErrorMessage("Network error. Please try again.");
@@ -44,21 +51,15 @@ function LoginForm() {
     }
   };
 
-  const handleVerifyOtp = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleResend = async () => {
     setErrorMessage(null);
     setIsLoading(true);
-
     try {
-      const result = await verifyOtpAction(email, otpCode);
+      const result = await sendOtpAction(email, undefined, nextUrl);
       if (result.success) {
-        toast.success("Verified successfully", {
-          description: isAdminLogin ? "Admin session authenticated." : "Your voter session is active.",
-        });
-        router.push(nextUrl);
-        router.refresh();
+        toast.success("Link resent!", { description: `Check your inbox at ${email}` });
       } else {
-        setErrorMessage(result.error || "Invalid code.");
+        setErrorMessage(result.error || "Failed to resend.");
       }
     } catch {
       setErrorMessage("Network error. Please try again.");
@@ -70,33 +71,51 @@ function LoginForm() {
   return (
     <div className="w-full max-w-md p-8 sm:p-10 rounded-3xl bg-[#0a0a0a]/95 border border-white/10 shadow-2xl backdrop-blur-xl">
       <div className="text-center mb-8">
-        <Link href="/" className="inline-flex items-center gap-2 mb-4 group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white rounded-lg">
+        <Link
+          href="/"
+          className="inline-flex items-center gap-2 mb-4 group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white rounded-lg"
+        >
           <div className="w-10 h-10 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center text-white group-hover:scale-105 transition-transform">
-            {step === "email" ? <Mail className="w-5 h-5" /> : <KeyRound className="w-5 h-5" />}
+            {step === "sent" ? (
+              <MailCheck className="w-5 h-5 text-green-400" />
+            ) : (
+              <Mail className="w-5 h-5" />
+            )}
           </div>
         </Link>
+
         <h1 className="text-2xl sm:text-3xl font-black text-white uppercase tracking-tight">
-          {step === "email" 
-            ? (isAdminLogin ? "Admin Authentication" : "Voter Verification") 
-            : "Enter 6-Digit Code"}
+          {step === "email"
+            ? isAdminLogin
+              ? "Admin Sign In"
+              : "Voter Verification"
+            : "Check Your Inbox"}
         </h1>
         <p className="text-white/50 text-xs sm:text-sm mt-2 leading-relaxed">
           {step === "email"
-            ? (isAdminLogin
-                ? "Enter your administrator email to receive a secure login code."
-                : "Enter your email to verify your voting session. No passwords needed.")
-            : `We sent a 6-digit code to ${email}`}
+            ? isAdminLogin
+              ? "Enter your admin email. We'll send you a secure sign-in link."
+              : "Enter your email. We'll send you a sign-in link. No passwords needed."
+            : <>
+                We sent a sign-in link to{" "}
+                <span className="text-white font-medium">{email}</span>.
+                Click the link in your email to{" "}
+                {isAdminLogin ? "access the admin dashboard." : "verify your voting session."}
+              </>}
         </p>
       </div>
 
       {errorMessage && (
-        <div role="alert" className="mb-6 p-3 rounded-xl bg-white/5 border border-white/20 text-white text-xs leading-relaxed">
+        <div
+          role="alert"
+          className="mb-6 p-3 rounded-xl bg-white/5 border border-white/20 text-white text-xs leading-relaxed"
+        >
           {errorMessage}
         </div>
       )}
 
       {step === "email" ? (
-        <form onSubmit={handleSendOtp} className="space-y-5">
+        <form onSubmit={handleSendLink} className="space-y-5">
           <div className="space-y-2">
             <Label htmlFor="email" className="text-xs uppercase tracking-wider text-white/60">
               Email Address
@@ -112,9 +131,9 @@ function LoginForm() {
               className="bg-white/5 border-white/10 text-white placeholder:text-white/30 h-12 focus-visible:ring-2 focus-visible:ring-white"
             />
             <p className="text-[11px] text-white/40">
-              {isAdminLogin 
-                ? "Use your registered admin address (e.g. info@coastalnganyaawards.com)." 
-                : "One verified email = one vote per category across all 62 categories."}
+              {isAdminLogin
+                ? "Use your registered admin address (info@coastalnganyaawards.com)."
+                : "One verified email = one vote per category across all categories."}
             </p>
           </div>
 
@@ -126,77 +145,64 @@ function LoginForm() {
             {isLoading ? (
               <>
                 <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                Sending code...
+                Sending link...
               </>
             ) : (
               <>
-                Send 6-Digit Code
+                Send Sign-In Link
                 <ArrowRight className="w-4 h-4 ml-2" />
               </>
             )}
           </Button>
         </form>
       ) : (
-        <form onSubmit={handleVerifyOtp} className="space-y-5">
-          <div className="space-y-2">
-            <Label htmlFor="code" className="text-xs uppercase tracking-wider text-white/60">
-              Verification Code
-            </Label>
-            <Input
-              id="code"
-              type="text"
-              inputMode="numeric"
-              autoComplete="one-time-code"
-              maxLength={6}
-              placeholder="123456"
-              value={otpCode}
-              onChange={(e) => setOtpCode(e.target.value.replace(/\D/g, ""))}
-              required
-              className="bg-white/5 border-white/10 text-white text-center font-mono text-3xl tracking-[0.3em] h-14 placeholder:text-white/20 focus-visible:ring-2 focus-visible:ring-white"
-            />
+        <div className="space-y-5">
+          {/* Inbox card */}
+          <div className="rounded-xl bg-white/5 border border-white/10 p-5 text-center space-y-2">
+            <MailCheck className="w-8 h-8 text-green-400 mx-auto" />
+            <p className="text-white text-sm font-semibold">Link sent to</p>
+            <p className="text-white/70 text-sm font-mono truncate">{email}</p>
+            <p className="text-white/40 text-xs mt-1">
+              Open your email and click{" "}
+              <strong className="text-white/60">
+                {isAdminLogin ? "Sign in to Coastal Nganya Awards" : "Sign in to Coastal Nganya Awards"}
+              </strong>
+              . The link expires in 1 hour.
+            </p>
           </div>
 
           <div className="flex items-center justify-between text-xs text-white/50">
             <button
               type="button"
-              onClick={() => setStep("email")}
+              onClick={() => { setStep("email"); setErrorMessage(null); }}
               className="hover:text-white underline underline-offset-4 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-white rounded"
             >
-              Change email
+              Use different email
             </button>
             <button
               type="button"
-              onClick={handleSendOtp}
+              onClick={handleResend}
               disabled={isLoading}
-              className="hover:text-white underline underline-offset-4 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-white rounded disabled:opacity-50"
+              className="flex items-center gap-1 hover:text-white underline underline-offset-4 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-white rounded disabled:opacity-50"
             >
-              Resend code
+              {isLoading ? (
+                <Loader2 className="w-3 h-3 animate-spin" />
+              ) : (
+                <RefreshCw className="w-3 h-3" />
+              )}
+              Resend link
             </button>
           </div>
 
-          <Button
-            type="submit"
-            disabled={isLoading || otpCode.length < 6}
-            className="w-full bg-white hover:bg-white/90 text-black font-semibold h-12 rounded-xl text-sm transition-[background-color,color] duration-150 ease-out focus-visible:ring-2 focus-visible:ring-white"
-          >
-            {isLoading ? (
-              <>
-                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                Verifying...
-              </>
-            ) : (
-              <>
-                <CheckCircle2 className="w-4 h-4 mr-2" />
-                {isAdminLogin ? "Enter Admin Dashboard" : "Verify & Continue Voting"}
-              </>
-            )}
-          </Button>
-        </form>
+          <p className="text-[11px] text-white/30 text-center">
+            Didn&apos;t receive it? Check your spam folder.
+          </p>
+        </div>
       )}
 
       <div className="mt-8 pt-6 border-t border-white/10 flex items-center justify-center gap-2 text-xs text-white/40 font-mono">
         <ShieldCheck className="w-4 h-4 text-white/60" />
-        <span>One voter per category • Anonymous tallies</span>
+        <span>Secure passwordless sign-in</span>
       </div>
     </div>
   );
@@ -206,7 +212,12 @@ export default function LoginPage() {
   return (
     <div className="min-h-[100dvh] bg-black text-white flex flex-col justify-center items-center px-4 relative overflow-hidden">
       <div className="absolute top-8 left-8">
-        <Button asChild variant="ghost" size="sm" className="text-white/50 hover:text-white hover:bg-white/5 focus-visible:ring-2 focus-visible:ring-white">
+        <Button
+          asChild
+          variant="ghost"
+          size="sm"
+          className="text-white/50 hover:text-white hover:bg-white/5 focus-visible:ring-2 focus-visible:ring-white"
+        >
           <Link href="/vote">
             <ChevronLeft className="w-4 h-4 mr-1" />
             Back to Categories
@@ -214,7 +225,7 @@ export default function LoginPage() {
         </Button>
       </div>
 
-      <Suspense fallback={<div className="text-white/40">Loading verification...</div>}>
+      <Suspense fallback={<div className="text-white/40">Loading...</div>}>
         <LoginForm />
       </Suspense>
     </div>
