@@ -13,6 +13,8 @@ export interface AuthActionResult {
   message?: string;
   error?: string;
   suggestedEmail?: string;
+  rateLimited?: boolean;
+  retryAfterSeconds?: number;
 }
 
 /**
@@ -85,7 +87,27 @@ export async function sendOtpAction(
   });
 
   if (error) {
-    console.error("Supabase magic link error:", error.message);
+    console.error("Supabase magic link error:", error.message, error.status);
+    const msg = (error.message || "").toLowerCase();
+    const isRateLimit =
+      error.status === 429 ||
+      (error as any).code === "over_email_send_rate_limit" ||
+      msg.includes("rate limit") ||
+      msg.includes("security purposes") ||
+      msg.includes("too many requests") ||
+      msg.includes("once every");
+
+    if (isRateLimit) {
+      const match = error.message.match(/(\d+)\s*second/i);
+      const retryAfter = match ? parseInt(match[1], 10) : 60;
+      return {
+        success: false,
+        rateLimited: true,
+        retryAfterSeconds: retryAfter,
+        error: `Please wait ${retryAfter}s before requesting another sign-in link.`,
+      };
+    }
+
     return { success: false, error: error.message };
   }
 

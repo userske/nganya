@@ -10,6 +10,7 @@ import {
   MailCheck,
   RefreshCw,
   UserCheck,
+  Clock,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -24,6 +25,16 @@ export function MyAccountLogin() {
   const [suggestedEmail, setSuggestedEmail] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [countdown, setCountdown] = useState<number>(0);
+
+  // Countdown timer: ticks down every second
+  useEffect(() => {
+    if (countdown <= 0) return;
+    const interval = setInterval(() => {
+      setCountdown((prev) => (prev > 0 ? prev - 1 : 0));
+    }, 1000);
+    return () => clearInterval(interval);
+  }, [countdown]);
 
   // Proactive typo detection
   useEffect(() => {
@@ -33,6 +44,7 @@ export function MyAccountLogin() {
 
   const handleSendLink = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (countdown > 0) return;
     setErrorMessage(null);
     setIsLoading(true);
 
@@ -40,13 +52,21 @@ export function MyAccountLogin() {
       const result = await sendOtpAction(email, undefined, "/my-account");
       if (result.success) {
         setStep("sent");
+        setCountdown(60);
         toast.success("Sign-in link sent!", {
           description: `Check your inbox at ${email}`,
         });
       } else {
-        setErrorMessage(result.error || "Failed to send link. Please try again.");
-        if (result.suggestedEmail) {
-          setSuggestedEmail(result.suggestedEmail);
+        if (result.rateLimited) {
+          const waitTime = result.retryAfterSeconds || 60;
+          setCountdown(waitTime);
+          setErrorMessage(null);
+          toast.info(`Please wait ${waitTime}s before requesting another link.`);
+        } else {
+          setErrorMessage(result.error || "Failed to send link. Please try again.");
+          if (result.suggestedEmail) {
+            setSuggestedEmail(result.suggestedEmail);
+          }
         }
       }
     } catch {
@@ -57,13 +77,23 @@ export function MyAccountLogin() {
   };
 
   const handleResend = async () => {
+    if (countdown > 0) return;
+    setErrorMessage(null);
     setIsLoading(true);
     try {
       const result = await sendOtpAction(email, undefined, "/my-account");
       if (result.success) {
+        setCountdown(60);
         toast.success("Link resent!", { description: `Check your inbox at ${email}` });
       } else {
-        setErrorMessage(result.error || "Failed to resend.");
+        if (result.rateLimited) {
+          const waitTime = result.retryAfterSeconds || 60;
+          setCountdown(waitTime);
+          setErrorMessage(null);
+          toast.info(`Please wait ${waitTime}s before requesting another link.`);
+        } else {
+          setErrorMessage(result.error || "Failed to resend.");
+        }
       }
     } catch {
       setErrorMessage("Network error. Please try again.");
@@ -96,10 +126,21 @@ export function MyAccountLogin() {
         </p>
       </div>
 
+      {/* Live Countdown Cooldown Notice */}
+      {countdown > 0 && (
+        <div className="mb-6 p-3.5 rounded-xl bg-amber-400/10 border border-amber-400/25 flex items-center gap-2.5 text-xs text-amber-300">
+          <Clock className="w-4 h-4 shrink-0 animate-pulse text-amber-400" />
+          <div className="flex-1">
+            <span>Security cooldown active. You can request another link in </span>
+            <strong className="text-white font-mono font-bold text-sm">{countdown}s</strong>
+          </div>
+        </div>
+      )}
+
       {errorMessage && (
         <div
           role="alert"
-          className="mb-6 p-3 rounded-xl bg-rose-500/10 border border-rose-500/20 text-rose-300 text-xs leading-relaxed"
+          className="mb-6 p-3.5 rounded-xl bg-rose-500/10 border border-rose-500/20 text-rose-300 text-xs leading-relaxed"
         >
           {errorMessage}
         </div>
@@ -149,13 +190,18 @@ export function MyAccountLogin() {
 
           <Button
             type="submit"
-            disabled={isLoading || !email}
-            className="w-full bg-amber-400 hover:bg-amber-300 text-black font-bold h-12 rounded-xl text-sm transition-[background-color,transform] duration-150 ease-out active:scale-[0.98] focus-visible:ring-2 focus-visible:ring-amber-400"
+            disabled={isLoading || !email || countdown > 0}
+            className="w-full bg-amber-400 hover:bg-amber-300 disabled:bg-neutral-800 disabled:text-neutral-500 text-black font-bold h-12 rounded-xl text-sm transition-[background-color,transform] duration-150 ease-out active:scale-[0.98] focus-visible:ring-2 focus-visible:ring-amber-400"
           >
             {isLoading ? (
               <>
                 <Loader2 className="w-4 h-4 mr-2 animate-spin" />
                 Sending link...
+              </>
+            ) : countdown > 0 ? (
+              <>
+                <Clock className="w-4 h-4 mr-2 animate-pulse" />
+                Please wait ({countdown}s)
               </>
             ) : (
               <>
@@ -187,15 +233,19 @@ export function MyAccountLogin() {
             <button
               type="button"
               onClick={handleResend}
-              disabled={isLoading}
-              className="flex items-center gap-1 hover:text-white underline underline-offset-4 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-white rounded disabled:opacity-50"
+              disabled={isLoading || countdown > 0}
+              className="flex items-center gap-1.5 hover:text-white underline underline-offset-4 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-white rounded disabled:opacity-40 disabled:no-underline"
             >
               {isLoading ? (
-                <Loader2 className="w-3 h-3 animate-spin" />
+                <Loader2 className="w-3.5 h-3.5 animate-spin" />
+              ) : countdown > 0 ? (
+                <span className="font-mono text-amber-400">Resend in {countdown}s</span>
               ) : (
-                <RefreshCw className="w-3 h-3" />
+                <>
+                  <RefreshCw className="w-3.5 h-3.5" />
+                  Resend link
+                </>
               )}
-              Resend link
             </button>
           </div>
         </div>
