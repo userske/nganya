@@ -104,7 +104,7 @@ export async function sendTicketEmail({
   tickets,
 }: SendTicketEmailParams) {
   const apiKey = process.env.RESEND_API_KEY;
-  const fromEmail = process.env.EMAIL_FROM || "info@coastalnganyaawards.com";
+  const fromEmail = process.env.EMAIL_FROM || "noreply@coastalnganyaawards.com";
   const siteUrl = (process.env.NEXT_PUBLIC_SITE_URL || "https://coastalnganyaawards.com").replace(/\/$/, "");
 
   if (!apiKey) {
