@@ -2,6 +2,7 @@
 
 import { useState, useRef, useEffect } from "react";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import {
   MessageSquare,
   X,
@@ -207,6 +208,7 @@ function getBotReply(rawQuery: string): { text: string; link?: { label: string; 
 }
 
 export function LiveSupportChat() {
+  const pathname = usePathname();
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState<ChatMessage[]>([
     {
@@ -265,45 +267,37 @@ export function LiveSupportChat() {
     handleSendQuery(inputValue);
   };
 
+  if (pathname !== "/") {
+    return null;
+  }
+
   return (
     <>
       {/* ─────────────────────────────────────────────────────────────
-          1. FLOATING LAUNCHER BUTTON (Bottom Right)
+          1. COMPACT CHAT ICON (Homepage Only - expands on click)
       ───────────────────────────────────────────────────────────── */}
-      <div className="fixed bottom-5 right-5 z-50 flex items-center gap-2">
-        {!isOpen && (
-          <button
-            onClick={() => setIsOpen(true)}
-            aria-label="Open Live Support Chat"
-            className="group flex items-center gap-2.5 bg-black hover:bg-neutral-900 text-white border border-amber-400/40 hover:border-amber-400 pl-4 pr-4 py-3 rounded-full shadow-[0_10px_30px_rgba(0,0,0,0.8),0_0_20px_rgba(245,158,11,0.2)] transition-all duration-200 active:scale-95"
-          >
-            <div className="relative">
-              <div className="w-8 h-8 rounded-full bg-amber-400/15 border border-amber-400/30 flex items-center justify-center text-amber-400">
-                <Headphones className="w-4 h-4" />
-              </div>
-              <span className="absolute -top-0.5 -right-0.5 w-2.5 h-2.5 rounded-full bg-emerald-400 border-2 border-black animate-pulse" />
-            </div>
-
-            <div className="text-left">
-              <span className="text-xs font-bold uppercase tracking-wider block text-white leading-tight">
-                Live Support
-              </span>
-              <span className="text-[10px] text-amber-400 font-mono block leading-tight">
-                Instant Automated Help
-              </span>
-            </div>
-          </button>
-        )}
-      </div>
+      {!isOpen && (
+        <button
+          onClick={() => setIsOpen(true)}
+          aria-label="Open Live Support Chat"
+          title="Live Support Chat"
+          className="fixed bottom-5 right-5 z-50 w-12 h-12 rounded-full bg-[#0a0a0a] hover:bg-neutral-900 text-amber-400 border border-amber-400/40 hover:border-amber-400 shadow-[0_10px_30px_rgba(0,0,0,0.85),0_0_20px_rgba(245,158,11,0.25)] flex items-center justify-center transition-all duration-200 hover:scale-105 active:scale-95 group focus:outline-none focus:ring-2 focus:ring-amber-400/50"
+        >
+          <div className="relative flex items-center justify-center">
+            <MessageSquare className="w-5 h-5 text-amber-400 group-hover:text-amber-300 transition-colors" />
+            <span className="absolute -top-1 -right-1 w-2.5 h-2.5 rounded-full bg-emerald-400 border-2 border-black animate-pulse" />
+          </div>
+        </button>
+      )}
 
       {/* ─────────────────────────────────────────────────────────────
-          2. SUPPORT CHAT MODAL / DRAWER
+          2. SUPPORT CHAT MODAL / DRAWER (Expands from icon)
       ───────────────────────────────────────────────────────────── */}
       {isOpen && (
         <div
           role="dialog"
           aria-label="Live Support Chat Window"
-          className="fixed bottom-5 right-5 z-50 w-[94vw] max-w-[400px] h-[560px] max-h-[85vh] rounded-3xl bg-[#0c0c0c] border border-white/15 shadow-[0_20px_50px_rgba(0,0,0,0.9),0_0_40px_rgba(245,158,11,0.15)] flex flex-col overflow-hidden backdrop-blur-2xl animate-in fade-in slide-in-from-bottom-4 duration-200"
+          className="fixed bottom-5 right-5 z-50 w-[94vw] max-w-[400px] h-[560px] max-h-[85vh] rounded-3xl bg-[#0c0c0c] border border-white/15 shadow-[0_20px_50px_rgba(0,0,0,0.9),0_0_40px_rgba(245,158,11,0.15)] flex flex-col overflow-hidden backdrop-blur-2xl animate-in fade-in zoom-in-95 slide-in-from-bottom-3 duration-200 origin-bottom-right"
         >
           {/* Header */}
           <div className="p-4 bg-gradient-to-r from-[#141414] via-[#101010] to-[#0a0a0a] border-b border-white/10 flex items-center justify-between">

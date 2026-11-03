@@ -6,6 +6,7 @@ import { GallerySection } from "@/components/sections/GallerySection";
 import { SponsorsSection } from "@/components/sections/SponsorsSection";
 import { CTASection } from "@/components/sections/CTASection";
 import { Footer } from "@/components/layout/Footer";
+import { LiveSupportChat } from "@/components/support/LiveSupportChat";
 import { createClient } from "@/lib/supabase/server";
 
 export const revalidate = 60; // ISR – refresh every minute
@@ -53,6 +54,7 @@ export default async function HomePage() {
         <CTASection />
       </main>
       <Footer eventData={eventData} />
+      <LiveSupportChat />
     </div>
   );
 }
