@@ -13,6 +13,7 @@ const navLinks = [
   { href: "/#sponsors", label: "Sponsors" },
   { href: "/vote", label: "Vote" },
   { href: "/results", label: "Results" },
+  { href: "/my-account", label: "My Account" },
   { href: "/contact", label: "Contact" },
 ];
 

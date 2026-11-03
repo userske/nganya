@@ -52,7 +52,8 @@ export function Footer({ eventData }: FooterProps) {
                 { href: "/vote", label: "Vote for Nominees" },
                 { href: "/results", label: "Live Public Leaderboard" },
                 { href: "/tickets", label: "Buy Tickets" },
-                { href: "/my-tickets", label: "Download My Tickets" },
+                { href: "/my-account", label: "My Account (Votes & Tickets)" },
+                { href: "/my-tickets", label: "Retrieve Tickets by Email" },
               ].map(({ href, label }) => (
                 <li key={href}>
                   <Link href={href} className="hover:text-white/70 transition-colors duration-150">
