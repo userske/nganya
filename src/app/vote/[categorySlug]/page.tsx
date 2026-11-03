@@ -4,6 +4,8 @@ import { Footer } from "@/components/layout/Footer";
 import { NomineeVoteClient } from "@/components/voting/NomineeVoteClient";
 import { createClient, createAdminClient } from "@/lib/supabase/server";
 import { seedDatabaseFromLocalJson } from "@/lib/seed/seed-db";
+import rawData from "@/lib/seed/categories_seed.json";
+import crypto from "crypto";
 
 export const dynamic = "force-dynamic";
 
@@ -11,55 +13,125 @@ interface PageProps {
   params: Promise<{ categorySlug: string }>;
 }
 
+function slugToUuid(slug: string): string {
+  const hash = crypto.createHash("md5").update(slug).digest("hex");
+  return `${hash.slice(0, 8)}-${hash.slice(8, 12)}-4${hash.slice(13, 16)}-a${hash.slice(17, 20)}-${hash.slice(20, 32)}`;
+}
+
+function extractSubtitle(nomineeStr: string): { name: string; subtitle: string | null } {
+  const trimmed = nomineeStr.trim();
+  const parenMatch = trimmed.match(/^(.+?)\s*\(([^)]+)\)$/);
+  if (parenMatch) {
+    return { name: parenMatch[1].trim(), subtitle: parenMatch[2].trim() };
+  }
+  const dashMatch = trimmed.match(/^(.+?)\s*[-–]\s*(.+)$/);
+  if (dashMatch) {
+    return { name: dashMatch[1].trim(), subtitle: dashMatch[2].trim() };
+  }
+  return { name: trimmed, subtitle: null };
+}
+
 export default async function CategoryVotePage({ params }: PageProps) {
   const { categorySlug } = await params;
   const supabase = await createClient();
+  const adminClient = await createAdminClient();
 
-  // 1. Fetch category from database
-  let { data: catDb } = (await supabase
+  // 1. Fetch category from database using adminClient to bypass RLS issues
+  let { data: catDb } = (await adminClient
     .from("categories")
     .select("id, slug, name, group_name, description, is_active")
     .eq("slug", categorySlug)
     .maybeSingle()) as any;
 
-  // If category not found in DB, auto-seed the database from categories_seed.json
+  // If category not found in DB, auto-seed the database
   if (!catDb) {
-    await seedDatabaseFromLocalJson();
+    try {
+      await seedDatabaseFromLocalJson();
 
-    const adminClient = await createAdminClient();
-    const { data: refreshedCat } = (await adminClient
-      .from("categories")
-      .select("id, slug, name, group_name, description, is_active")
-      .eq("slug", categorySlug)
-      .maybeSingle()) as any;
+      const { data: refreshedCat } = (await adminClient
+        .from("categories")
+        .select("id, slug, name, group_name, description, is_active")
+        .eq("slug", categorySlug)
+        .maybeSingle()) as any;
 
-    catDb = refreshedCat;
+      catDb = refreshedCat;
+    } catch (e) {
+      console.error("Auto-seed error in CategoryVotePage:", e);
+    }
   }
 
-  if (!catDb || !catDb.is_active) {
-    notFound();
+  let categoryData: any = null;
+
+  if (catDb) {
+    // Fetch real nominees from DB
+    const { data: nomDb } = (await adminClient
+      .from("nominees")
+      .select("id, name, subtitle, image_url, sort_order, is_active")
+      .eq("category_id", catDb.id)
+      .eq("is_active", true)
+      .order("sort_order", { ascending: true })) as any;
+
+    categoryData = {
+      ...catDb,
+      nominees: nomDb ?? [],
+    };
+  } else {
+    // Fallback: look up in categories_seed.json and ensure DB has real rows with valid UUIDs
+    const found = (rawData as any[]).find((c) => c.slug === categorySlug);
+    if (!found) {
+      notFound();
+    }
+
+    const catUuid = slugToUuid(found.slug);
+
+    // Upsert fallback category with valid UUID into DB
+    await adminClient.from("categories").upsert(
+      {
+        id: catUuid,
+        slug: found.slug,
+        name: found.name,
+        group_name: "Special Awards",
+        sort_order: found.sort_order ?? 1,
+        is_active: true,
+      },
+      { onConflict: "slug" }
+    );
+
+    const fallbackNominees = (found.nominees || []).map((rawNom: string, i: number) => {
+      const { name, subtitle } = extractSubtitle(rawNom);
+      const nomUuid = slugToUuid(`${found.slug}-${name}-${i}`);
+      return {
+        id: nomUuid,
+        category_id: catUuid,
+        name,
+        subtitle,
+        image_url: null,
+        sort_order: i + 1,
+        is_active: true,
+      };
+    });
+
+    // Upsert nominees with valid UUIDs into DB so cast_vote FK constraint passes
+    await adminClient
+      .from("nominees")
+      .upsert(fallbackNominees, { onConflict: "category_id,name" });
+
+    categoryData = {
+      id: catUuid,
+      slug: found.slug,
+      name: found.name,
+      group_name: "Special Awards",
+      nominees: fallbackNominees,
+    };
   }
 
-  // Fetch real nominees from DB with valid UUIDs
-  const { data: nomDb } = (await supabase
-    .from("nominees")
-    .select("id, name, subtitle, image_url, sort_order, is_active")
-    .eq("category_id", catDb.id)
-    .eq("is_active", true)
-    .order("sort_order", { ascending: true })) as any;
-
-  const categoryData = {
-    ...catDb,
-    nominees: nomDb ?? [],
-  };
-
-  if (!categoryData.nominees || categoryData.nominees.length === 0) {
+  if (!categoryData || !categoryData.nominees || categoryData.nominees.length === 0) {
     notFound();
   }
 
   // 2. Fetch initial vote counts for this category
   const initialCounts: Record<string, number> = {};
-  const { data: dbCounts } = (await supabase
+  const { data: dbCounts } = (await adminClient
     .from("vote_counts")
     .select("nominee_id, count")
     .eq("category_id", categoryData.id)) as any;
@@ -77,7 +149,7 @@ export default async function CategoryVotePage({ params }: PageProps) {
   } = await supabase.auth.getUser();
 
   if (user) {
-    const { data: userVote } = (await supabase
+    const { data: userVote } = (await adminClient
       .from("votes")
       .select("nominee_id")
       .eq("voter_id", user.id)
