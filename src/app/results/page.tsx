@@ -1,19 +1,19 @@
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
 import { ResultsClientView } from "@/components/voting/ResultsClientView";
-import { createClient, createAdminClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/server";
 import { seedDatabaseFromLocalJson } from "@/lib/seed/seed-db";
 
 export const dynamic = "force-dynamic";
 
 export default async function ResultsPage() {
-  const supabase = await createClient();
+  const adminClient = await createAdminClient();
 
   let categories: any[] = [];
   const initialCounts: Record<string, number> = {};
 
-  // Fetch categories with nominees
-  let { data: dbCategories } = await supabase
+  // Fetch categories with nominees using adminClient
+  let { data: dbCategories } = await adminClient
     .from("categories")
     .select("id, slug, name, group_name, is_active, nominees(id, name, subtitle, sort_order)")
     .eq("is_active", true)
@@ -21,16 +21,19 @@ export default async function ResultsPage() {
 
   // If DB not seeded, auto-seed it
   if (!dbCategories || dbCategories.length === 0) {
-    await seedDatabaseFromLocalJson();
+    try {
+      await seedDatabaseFromLocalJson();
 
-    const adminClient = await createAdminClient();
-    const { data: refreshed } = await adminClient
-      .from("categories")
-      .select("id, slug, name, group_name, is_active, nominees(id, name, subtitle, sort_order)")
-      .eq("is_active", true)
-      .order("sort_order", { ascending: true });
+      const { data: refreshed } = await adminClient
+        .from("categories")
+        .select("id, slug, name, group_name, is_active, nominees(id, name, subtitle, sort_order)")
+        .eq("is_active", true)
+        .order("sort_order", { ascending: true });
 
-    dbCategories = refreshed || [];
+      dbCategories = refreshed || [];
+    } catch (e) {
+      console.error("[ResultsPage seed error]:", e);
+    }
   }
 
   categories = (dbCategories || []).map((c: any) => ({
@@ -47,13 +50,25 @@ export default async function ResultsPage() {
   }));
 
   // Fetch current vote counts
-  const { data: dbCounts } = await supabase
+  const { data: dbCounts } = await adminClient
     .from("vote_counts")
     .select("nominee_id, count");
 
-  if (dbCounts) {
-    for (const c of (dbCounts as any[])) {
+  if (dbCounts && Array.isArray(dbCounts) && dbCounts.length > 0) {
+    for (const c of dbCounts as any[]) {
       initialCounts[c.nominee_id] = Number(c.count);
+    }
+  } else {
+    // Fallback: calculate from raw votes table
+    const { data: rawVotes } = await adminClient
+      .from("votes")
+      .select("nominee_id")
+      .eq("voided", false);
+
+    if (rawVotes && Array.isArray(rawVotes)) {
+      for (const v of rawVotes) {
+        initialCounts[v.nominee_id] = (initialCounts[v.nominee_id] ?? 0) + 1;
+      }
     }
   }
 

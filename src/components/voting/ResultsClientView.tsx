@@ -42,34 +42,12 @@ export function ResultsClientView({ categories, initialCounts }: ResultsClientVi
     return ["All", ...Array.from(set)];
   }, [categories]);
 
-  // Realtime subscription + 5-second polling fallback
+  // Realtime subscription + active live polling fallback
   useEffect(() => {
     let isMounted = true;
     const supabase = createClient();
 
-    const channel = supabase
-      .channel("public-leaderboard-counts")
-      .on(
-        "postgres_changes",
-        {
-          event: "*",
-          schema: "public",
-          table: "vote_counts",
-        },
-        (payload: any) => {
-          if (!isMounted) return;
-          const { nominee_id, count } = payload.new;
-          if (nominee_id && typeof count === "number") {
-            setCounts((prev) => ({
-              ...prev,
-              [nominee_id]: count,
-            }));
-          }
-        }
-      )
-      .subscribe();
-
-    const interval = setInterval(async () => {
+    const fetchCounts = async () => {
       try {
         const res = await fetch("/api/vote/counts");
         if (!res.ok) return;
@@ -84,7 +62,36 @@ export function ResultsClientView({ categories, initialCounts }: ResultsClientVi
       } catch {
         // Polling failure gracefully ignored
       }
-    }, 5000);
+    };
+
+    // Immediate initial sync
+    fetchCounts();
+
+    const channel = supabase
+      .channel("public-leaderboard-counts")
+      .on(
+        "postgres_changes",
+        {
+          event: "*",
+          schema: "public",
+          table: "vote_counts",
+        },
+        (payload: any) => {
+          if (!isMounted) return;
+          const { nominee_id, count } = payload.new || {};
+          if (nominee_id && typeof count === "number") {
+            setCounts((prev) => ({
+              ...prev,
+              [nominee_id]: count,
+            }));
+          } else {
+            fetchCounts();
+          }
+        }
+      )
+      .subscribe();
+
+    const interval = setInterval(fetchCounts, 3000);
 
     return () => {
       isMounted = false;
@@ -120,15 +127,15 @@ export function ResultsClientView({ categories, initialCounts }: ResultsClientVi
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-10 pb-8 border-b border-white/10">
         <div>
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/5 border border-white/10 text-white/70 text-xs font-semibold uppercase tracking-widest mb-3">
-            <span className="w-1.5 h-1.5 rounded-full bg-white animate-pulse" />
-            Live Leaderboard
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/25 text-emerald-400 text-xs font-semibold uppercase tracking-widest mb-3">
+            <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+            Live Realtime Leaderboard
           </div>
           <h1 className="text-3xl sm:text-5xl font-black text-white tracking-tight uppercase">
             Awards Leaderboard
           </h1>
           <p className="text-white/50 text-sm sm:text-base mt-2 max-w-xl leading-relaxed">
-            Realtime verified tallies updating as votes are confirmed. Public, transparent, and direct.
+            Realtime verified tallies updating live as votes are confirmed. Public, transparent, and direct.
           </p>
         </div>
 
@@ -138,14 +145,14 @@ export function ResultsClientView({ categories, initialCounts }: ResultsClientVi
             <div className="text-[11px] uppercase tracking-wider text-white/40 font-mono">
               Total Verified Votes
             </div>
-            <div className="text-2xl sm:text-3xl font-black text-white font-mono">
+            <div className="text-2xl sm:text-3xl font-black text-amber-400 font-mono">
               {totalVotesAcrossPlatform.toLocaleString()}
             </div>
           </div>
 
           <Button
             asChild
-            className="bg-white hover:bg-white/90 text-black font-semibold h-12 rounded-xl focus-visible:ring-2 focus-visible:ring-white"
+            className="bg-amber-400 hover:bg-amber-300 text-black font-bold h-12 rounded-xl focus-visible:ring-2 focus-visible:ring-amber-400"
           >
             <Link href="/vote">
               <Vote className="w-4 h-4 mr-2" />
@@ -178,7 +185,7 @@ export function ResultsClientView({ categories, initialCounts }: ResultsClientVi
               onClick={() => setSelectedGroup(group)}
               className={`px-4 py-2 rounded-xl text-xs font-medium whitespace-nowrap transition-[background-color,color] duration-150 ease-out active:scale-[0.97] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white ${
                 selectedGroup === group
-                  ? "bg-white text-black font-semibold shadow-sm"
+                  ? "bg-amber-400 text-black font-bold shadow-sm"
                   : "bg-white/[0.04] text-white/60 hover:text-white hover:bg-white/[0.08] border border-white/5"
               }`}
             >
@@ -207,7 +214,7 @@ export function ResultsClientView({ categories, initialCounts }: ResultsClientVi
           return (
             <div
               key={category.id}
-              className="p-6 sm:p-8 rounded-2xl bg-white/[0.02] border border-white/10 backdrop-blur-sm"
+              className="p-6 sm:p-8 rounded-2xl bg-[#0c0c0c] border border-white/10 backdrop-blur-sm"
             >
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6 pb-4 border-b border-white/10">
                 <div>
@@ -224,9 +231,9 @@ export function ResultsClientView({ categories, initialCounts }: ResultsClientVi
                       </Badge>
                     )}
                   </div>
-                  <p className="text-xs text-white/40 mt-1">
+                  <p className="text-xs text-white/50 mt-1">
                     {category.nominees.length} Nominees • Total Votes:{" "}
-                    <strong className="text-white font-mono font-semibold">
+                    <strong className="text-amber-400 font-mono font-bold">
                       {totalCategoryVotes.toLocaleString()}
                     </strong>
                   </p>
@@ -236,7 +243,7 @@ export function ResultsClientView({ categories, initialCounts }: ResultsClientVi
                   asChild
                   size="sm"
                   variant="outline"
-                  className="border-white/20 hover:border-white/40 text-white text-xs hover:bg-white/5 focus-visible:ring-2 focus-visible:ring-white"
+                  className="border-white/20 hover:border-amber-400/50 hover:text-amber-300 text-white text-xs hover:bg-white/5 focus-visible:ring-2 focus-visible:ring-amber-400"
                 >
                   <Link href={`/vote/${category.slug}`}>
                     Vote in this Category
@@ -263,7 +270,7 @@ export function ResultsClientView({ categories, initialCounts }: ResultsClientVi
                       key={nominee.id}
                       className={`relative p-4 rounded-xl border transition-[background-color,border-color,box-shadow] duration-200 ease-out ${
                         isFirst
-                          ? "bg-white/[0.05] border-white/30 shadow-[0_4px_24px_rgba(255,255,255,0.04)]"
+                          ? "bg-amber-400/[0.06] border-amber-400/30 shadow-[0_4px_24px_rgba(245,158,11,0.06)]"
                           : "bg-white/[0.02] border-white/5 hover:border-white/15"
                       }`}
                     >
@@ -273,7 +280,7 @@ export function ResultsClientView({ categories, initialCounts }: ResultsClientVi
                           <div
                             className={`w-7 h-7 rounded-lg flex items-center justify-center text-xs font-bold shrink-0 font-mono ${
                               isFirst
-                                ? "bg-white text-black font-extrabold"
+                                ? "bg-amber-400 text-black font-extrabold"
                                 : isSecond || isThird
                                 ? "bg-white/15 text-white"
                                 : "bg-white/5 text-white/40 border border-white/10"
@@ -297,9 +304,9 @@ export function ResultsClientView({ categories, initialCounts }: ResultsClientVi
                         {/* Votes and Percentage */}
                         <div className="text-right shrink-0">
                           <div className="text-sm sm:text-base font-bold text-white font-mono">
-                            {voteCount.toLocaleString()} votes
+                            {voteCount.toLocaleString()} {voteCount === 1 ? "vote" : "votes"}
                           </div>
-                          <div className="text-xs text-white/40 font-mono">
+                          <div className="text-xs text-amber-400/80 font-mono font-semibold">
                             {percentage}%
                           </div>
                         </div>
@@ -309,7 +316,7 @@ export function ResultsClientView({ categories, initialCounts }: ResultsClientVi
                       <div className="w-full bg-white/5 h-2 rounded-full overflow-hidden" role="progressbar" aria-valuenow={percentage} aria-valuemin={0} aria-valuemax={100}>
                         <div
                           className={`h-full transition-[width] duration-500 ease-out ${
-                            isFirst ? "bg-white" : "bg-white/30"
+                            isFirst ? "bg-amber-400" : "bg-white/30"
                           }`}
                           style={{ width: `${percentage}%` }}
                         />

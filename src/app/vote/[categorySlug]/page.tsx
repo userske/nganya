@@ -136,9 +136,22 @@ export default async function CategoryVotePage({ params }: PageProps) {
     .select("nominee_id, count")
     .eq("category_id", categoryData.id)) as any;
 
-  if (dbCounts && Array.isArray(dbCounts)) {
+  if (dbCounts && Array.isArray(dbCounts) && dbCounts.length > 0) {
     for (const c of dbCounts) {
       initialCounts[c.nominee_id] = Number(c.count);
+    }
+  } else {
+    // Fallback: calculate from raw votes table
+    const { data: rawVotes } = (await adminClient
+      .from("votes")
+      .select("nominee_id")
+      .eq("category_id", categoryData.id)
+      .eq("voided", false)) as any;
+
+    if (rawVotes && Array.isArray(rawVotes)) {
+      for (const v of rawVotes) {
+        initialCounts[v.nominee_id] = (initialCounts[v.nominee_id] ?? 0) + 1;
+      }
     }
   }
 

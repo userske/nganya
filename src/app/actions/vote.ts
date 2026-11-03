@@ -97,6 +97,8 @@ export async function submitVoteAction(
   // Refresh ISR / client caches
   revalidatePath("/vote");
   revalidatePath("/results");
+  revalidatePath("/vote/[categorySlug]", "page");
+  revalidatePath("/my-account");
 
   return {
     success: true,

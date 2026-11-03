@@ -96,6 +96,31 @@ export default async function VotePage() {
     }
   }
 
+  // 3. Fetch category vote tallies
+  const categoryVotesMap: Record<string, number> = {};
+  const { data: dbVoteCounts } = await adminClient
+    .from("vote_counts")
+    .select("category_id, count");
+
+  if (dbVoteCounts && Array.isArray(dbVoteCounts) && dbVoteCounts.length > 0) {
+    for (const row of dbVoteCounts) {
+      categoryVotesMap[row.category_id] =
+        (categoryVotesMap[row.category_id] ?? 0) + Number(row.count);
+    }
+  } else {
+    const { data: rawVotes } = await adminClient
+      .from("votes")
+      .select("category_id")
+      .eq("voided", false);
+
+    if (rawVotes && Array.isArray(rawVotes)) {
+      for (const row of rawVotes) {
+        categoryVotesMap[row.category_id] =
+          (categoryVotesMap[row.category_id] ?? 0) + 1;
+      }
+    }
+  }
+
   return (
     <div className="min-h-screen bg-black text-white flex flex-col justify-between">
       <Navbar />
@@ -104,6 +129,7 @@ export default async function VotePage() {
         <VoteClientView
           categories={categories}
           initialUserVotes={userVotesMap}
+          initialCategoryVotes={categoryVotesMap}
           isAuthenticated={Boolean(user)}
           userEmail={user?.email}
         />
