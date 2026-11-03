@@ -2,8 +2,8 @@ import type { Metadata, Viewport } from "next";
 import "./globals.css";
 import { Toaster } from "@/components/ui/sonner";
 import { ThemeProvider } from "next-themes";
-
 import { MotionProvider } from "@/components/providers/MotionProvider";
+import { LiveSupportChat } from "@/components/support/LiveSupportChat";
 
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "https://coastalnganyaawards.com";
 
@@ -122,6 +122,7 @@ export default function RootLayout({
               },
             }}
           />
+          <LiveSupportChat />
         </ThemeProvider>
       </body>
     </html>
