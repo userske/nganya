@@ -33,7 +33,7 @@ export async function GET(request: Request) {
       const paystack = new PaystackClient();
       const verification = await paystack.verifyTransaction(ref);
       if (verification?.status && verification?.data?.status === "success") {
-        const transactionData = verification.data;
+        const transactionData: any = verification.data;
 
         // Confirm order
         await supabase
