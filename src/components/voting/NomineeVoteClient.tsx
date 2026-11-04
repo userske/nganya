@@ -573,7 +573,8 @@ export function NomineeVoteClient({
             </div>
           );
         })}
-      </div>
+        </div>
+      )}
 
       {/* Floating Action Bar */}
       {!isLocked && (
