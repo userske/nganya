@@ -84,6 +84,20 @@ export function NomineeVoteClient({
       setIsAuthenticated(authed);
       setAuthChecked(true);
 
+      if (user) {
+        const { data: vote } = await supabase
+          .from("votes")
+          .select("nominee_id")
+          .eq("category_id", category.id)
+          .eq("voter_id", user.id)
+          .eq("voided", false)
+          .maybeSingle();
+
+        if (vote) {
+          setVotedNomineeId(vote.nominee_id);
+        }
+      }
+
       if (authed && selectedNomineeId && authModalOpen) {
         setAuthModalOpen(false);
         setConfirmModalOpen(true);

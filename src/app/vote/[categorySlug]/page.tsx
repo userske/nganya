@@ -1,12 +1,11 @@
 import { notFound } from "next/navigation";
-import { cookies } from "next/headers";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
 import { NomineeVoteClient } from "@/components/voting/NomineeVoteClient";
-import { createClient } from "@/lib/supabase/server";
+import { createPublicClient } from "@/lib/supabase/server";
 import rawData from "@/lib/seed/categories_seed.json";
 
-export const dynamic = "force-dynamic";
+export const revalidate = 60; // Cache on Cloudflare edge CDN, revalidate every 60s
 
 interface PageProps {
   params: Promise<{ categorySlug: string }>;
@@ -44,35 +43,18 @@ export default async function CategoryVotePage({ params }: PageProps) {
   const { categorySlug } = await params;
   let categoryData: any = null;
   const initialCounts: Record<string, number> = {};
-  let existingVoteNomineeId: string | null = null;
-  let user: any = null;
 
   try {
-    const supabase = await createClient();
+    const supabase = createPublicClient();
 
-    // Check if voter has session cookies before making auth calls
-    const cookieStore = await cookies();
-    const hasAuthToken = cookieStore.getAll().some(
-      (c) => c.name.includes("auth-token") || c.name.startsWith("sb-")
-    );
+    // Fetch category with nominees in a single join query without touching cookies
+    const { data: cat, error } = await supabase
+      .from("categories")
+      .select("id, slug, name, group_name, description, is_active, nominees!nominees_category_id_fkey(id, name, subtitle, image_url, sort_order, is_active)")
+      .eq("slug", categorySlug)
+      .maybeSingle();
 
-    // Fetch category with nominees in a single join query
-    const promises: [Promise<any>, Promise<any>?] = [
-      supabase
-        .from("categories")
-        .select("id, slug, name, group_name, description, is_active, nominees!nominees_category_id_fkey(id, name, subtitle, image_url, sort_order, is_active)")
-        .eq("slug", categorySlug)
-        .maybeSingle(),
-    ];
-
-    if (hasAuthToken) {
-      promises.push(supabase.auth.getUser());
-    }
-
-    const [catRes, authRes] = await Promise.all(promises);
-
-    if (catRes && !catRes.error && catRes.data) {
-      const cat = catRes.data;
+    if (!error && cat) {
       const validNominees = (cat.nominees || [])
         .filter((n: any) => n.is_active !== false)
         .sort((a: any, b: any) => (a.sort_order ?? 0) - (b.sort_order ?? 0));
@@ -99,22 +81,6 @@ export default async function CategoryVotePage({ params }: PageProps) {
           const val = Number(c.count);
           if (val > 0) initialCounts[c.nominee_id] = val;
         }
-      }
-    }
-
-    // Check user vote if authenticated
-    if (authRes && authRes.data?.user && categoryData) {
-      user = authRes.data.user;
-      const { data: existingVote } = await supabase
-        .from("votes")
-        .select("nominee_id")
-        .eq("category_id", categoryData.id)
-        .eq("voter_id", user.id)
-        .eq("voided", false)
-        .maybeSingle();
-
-      if (existingVote) {
-        existingVoteNomineeId = existingVote.nominee_id;
       }
     }
   } catch (err) {
@@ -161,9 +127,8 @@ export default async function CategoryVotePage({ params }: PageProps) {
           category={categoryData}
           nominees={categoryData.nominees || []}
           initialCounts={initialCounts}
-          existingVoteNomineeId={existingVoteNomineeId}
-          isAuthenticated={Boolean(user)}
-          userEmail={user?.email}
+          existingVoteNomineeId={null}
+          isAuthenticated={false}
         />
       </main>
 
