@@ -1,75 +1,115 @@
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
 import { ResultsClientView } from "@/components/voting/ResultsClientView";
-import { createAdminClient } from "@/lib/supabase/server";
-import { seedDatabaseFromLocalJson } from "@/lib/seed/seed-db";
+import { createClient } from "@/lib/supabase/server";
+import rawData from "@/lib/seed/categories_seed.json";
 
 export const dynamic = "force-dynamic";
 
+function slugToUuid(slug: string): string {
+  let h1 = 0xdeadbeef, h2 = 0x41c6ce57;
+  for (let i = 0; i < slug.length; i++) {
+    const ch = slug.charCodeAt(i);
+    h1 = Math.imul(h1 ^ ch, 2654435761);
+    h2 = Math.imul(h2 ^ ch, 1597334677);
+  }
+  const hex =
+    (h1 >>> 0).toString(16).padStart(8, "0") +
+    (h2 >>> 0).toString(16).padStart(8, "0") +
+    (Math.imul(h1, 31) >>> 0).toString(16).padStart(8, "0") +
+    (Math.imul(h2, 37) >>> 0).toString(16).padStart(8, "0");
+  return `${hex.slice(0, 8)}-${hex.slice(8, 12)}-4${hex.slice(13, 16)}-a${hex.slice(17, 20)}-${hex.slice(20, 32)}`;
+}
+
+function extractSubtitle(nomineeStr: string): { name: string; subtitle: string | null } {
+  const trimmed = nomineeStr.trim();
+  const parenMatch = trimmed.match(/^(.+?)\s*\(([^)]+)\)$/);
+  if (parenMatch) {
+    return { name: parenMatch[1].trim(), subtitle: parenMatch[2].trim() };
+  }
+  const dashMatch = trimmed.match(/^(.+?)\s*[-–]\s*(.+)$/);
+  if (dashMatch) {
+    return { name: dashMatch[1].trim(), subtitle: dashMatch[2].trim() };
+  }
+  return { name: trimmed, subtitle: null };
+}
+
 export default async function ResultsPage() {
-  const adminClient = await createAdminClient();
+  const supabase = await createClient();
 
   let categories: any[] = [];
   const initialCounts: Record<string, number> = {};
 
-  // Fetch categories with nominees using adminClient
-  let { data: dbCategories } = await adminClient
-    .from("categories")
-    .select("id, slug, name, group_name, is_active, nominees(id, name, subtitle, sort_order)")
-    .eq("is_active", true)
-    .order("sort_order", { ascending: true });
+  // Fetch active categories with nominees using public anon client
+  try {
+    const { data: dbCategories, error } = await supabase
+      .from("categories")
+      .select("id, slug, name, group_name, is_active, nominees(id, name, subtitle, sort_order)")
+      .eq("is_active", true)
+      .order("sort_order", { ascending: true });
 
-  // If DB not seeded, auto-seed it
-  if (!dbCategories || dbCategories.length === 0) {
-    try {
-      await seedDatabaseFromLocalJson();
-
-      const { data: refreshed } = await adminClient
-        .from("categories")
-        .select("id, slug, name, group_name, is_active, nominees(id, name, subtitle, sort_order)")
-        .eq("is_active", true)
-        .order("sort_order", { ascending: true });
-
-      dbCategories = refreshed || [];
-    } catch (e) {
-      console.error("[ResultsPage seed error]:", e);
+    if (!error && dbCategories && dbCategories.length > 0) {
+      categories = dbCategories.map((c: any) => ({
+        id: c.id,
+        slug: c.slug,
+        name: c.name,
+        group_name: c.group_name,
+        nominees: (c.nominees || []).map((n: any) => ({
+          id: n.id,
+          name: n.name,
+          subtitle: n.subtitle,
+          categoryId: c.id,
+        })),
+      }));
     }
+  } catch (err) {
+    console.error("[ResultsPage DB error]:", err);
   }
 
-  categories = (dbCategories || []).map((c: any) => ({
-    id: c.id,
-    slug: c.slug,
-    name: c.name,
-    group_name: c.group_name,
-    nominees: (c.nominees || []).map((n: any) => ({
-      id: n.id,
-      name: n.name,
-      subtitle: n.subtitle,
-      categoryId: c.id,
-    })),
-  }));
+  // Fallback to local categories_seed.json if DB categories empty
+  if (categories.length === 0) {
+    categories = (rawData as any[]).map((c) => ({
+      id: slugToUuid(c.slug),
+      slug: c.slug,
+      name: c.name,
+      group_name: c.name.toLowerCase().includes("mombasa 1")
+        ? "Nganya – Mombasa 1"
+        : c.name.toLowerCase().includes("jomvu")
+        ? "Nganya – Jomvu"
+        : c.name.toLowerCase().includes("kisauni")
+        ? "Nganya – Kisauni"
+        : c.name.toLowerCase().includes("mikindani")
+        ? "Nganya – Mikindani"
+        : c.name.toLowerCase().includes("likoni")
+        ? "Nganya – Likoni"
+        : c.name.toLowerCase().includes("driver") || c.name.toLowerCase().includes("conductor")
+        ? "Drivers & Conductors"
+        : "Special Awards",
+      nominees: (c.nominees || []).map((rawNom: string, nIdx: number) => {
+        const { name, subtitle } = extractSubtitle(rawNom);
+        return {
+          id: slugToUuid(`${c.slug}-${name}-${nIdx}`),
+          name,
+          subtitle,
+          categoryId: slugToUuid(c.slug),
+        };
+      }),
+    }));
+  }
 
   // Fetch current vote counts
-  const { data: dbCounts } = await adminClient
-    .from("vote_counts")
-    .select("nominee_id, count");
+  try {
+    const { data: dbCounts } = await supabase
+      .from("vote_counts")
+      .select("nominee_id, count");
 
-  if (dbCounts && Array.isArray(dbCounts) && dbCounts.length > 0) {
-    for (const c of dbCounts as any[]) {
-      initialCounts[c.nominee_id] = Number(c.count);
-    }
-  } else {
-    // Fallback: calculate from raw votes table
-    const { data: rawVotes } = await adminClient
-      .from("votes")
-      .select("nominee_id")
-      .eq("voided", false);
-
-    if (rawVotes && Array.isArray(rawVotes)) {
-      for (const v of rawVotes) {
-        initialCounts[v.nominee_id] = (initialCounts[v.nominee_id] ?? 0) + 1;
+    if (dbCounts && Array.isArray(dbCounts) && dbCounts.length > 0) {
+      for (const c of dbCounts as any[]) {
+        initialCounts[c.nominee_id] = Number(c.count);
       }
     }
+  } catch (countsErr) {
+    console.error("[ResultsPage counts error]:", countsErr);
   }
 
   return (
