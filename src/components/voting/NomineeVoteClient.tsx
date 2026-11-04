@@ -421,33 +421,52 @@ export function NomineeVoteClient({
       </div>
 
       {/* Nominees Leaderboard Grid */}
-      <div
-        role="radiogroup"
-        aria-label={`Nominees Leaderboard for ${category.name}`}
-        className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 mb-12"
-      >
-        {rankedNominees.map((nominee) => {
-          const rank = rankMap[nominee.id] ?? 1;
-          const isSelected = selectedNomineeId === nominee.id;
-          const isThisVoted = votedNomineeId === nominee.id;
-          const voteCount = counts[nominee.id] ?? 0;
-          const percentage =
-            totalCategoryVotes > 0
-              ? Math.round((voteCount / totalCategoryVotes) * 100)
-              : 0;
+      {nominees.length === 0 ? (
+        <div className="p-12 sm:p-16 rounded-3xl bg-[#0d0d0d] border border-white/10 text-center max-w-xl mx-auto my-8 space-y-4">
+          <div className="w-16 h-16 rounded-2xl bg-amber-400/10 border border-amber-400/20 flex items-center justify-center text-amber-400 mx-auto">
+            <Trophy className="w-8 h-8" />
+          </div>
+          <h3 className="text-xl font-bold text-white uppercase tracking-tight">
+            Nominees Lineup Finalizing
+          </h3>
+          <p className="text-white/50 text-xs sm:text-sm leading-relaxed">
+            The official shortlist for <strong>{category.name}</strong> is currently being verified.
+            Voting for this category will open as soon as the verified nominees are announced.
+          </p>
+          <div className="pt-2">
+            <Button asChild className="bg-amber-400 hover:bg-amber-300 text-black font-bold h-11 px-6 rounded-xl">
+              <Link href="/vote">Browse Other Categories</Link>
+            </Button>
+          </div>
+        </div>
+      ) : (
+        <div
+          role="radiogroup"
+          aria-label={`Nominees Leaderboard for ${category.name}`}
+          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 mb-12"
+        >
+          {rankedNominees.map((nominee) => {
+            const rank = rankMap[nominee.id] ?? 1;
+            const isSelected = selectedNomineeId === nominee.id;
+            const isThisVoted = votedNomineeId === nominee.id;
+            const voteCount = counts[nominee.id] ?? 0;
+            const percentage =
+              totalCategoryVotes > 0
+                ? Math.round((voteCount / totalCategoryVotes) * 100)
+                : 0;
 
-          const isFirst = rank === 1 && voteCount > 0;
-          const isSecond = rank === 2 && voteCount > 0;
-          const isThird = rank === 3 && voteCount > 0;
+            const isFirst = rank === 1 && voteCount > 0;
+            const isSecond = rank === 2 && voteCount > 0;
+            const isThird = rank === 3 && voteCount > 0;
 
-          return (
-            <div
-              key={nominee.id}
-              role="radio"
-              aria-checked={isThisVoted || isSelected}
-              aria-disabled={isLocked}
-              tabIndex={isLocked ? -1 : 0}
-              onClick={() => handleNomineeClick(nominee.id)}
+            return (
+              <div
+                key={nominee.id}
+                role="radio"
+                aria-checked={isThisVoted || isSelected}
+                aria-disabled={isLocked}
+                tabIndex={isLocked ? -1 : 0}
+                onClick={() => handleNomineeClick(nominee.id)}
               onKeyDown={(e) => handleKeyDownNominee(e, nominee.id)}
               className={`relative p-6 rounded-2xl transition-[background-color,border-color,box-shadow,transform] duration-200 ease-out border text-left select-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-400 ${
                 isThisVoted

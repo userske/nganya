@@ -2,10 +2,8 @@ import { notFound } from "next/navigation";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
 import { NomineeVoteClient } from "@/components/voting/NomineeVoteClient";
-import { createClient, createAdminClient } from "@/lib/supabase/server";
-import { seedDatabaseFromLocalJson } from "@/lib/seed/seed-db";
+import { createClient } from "@/lib/supabase/server";
 import rawData from "@/lib/seed/categories_seed.json";
-import crypto from "crypto";
 
 export const dynamic = "force-dynamic";
 
@@ -14,8 +12,18 @@ interface PageProps {
 }
 
 function slugToUuid(slug: string): string {
-  const hash = crypto.createHash("md5").update(slug).digest("hex");
-  return `${hash.slice(0, 8)}-${hash.slice(8, 12)}-4${hash.slice(13, 16)}-a${hash.slice(17, 20)}-${hash.slice(20, 32)}`;
+  let h1 = 0xdeadbeef, h2 = 0x41c6ce57;
+  for (let i = 0; i < slug.length; i++) {
+    const ch = slug.charCodeAt(i);
+    h1 = Math.imul(h1 ^ ch, 2654435761);
+    h2 = Math.imul(h2 ^ ch, 1597334677);
+  }
+  const hex =
+    (h1 >>> 0).toString(16).padStart(8, "0") +
+    (h2 >>> 0).toString(16).padStart(8, "0") +
+    (Math.imul(h1, 31) >>> 0).toString(16).padStart(8, "0") +
+    (Math.imul(h2, 37) >>> 0).toString(16).padStart(8, "0");
+  return `${hex.slice(0, 8)}-${hex.slice(8, 12)}-4${hex.slice(13, 16)}-a${hex.slice(17, 20)}-${hex.slice(20, 32)}`;
 }
 
 function extractSubtitle(nomineeStr: string): { name: string; subtitle: string | null } {
@@ -34,69 +42,47 @@ function extractSubtitle(nomineeStr: string): { name: string; subtitle: string |
 export default async function CategoryVotePage({ params }: PageProps) {
   const { categorySlug } = await params;
   const supabase = await createClient();
-  const adminClient = await createAdminClient();
 
-  // 1. Fetch category from database using adminClient to bypass RLS issues
-  let { data: catDb } = (await adminClient
-    .from("categories")
-    .select("id, slug, name, group_name, description, is_active")
-    .eq("slug", categorySlug)
-    .maybeSingle()) as any;
+  // 1. Fetch category from database using public anon client
+  let catDb: any = null;
+  let nomDb: any[] = [];
+  try {
+    const { data: categoryRow } = await supabase
+      .from("categories")
+      .select("id, slug, name, group_name, description, is_active")
+      .eq("slug", categorySlug)
+      .maybeSingle();
 
-  // If category not found in DB, auto-seed the database
-  if (!catDb) {
-    try {
-      await seedDatabaseFromLocalJson();
+    if (categoryRow) {
+      catDb = categoryRow;
+      const { data: nomineesData } = await supabase
+        .from("nominees")
+        .select("id, name, subtitle, image_url, sort_order, is_active")
+        .eq("category_id", categoryRow.id)
+        .eq("is_active", true)
+        .order("sort_order", { ascending: true });
 
-      const { data: refreshedCat } = (await adminClient
-        .from("categories")
-        .select("id, slug, name, group_name, description, is_active")
-        .eq("slug", categorySlug)
-        .maybeSingle()) as any;
-
-      catDb = refreshedCat;
-    } catch (e) {
-      console.error("Auto-seed error in CategoryVotePage:", e);
+      nomDb = nomineesData ?? [];
     }
+  } catch (err) {
+    console.error("Category lookup error:", err);
   }
 
   let categoryData: any = null;
 
   if (catDb) {
-    // Fetch real nominees from DB
-    const { data: nomDb } = (await adminClient
-      .from("nominees")
-      .select("id, name, subtitle, image_url, sort_order, is_active")
-      .eq("category_id", catDb.id)
-      .eq("is_active", true)
-      .order("sort_order", { ascending: true })) as any;
-
     categoryData = {
       ...catDb,
-      nominees: nomDb ?? [],
+      nominees: nomDb,
     };
   } else {
-    // Fallback: look up in categories_seed.json and ensure DB has real rows with valid UUIDs
+    // Fallback: look up in categories_seed.json
     const found = (rawData as any[]).find((c) => c.slug === categorySlug);
     if (!found) {
       notFound();
     }
 
     const catUuid = slugToUuid(found.slug);
-
-    // Upsert fallback category with valid UUID into DB
-    await adminClient.from("categories").upsert(
-      {
-        id: catUuid,
-        slug: found.slug,
-        name: found.name,
-        group_name: "Special Awards",
-        sort_order: found.sort_order ?? 1,
-        is_active: true,
-      },
-      { onConflict: "slug" }
-    );
-
     const fallbackNominees = (found.nominees || []).map((rawNom: string, i: number) => {
       const { name, subtitle } = extractSubtitle(rawNom);
       const nomUuid = slugToUuid(`${found.slug}-${name}-${i}`);
@@ -111,11 +97,6 @@ export default async function CategoryVotePage({ params }: PageProps) {
       };
     });
 
-    // Upsert nominees with valid UUIDs into DB so cast_vote FK constraint passes
-    await adminClient
-      .from("nominees")
-      .upsert(fallbackNominees, { onConflict: "category_id,name" });
-
     categoryData = {
       id: catUuid,
       slug: found.slug,
@@ -125,54 +106,49 @@ export default async function CategoryVotePage({ params }: PageProps) {
     };
   }
 
-  if (!categoryData || !categoryData.nominees || categoryData.nominees.length === 0) {
+  if (!categoryData) {
     notFound();
   }
 
   // 2. Fetch initial vote counts for this category
   const initialCounts: Record<string, number> = {};
-  const { data: dbCounts } = (await adminClient
-    .from("vote_counts")
-    .select("nominee_id, count")
-    .eq("category_id", categoryData.id)) as any;
+  try {
+    const { data: dbCounts } = await supabase
+      .from("vote_counts")
+      .select("nominee_id, count")
+      .eq("category_id", categoryData.id);
 
-  if (dbCounts && Array.isArray(dbCounts) && dbCounts.length > 0) {
-    for (const c of dbCounts) {
-      initialCounts[c.nominee_id] = Number(c.count);
-    }
-  } else {
-    // Fallback: calculate from raw votes table
-    const { data: rawVotes } = (await adminClient
-      .from("votes")
-      .select("nominee_id")
-      .eq("category_id", categoryData.id)
-      .eq("voided", false)) as any;
-
-    if (rawVotes && Array.isArray(rawVotes)) {
-      for (const v of rawVotes) {
-        initialCounts[v.nominee_id] = (initialCounts[v.nominee_id] ?? 0) + 1;
+    if (dbCounts && Array.isArray(dbCounts) && dbCounts.length > 0) {
+      for (const c of dbCounts) {
+        initialCounts[c.nominee_id] = Number(c.count);
       }
     }
+  } catch (countsErr) {
+    console.error("Counts lookup error in CategoryVotePage:", countsErr);
   }
 
   // 3. Fetch voter's existing vote if logged in
   let existingVoteNomineeId: string | null = null;
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  let user: any = null;
+  try {
+    const { data: userData } = await supabase.auth.getUser();
+    user = userData?.user ?? null;
 
-  if (user) {
-    const { data: userVote } = (await adminClient
-      .from("votes")
-      .select("nominee_id")
-      .eq("voter_id", user.id)
-      .eq("category_id", categoryData.id)
-      .eq("voided", false)
-      .maybeSingle()) as any;
+    if (user) {
+      const { data: existingVote } = await supabase
+        .from("votes")
+        .select("nominee_id")
+        .eq("category_id", categoryData.id)
+        .eq("voter_id", user.id)
+        .eq("voided", false)
+        .maybeSingle();
 
-    if (userVote) {
-      existingVoteNomineeId = userVote.nominee_id;
+      if (existingVote) {
+        existingVoteNomineeId = existingVote.nominee_id;
+      }
     }
+  } catch (userErr) {
+    console.error("User existing vote error:", userErr);
   }
 
   return (
@@ -182,7 +158,7 @@ export default async function CategoryVotePage({ params }: PageProps) {
       <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-28">
         <NomineeVoteClient
           category={categoryData}
-          nominees={categoryData.nominees}
+          nominees={categoryData.nominees || []}
           initialCounts={initialCounts}
           existingVoteNomineeId={existingVoteNomineeId}
           isAuthenticated={Boolean(user)}

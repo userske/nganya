@@ -10,7 +10,7 @@ const config = {
     },
   },
   buildCommand: "pnpm run build:next",
-  edgeExternals: ["node:crypto"],
+  edgeExternals: ["node:crypto", "crypto"],
   middleware: {
     external: true,
     override: {
