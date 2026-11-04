@@ -106,6 +106,22 @@ export function AdminDashboardClient({
     return Array.from(groups);
   }, [categoriesList]);
 
+  // Deduplicated unique ticket tiers (prevent duplicate cards in utilization)
+  const uniqueTiers = useMemo(() => {
+    const map = new Map<string, any>();
+    for (const tier of ticketTiers) {
+      const key = (tier.name || "").trim().toLowerCase();
+      if (!map.has(key)) {
+        map.set(key, { ...tier });
+      } else {
+        const existing = map.get(key);
+        existing.sold_count = (existing.sold_count || 0) + (tier.sold_count || 0);
+        existing.capacity = (existing.capacity || 0) + (tier.capacity || 0);
+      }
+    }
+    return Array.from(map.values());
+  }, [ticketTiers]);
+
   // Save Settings Handler
   const handleSaveSettings = async (e?: React.FormEvent) => {
     if (e) e.preventDefault();
@@ -377,11 +393,11 @@ export function AdminDashboardClient({
       {/* ─────────────────────────────────────────────────────────────
           2. MASTER DASHBOARD TABS
       ───────────────────────────────────────────────────────────── */}
-      <Tabs defaultValue="overview" className="w-full space-y-6">
-        <TabsList className="bg-white/5 border border-white/10 p-1 rounded-2xl flex flex-wrap h-auto gap-1">
+      <Tabs defaultValue="overview" className="w-full flex flex-col gap-6">
+        <TabsList className="bg-[#111111] border border-white/10 p-1.5 rounded-2xl flex flex-wrap items-center gap-1.5 w-full">
           <TabsTrigger
             value="overview"
-            className="rounded-xl text-xs sm:text-sm py-2 px-4 data-[state=active]:bg-amber-400 data-[state=active]:text-black font-bold transition-all"
+            className="rounded-xl text-xs sm:text-sm py-2 px-3.5 data-[state=active]:bg-amber-400 data-[state=active]:text-black data-active:bg-amber-400 data-active:text-black font-bold transition-all shrink-0"
           >
             <Activity className="w-3.5 h-3.5 mr-1.5" />
             Overview
@@ -389,7 +405,7 @@ export function AdminDashboardClient({
 
           <TabsTrigger
             value="settings"
-            className="rounded-xl text-xs sm:text-sm py-2 px-4 data-[state=active]:bg-amber-400 data-[state=active]:text-black font-bold transition-all"
+            className="rounded-xl text-xs sm:text-sm py-2 px-3.5 data-[state=active]:bg-amber-400 data-[state=active]:text-black data-active:bg-amber-400 data-active:text-black font-bold transition-all shrink-0"
           >
             <Settings className="w-3.5 h-3.5 mr-1.5" />
             Event Settings
@@ -397,7 +413,7 @@ export function AdminDashboardClient({
 
           <TabsTrigger
             value="categories"
-            className="rounded-xl text-xs sm:text-sm py-2 px-4 data-[state=active]:bg-amber-400 data-[state=active]:text-black font-bold transition-all"
+            className="rounded-xl text-xs sm:text-sm py-2 px-3.5 data-[state=active]:bg-amber-400 data-[state=active]:text-black data-active:bg-amber-400 data-active:text-black font-bold transition-all shrink-0"
           >
             <Trophy className="w-3.5 h-3.5 mr-1.5" />
             Categories ({categoriesList.length})
@@ -405,7 +421,7 @@ export function AdminDashboardClient({
 
           <TabsTrigger
             value="tickets"
-            className="rounded-xl text-xs sm:text-sm py-2 px-4 data-[state=active]:bg-amber-400 data-[state=active]:text-black font-bold transition-all"
+            className="rounded-xl text-xs sm:text-sm py-2 px-3.5 data-[state=active]:bg-amber-400 data-[state=active]:text-black data-active:bg-amber-400 data-active:text-black font-bold transition-all shrink-0"
           >
             <Ticket className="w-3.5 h-3.5 mr-1.5" />
             Tickets & Orders ({orders.length})
@@ -413,7 +429,7 @@ export function AdminDashboardClient({
 
           <TabsTrigger
             value="security"
-            className="rounded-xl text-xs sm:text-sm py-2 px-4 data-[state=active]:bg-amber-400 data-[state=active]:text-black font-bold transition-all"
+            className="rounded-xl text-xs sm:text-sm py-2 px-3.5 data-[state=active]:bg-amber-400 data-[state=active]:text-black data-active:bg-amber-400 data-active:text-black font-bold transition-all shrink-0"
           >
             <ShieldAlert className="w-3.5 h-3.5 mr-1.5" />
             Anti-Abuse Monitor
@@ -421,7 +437,7 @@ export function AdminDashboardClient({
 
           <TabsTrigger
             value="audit"
-            className="rounded-xl text-xs sm:text-sm py-2 px-4 data-[state=active]:bg-amber-400 data-[state=active]:text-black font-bold transition-all"
+            className="rounded-xl text-xs sm:text-sm py-2 px-3.5 data-[state=active]:bg-amber-400 data-[state=active]:text-black data-active:bg-amber-400 data-active:text-black font-bold transition-all shrink-0"
           >
             <History className="w-3.5 h-3.5 mr-1.5" />
             Audit Log ({auditLogs.length})
@@ -509,7 +525,7 @@ export function AdminDashboardClient({
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                {ticketTiers.map((tier) => {
+                {uniqueTiers.map((tier) => {
                   const sold = Number(tier.sold_count) || 0;
                   const cap = Number(tier.capacity) || 100;
                   const pct = Math.min(100, Math.round((sold / cap) * 100));
