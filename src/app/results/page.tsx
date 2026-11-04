@@ -44,7 +44,7 @@ export default async function ResultsPage() {
   try {
     const { data: dbCategories, error } = await supabase
       .from("categories")
-      .select("id, slug, name, group_name, is_active, nominees(id, name, subtitle, sort_order)")
+      .select("id, slug, name, group_name, is_active, nominees!nominees_category_id_fkey(id, name, subtitle, sort_order)")
       .eq("is_active", true)
       .order("sort_order", { ascending: true });
 
