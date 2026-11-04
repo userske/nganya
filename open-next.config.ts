@@ -9,6 +9,7 @@ const config = {
       proxyExternalRequest: "fetch",
     },
   },
+  buildCommand: "pnpm run build:next",
   edgeExternals: ["node:crypto"],
   middleware: {
     external: true,
@@ -24,3 +25,5 @@ const config = {
 };
 
 export default config;
+
+

@@ -6,6 +6,7 @@
     "dev": "next dev",
     "build": "npx @opennextjs/cloudflare build",
     "build:next": "next build",
+    "build:worker": "npx @opennextjs/cloudflare build",
     "start": "next start",
     "lint": "eslint",
     "test": "vitest run",
