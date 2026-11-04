@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { PaystackClient } from "@/lib/payments/paystack";
 import { createAdminClient } from "@/lib/supabase/server";
 import { generateSignedQrPayload } from "@/lib/security/ticket-crypto";
-import { sendTicketEmail } from "@/lib/email/tickets";
+import { sendTicketEmail, sendAdminTicketAlert } from "@/lib/email/tickets";
 
 export const dynamic = "force-dynamic";
 
@@ -134,13 +134,35 @@ export async function POST(request: Request) {
       }
     }
 
-    // 8. Deliver tickets by email via Resend
-    await sendTicketEmail({
-      buyerName: order.buyer_name,
-      buyerEmail: order.buyer_email,
-      orderNumber: order.order_number,
-      tickets: issuedTickets,
-    });
+    // 8. Deliver tickets by email via Resend to the buyer
+    try {
+      await sendTicketEmail({
+        buyerName: order.buyer_name,
+        buyerEmail: order.buyer_email,
+        orderNumber: order.order_number,
+        tickets: issuedTickets,
+      });
+    } catch (buyerEmailErr) {
+      console.error("[Webhook] Failed to deliver ticket email to buyer:", buyerEmailErr);
+    }
+
+    // 9. Deliver instant new ticket purchase notification to admin (info@coastalnganyaawards.com)
+    try {
+      await sendAdminTicketAlert({
+        buyerName: order.buyer_name,
+        buyerEmail: order.buyer_email,
+        buyerPhone: order.buyer_phone,
+        orderNumber: order.order_number,
+        tierName,
+        quantity: order.quantity,
+        totalAmountKes: order.total_amount_kes,
+        channel: transactionData.channel ?? "mobile_money",
+        reference: reference,
+        tickets: issuedTickets,
+      });
+    } catch (adminEmailErr) {
+      console.error("[Webhook] Failed to deliver admin ticket notification:", adminEmailErr);
+    }
 
     return NextResponse.json({
       received: true,

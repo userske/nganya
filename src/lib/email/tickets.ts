@@ -373,3 +373,241 @@ export async function sendTicketEmail({
     return { success: false, error: message };
   }
 }
+
+export interface SendAdminTicketAlertParams {
+  buyerName: string;
+  buyerEmail: string;
+  buyerPhone?: string | null;
+  orderNumber: string;
+  tierName: string;
+  quantity: number;
+  totalAmountKes: number;
+  channel?: string | null;
+  reference?: string | null;
+  tickets: Array<{
+    ticketCode: string;
+    tierName: string;
+  }>;
+}
+
+export async function sendAdminTicketAlert({
+  buyerName,
+  buyerEmail,
+  buyerPhone,
+  orderNumber,
+  tierName,
+  quantity,
+  totalAmountKes,
+  channel = "mobile_money",
+  reference,
+  tickets,
+}: SendAdminTicketAlertParams) {
+  const apiKey = process.env.RESEND_API_KEY;
+  const fromEmail = process.env.EMAIL_FROM || "noreply@coastalnganyaawards.com";
+  const adminEmail = process.env.ADMIN_EMAIL || "info@coastalnganyaawards.com";
+  const siteUrl = (process.env.NEXT_PUBLIC_SITE_URL || "https://coastalnganyaawards.com").replace(/\/$/, "");
+
+  if (!apiKey) {
+    console.warn("[Email] RESEND_API_KEY not set — skipping admin notification.");
+    return { success: true, simulated: true };
+  }
+
+  const resend = new Resend(apiKey);
+
+  const ticketRowsHtml = tickets
+    .map(
+      (t, idx) => `
+      <tr>
+        <td style="padding: 10px 14px; border-bottom: 1px solid #1f1f1f; font-family: monospace; font-size: 13px; color: #f59e0b; font-weight: 700;">
+          ${t.ticketCode}
+        </td>
+        <td style="padding: 10px 14px; border-bottom: 1px solid #1f1f1f; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; font-size: 12px; color: #d4d4d4;">
+          ${t.tierName} &bull; Pass #${idx + 1}
+        </td>
+      </tr>`
+    )
+    .join("");
+
+  const formattedAmount = Number(totalAmountKes).toLocaleString();
+  const paymentMethod = (channel || "mobile_money").replace(/_/g, " ").toUpperCase();
+  const nowEat = new Date().toLocaleString("en-KE", { timeZone: "Africa/Nairobi" });
+
+  const htmlBody = `
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>New Ticket Purchase — ${orderNumber}</title>
+</head>
+<body style="margin: 0; padding: 0; background-color: #080808;">
+  <table width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color: #080808; min-height: 100vh;">
+    <tr>
+      <td align="center" style="padding: 32px 16px;">
+        <table width="600" cellpadding="0" cellspacing="0" border="0" style="max-width: 600px; width: 100%; background-color: #111111; border: 1px solid #262626; border-radius: 20px; overflow: hidden;">
+          
+          <!-- Header -->
+          <tr>
+            <td style="background: linear-gradient(135deg, #0d0d0d 0%, #1e1500 100%); border-bottom: 1px solid #2a2000; padding: 28px 32px;">
+              <table width="100%" cellpadding="0" cellspacing="0" border="0">
+                <tr>
+                  <td>
+                    <span style="display: inline-block; background-color: rgba(245,158,11,0.15); border: 1px solid rgba(245,158,11,0.4); border-radius: 6px; padding: 4px 10px; font-family: monospace; font-size: 10px; font-weight: 700; color: #f59e0b; text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 8px;">
+                      ADMIN SALE ALERT
+                    </span>
+                    <h1 style="margin: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; font-size: 22px; font-weight: 900; color: #ffffff; text-transform: uppercase; letter-spacing: 0.04em;">
+                      New Ticket Purchase Confirmed
+                    </h1>
+                    <p style="margin: 4px 0 0 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; font-size: 12px; color: #a3a3a3;">
+                      Coastal Nganya Awards Night 2026 &bull; Mamba Village, Mombasa
+                    </p>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+
+          <!-- Key Stats Strip -->
+          <tr>
+            <td style="padding: 24px 32px 0 32px;">
+              <table width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color: #090909; border: 1px solid #262626; border-radius: 12px; overflow: hidden;">
+                <tr>
+                  <td style="padding: 16px 20px; border-right: 1px solid #1f1f1f;" width="50%">
+                    <span style="font-family: monospace; font-size: 10px; color: #737373; text-transform: uppercase; letter-spacing: 0.08em; display: block;">Total Paid</span>
+                    <span style="font-family: monospace; font-size: 24px; font-weight: 900; color: #f59e0b; letter-spacing: -0.02em;">KES ${formattedAmount}</span>
+                  </td>
+                  <td style="padding: 16px 20px;" width="50%">
+                    <span style="font-family: monospace; font-size: 10px; color: #737373; text-transform: uppercase; letter-spacing: 0.08em; display: block;">Tickets Sold</span>
+                    <span style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; font-size: 20px; font-weight: 800; color: #ffffff;">${quantity} &times; ${tierName}</span>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+
+          <!-- Order & Customer Details -->
+          <tr>
+            <td style="padding: 24px 32px;">
+              <table width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color: #141414; border: 1px solid #262626; border-radius: 12px; padding: 20px;">
+                <tr>
+                  <td style="padding-bottom: 12px;">
+                    <span style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; font-size: 13px; font-weight: 700; color: #ffffff; text-transform: uppercase; letter-spacing: 0.05em;">
+                      Customer &amp; Payment Details
+                    </span>
+                  </td>
+                </tr>
+                <tr>
+                  <td>
+                    <table width="100%" cellpadding="0" cellspacing="0" border="0">
+                      <tr>
+                        <td width="35%" style="padding: 6px 0; font-family: monospace; font-size: 11px; color: #737373; text-transform: uppercase;">Buyer Name</td>
+                        <td style="padding: 6px 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; font-size: 13px; font-weight: 600; color: #ffffff;">${buyerName}</td>
+                      </tr>
+                      <tr>
+                        <td style="padding: 6px 0; font-family: monospace; font-size: 11px; color: #737373; text-transform: uppercase;">Buyer Email</td>
+                        <td style="padding: 6px 0; font-family: monospace; font-size: 13px; color: #f59e0b;">
+                          <a href="mailto:${buyerEmail}" style="color: #f59e0b; text-decoration: none;">${buyerEmail}</a>
+                        </td>
+                      </tr>
+                      <tr>
+                        <td style="padding: 6px 0; font-family: monospace; font-size: 11px; color: #737373; text-transform: uppercase;">Buyer Phone</td>
+                        <td style="padding: 6px 0; font-family: monospace; font-size: 13px; color: #ffffff;">${buyerPhone || "Not provided"}</td>
+                      </tr>
+                      <tr>
+                        <td style="padding: 6px 0; font-family: monospace; font-size: 11px; color: #737373; text-transform: uppercase;">Order Number</td>
+                        <td style="padding: 6px 0; font-family: monospace; font-size: 13px; font-weight: 700; color: #ffffff;">${orderNumber}</td>
+                      </tr>
+                      <tr>
+                        <td style="padding: 6px 0; font-family: monospace; font-size: 11px; color: #737373; text-transform: uppercase;">Payment Channel</td>
+                        <td style="padding: 6px 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; font-size: 13px; color: #a3a3a3;">${paymentMethod}</td>
+                      </tr>
+                      ${reference ? `
+                      <tr>
+                        <td style="padding: 6px 0; font-family: monospace; font-size: 11px; color: #737373; text-transform: uppercase;">Paystack Ref</td>
+                        <td style="padding: 6px 0; font-family: monospace; font-size: 12px; color: #737373;">${reference}</td>
+                      </tr>` : ""}
+                      <tr>
+                        <td style="padding: 6px 0; font-family: monospace; font-size: 11px; color: #737373; text-transform: uppercase;">Time (EAT)</td>
+                        <td style="padding: 6px 0; font-family: monospace; font-size: 12px; color: #a3a3a3;">${nowEat}</td>
+                      </tr>
+                    </table>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+
+          <!-- Issued Ticket Codes -->
+          <tr>
+            <td style="padding: 0 32px 24px 32px;">
+              <table width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color: #0c0c0c; border: 1px solid #222222; border-radius: 12px; overflow: hidden;">
+                <tr>
+                  <td style="padding: 14px 16px; background-color: #141414; border-bottom: 1px solid #222222;">
+                    <span style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; font-size: 12px; font-weight: 700; color: #ffffff; text-transform: uppercase; letter-spacing: 0.06em;">
+                      Issued Gate Passes (${tickets.length})
+                    </span>
+                  </td>
+                </tr>
+                <tr>
+                  <td>
+                    <table width="100%" cellpadding="0" cellspacing="0" border="0">
+                      ${ticketRowsHtml}
+                    </table>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+
+          <!-- CTA to Admin Dashboard -->
+          <tr>
+            <td style="padding: 0 32px 28px 32px; text-align: center;">
+              <table cellpadding="0" cellspacing="0" border="0" align="center" style="margin: 0 auto;">
+                <tr>
+                  <td style="background-color: #f59e0b; border-radius: 10px; padding: 12px 28px;">
+                    <a href="${siteUrl}/admin" style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; font-size: 13px; font-weight: 800; color: #000000; text-decoration: none; text-transform: uppercase; letter-spacing: 0.08em; display: inline-block;">
+                      Open Admin Dashboard &rarr;
+                    </a>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+
+          <!-- Footer -->
+          <tr>
+            <td style="padding: 20px 32px 28px 32px; border-top: 1px solid #1f1f1f; text-align: center;">
+              <p style="margin: 0 0 6px 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; font-size: 11px; color: #555555;">
+                This notification was sent to <strong>${adminEmail}</strong> for administrator record-keeping.
+              </p>
+              <p style="margin: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; font-size: 11px; color: #333333;">
+                &copy; 2026 Coastal Nganya Awards &bull; Mombasa, Kenya
+              </p>
+            </td>
+          </tr>
+
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>
+  `;
+
+  try {
+    const result = await resend.emails.send({
+      from: `Coastal Nganya Awards <${fromEmail}>`,
+      to: [adminEmail],
+      replyTo: buyerEmail,
+      subject: `New Ticket Purchase: [${orderNumber}] — KES ${formattedAmount} (${buyerName})`,
+      html: htmlBody,
+    });
+
+    console.log("[Email] Admin ticket notification sent to", adminEmail, result.data?.id);
+    return { success: true, emailId: result.data?.id };
+  } catch (err: unknown) {
+    const message = err instanceof Error ? err.message : String(err);
+    console.error("[Email] Resend admin ticket notification failed:", message);
+    return { success: false, error: message };
+  }
+}
