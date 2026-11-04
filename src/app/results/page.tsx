@@ -1,10 +1,10 @@
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
 import { ResultsClientView } from "@/components/voting/ResultsClientView";
-import { createClient } from "@/lib/supabase/server";
+import { createPublicClient } from "@/lib/supabase/server";
 import rawData from "@/lib/seed/categories_seed.json";
 
-export const dynamic = "force-dynamic";
+export const revalidate = 60; // Cache on Cloudflare edge CDN, revalidate every 60s
 
 function slugToUuid(slug: string): string {
   let h1 = 0xdeadbeef, h2 = 0x41c6ce57;
@@ -39,9 +39,9 @@ export default async function ResultsPage() {
   const initialCounts: Record<string, number> = {};
 
   try {
-    const supabase = await createClient();
+    const supabase = createPublicClient();
 
-    // Fetch active categories and non-zero vote counts in parallel
+    // Fetch active categories and non-zero vote counts in parallel without touching cookies
     const [categoriesRes, countsRes] = await Promise.all([
       supabase
         .from("categories")

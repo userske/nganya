@@ -29,15 +29,43 @@ interface VoteClientViewProps {
 
 export function VoteClientView({
   categories,
-  initialUserVotes,
+  initialUserVotes = {},
   initialCategoryVotes = {},
-  isAuthenticated,
+  isAuthenticated = false,
   userEmail,
 }: VoteClientViewProps) {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedGroup, setSelectedGroup] = useState<string>("All");
   const [authDialogOpen, setAuthDialogOpen] = useState(false);
   const [categoryVotes, setCategoryVotes] = useState<Record<string, number>>(initialCategoryVotes);
+  const [userVotes, setUserVotes] = useState<Record<string, string>>(initialUserVotes);
+  const [isAuth, setIsAuth] = useState(isAuthenticated);
+  const [email, setEmail] = useState(userEmail);
+
+  // Client-side authentication check and user votes loader
+  useEffect(() => {
+    const supabase = createClient();
+    supabase.auth.getUser().then(async ({ data }) => {
+      const u = data?.user;
+      if (u) {
+        setIsAuth(true);
+        setEmail(u.email);
+        const { data: dbVotes } = await supabase
+          .from("votes")
+          .select("category_id, nominee_id")
+          .eq("voter_id", u.id)
+          .eq("voided", false);
+
+        if (dbVotes && dbVotes.length > 0) {
+          const map: Record<string, string> = {};
+          for (const uv of dbVotes) {
+            map[uv.category_id] = uv.nominee_id;
+          }
+          setUserVotes((prev) => ({ ...prev, ...map }));
+        }
+      }
+    }).catch(() => {});
+  }, []);
 
   // Live polling of category vote tallies
   useEffect(() => {
@@ -112,7 +140,7 @@ export function VoteClientView({
   }, [categories, searchQuery, selectedGroup]);
 
   // Calculate vote progress
-  const votedCount = Object.keys(initialUserVotes).length;
+  const votedCount = Object.keys(userVotes).length;
   const totalCategories = categories.length;
   const progressPercent = totalCategories > 0 ? (votedCount / totalCategories) * 100 : 0;
 
@@ -160,10 +188,10 @@ export function VoteClientView({
             </Link>
           </Button>
 
-          {isAuthenticated ? (
+          {isAuth ? (
             <div className="flex items-center gap-2 px-3.5 py-2 rounded-xl bg-white/10 border border-white/20 text-white text-xs font-medium">
               <UserCheck className="w-4 h-4 text-emerald-400" />
-              <span className="truncate max-w-[140px]">{userEmail}</span>
+              <span className="truncate max-w-[140px]">{email}</span>
             </div>
           ) : (
             <Button
@@ -240,7 +268,7 @@ export function VoteClientView({
             <CategoryCard
               key={category.id}
               category={category}
-              userVotedNomineeName={initialUserVotes[category.id] ?? null}
+              userVotedNomineeName={userVotes[category.id] ?? null}
               totalVotes={categoryVotes[category.id] ?? 0}
             />
           ))}

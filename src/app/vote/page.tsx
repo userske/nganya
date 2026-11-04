@@ -1,11 +1,10 @@
-import { cookies } from "next/headers";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
 import { VoteClientView } from "@/components/voting/VoteClientView";
-import { createClient } from "@/lib/supabase/server";
+import { createPublicClient } from "@/lib/supabase/server";
 import rawData from "@/lib/seed/categories_seed.json";
 
-export const dynamic = "force-dynamic";
+export const revalidate = 60; // Cache on Cloudflare edge CDN, revalidate every 60s
 
 function slugToUuid(slug: string): string {
   let h1 = 0xdeadbeef, h2 = 0x41c6ce57;
@@ -25,20 +24,12 @@ function slugToUuid(slug: string): string {
 export default async function VotePage() {
   let dbCategories: any[] = [];
   const categoryVotesMap: Record<string, number> = {};
-  const userVotesMap: Record<string, string> = {};
-  let user: any = null;
 
   try {
-    const supabase = await createClient();
+    const supabase = createPublicClient();
 
-    // Check if voter has session cookies before making auth calls
-    const cookieStore = await cookies();
-    const hasAuthToken = cookieStore.getAll().some(
-      (c) => c.name.includes("auth-token") || c.name.startsWith("sb-")
-    );
-
-    // Run public database fetches in parallel
-    const promises: [Promise<any>, Promise<any>, Promise<any>?] = [
+    // Fetch active categories and non-zero vote counts in parallel without touching cookies
+    const [categoriesRes, countsRes] = await Promise.all([
       supabase
         .from("categories")
         .select("id, slug, name, group_name, sort_order, is_active")
@@ -48,13 +39,7 @@ export default async function VotePage() {
         .from("vote_counts")
         .select("category_id, count")
         .gt("count", 0),
-    ];
-
-    if (hasAuthToken) {
-      promises.push(supabase.auth.getUser());
-    }
-
-    const [categoriesRes, countsRes, authRes] = await Promise.all(promises);
+    ]);
 
     if (!categoriesRes.error && categoriesRes.data && categoriesRes.data.length > 0) {
       dbCategories = categoriesRes.data;
@@ -66,21 +51,6 @@ export default async function VotePage() {
         if (val > 0) {
           categoryVotesMap[row.category_id] =
             (categoryVotesMap[row.category_id] ?? 0) + val;
-        }
-      }
-    }
-
-    if (authRes && authRes.data?.user) {
-      user = authRes.data.user;
-      const { data: userVotes } = await supabase
-        .from("votes")
-        .select("category_id, nominee_id")
-        .eq("voter_id", user.id)
-        .eq("voided", false);
-
-      if (userVotes) {
-        for (const uv of userVotes) {
-          userVotesMap[uv.category_id] = uv.nominee_id;
         }
       }
     }
@@ -129,10 +99,9 @@ export default async function VotePage() {
       <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-28">
         <VoteClientView
           categories={categories}
-          initialUserVotes={userVotesMap}
+          initialUserVotes={{}}
           initialCategoryVotes={categoryVotesMap}
-          isAuthenticated={Boolean(user)}
-          userEmail={user?.email}
+          isAuthenticated={false}
         />
       </main>
 

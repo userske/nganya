@@ -1,6 +1,24 @@
 import { createServerClient } from "@supabase/ssr";
+import { createClient as createSupabaseClient } from "@supabase/supabase-js";
 import { cookies } from "next/headers";
 import type { Database } from "@/types/database";
+
+/**
+ * Public client for static & ISR server components.
+ * Does NOT read cookies, allowing Next.js and Cloudflare to cache pages (ISR).
+ */
+export function createPublicClient() {
+  return createSupabaseClient<any>(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    {
+      auth: {
+        persistSession: false,
+        autoRefreshToken: false,
+      },
+    }
+  );
+}
 
 export async function createClient() {
   const cookieStore = await cookies();
