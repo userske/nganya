@@ -86,7 +86,7 @@ export async function GET(request: Request) {
 
           for (let i = 0; i < order.quantity; i++) {
             const ticketCode = `CNA-TKT-${Math.random().toString(36).substring(2, 8).toUpperCase()}`;
-            const qrPayload = generateSignedQrPayload({
+            const qrPayload = await generateSignedQrPayload({
               code: ticketCode,
               orderNumber: order.order_number,
               tierName,

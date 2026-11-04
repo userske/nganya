@@ -56,7 +56,7 @@ export async function processDoorCheckinAction(qrRaw: string): Promise<CheckinRe
   // 2. Determine ticket code from signed QR payload or direct code
   let ticketCode = cleanInput;
   if (cleanInput.includes(".")) {
-    const payload = verifySignedQrPayload(cleanInput);
+    const payload = await verifySignedQrPayload(cleanInput);
     if (!payload) {
       return {
         success: false,

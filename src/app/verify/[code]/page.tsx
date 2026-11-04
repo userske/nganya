@@ -68,7 +68,7 @@ export default async function VerifyTicketPage({ params }: VerifyPageProps) {
       };
 
       // Verify the QR payload HMAC signature
-      const parsed = verifySignedQrPayload(ticket.qr_payload);
+      const parsed = await verifySignedQrPayload(ticket.qr_payload);
       qrValid = parsed !== null && parsed.code === ticketCode;
 
       if (!qrValid) {
