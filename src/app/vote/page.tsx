@@ -1,3 +1,4 @@
+import { cookies } from "next/headers";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
 import { VoteClientView } from "@/components/voting/VoteClientView";
@@ -22,22 +23,69 @@ function slugToUuid(slug: string): string {
 }
 
 export default async function VotePage() {
-  const supabase = await createClient();
-
-  // 1. Fetch active categories from database with public anon client
   let dbCategories: any[] = [];
-  try {
-    const { data, error } = await supabase
-      .from("categories")
-      .select("id, slug, name, group_name, sort_order, is_active")
-      .eq("is_active", true)
-      .order("sort_order", { ascending: true });
+  const categoryVotesMap: Record<string, number> = {};
+  const userVotesMap: Record<string, string> = {};
+  let user: any = null;
 
-    if (!error && data && data.length > 0) {
-      dbCategories = data;
+  try {
+    const supabase = await createClient();
+
+    // Check if voter has session cookies before making auth calls
+    const cookieStore = await cookies();
+    const hasAuthToken = cookieStore.getAll().some(
+      (c) => c.name.includes("auth-token") || c.name.startsWith("sb-")
+    );
+
+    // Run public database fetches in parallel
+    const promises: [Promise<any>, Promise<any>, Promise<any>?] = [
+      supabase
+        .from("categories")
+        .select("id, slug, name, group_name, sort_order, is_active")
+        .eq("is_active", true)
+        .order("sort_order", { ascending: true }),
+      supabase
+        .from("vote_counts")
+        .select("category_id, count")
+        .gt("count", 0),
+    ];
+
+    if (hasAuthToken) {
+      promises.push(supabase.auth.getUser());
+    }
+
+    const [categoriesRes, countsRes, authRes] = await Promise.all(promises);
+
+    if (!categoriesRes.error && categoriesRes.data && categoriesRes.data.length > 0) {
+      dbCategories = categoriesRes.data;
+    }
+
+    if (!countsRes.error && countsRes.data && Array.isArray(countsRes.data)) {
+      for (const row of countsRes.data) {
+        const val = Number(row.count);
+        if (val > 0) {
+          categoryVotesMap[row.category_id] =
+            (categoryVotesMap[row.category_id] ?? 0) + val;
+        }
+      }
+    }
+
+    if (authRes && authRes.data?.user) {
+      user = authRes.data.user;
+      const { data: userVotes } = await supabase
+        .from("votes")
+        .select("category_id, nominee_id")
+        .eq("voter_id", user.id)
+        .eq("voided", false);
+
+      if (userVotes) {
+        for (const uv of userVotes) {
+          userVotesMap[uv.category_id] = uv.nominee_id;
+        }
+      }
     }
   } catch (err) {
-    console.error("Categories lookup error in VotePage:", err);
+    console.error("Data lookup error in VotePage:", err);
   }
 
   // Fallback to local categories if DB returned empty
@@ -52,7 +100,6 @@ export default async function VotePage() {
       is_active: c.is_active,
     }));
   } else {
-    // Generate valid categories from local seed JSON
     categories = (rawData as any[]).map((c, idx) => ({
       id: slugToUuid(c.slug),
       slug: c.slug,
@@ -73,47 +120,6 @@ export default async function VotePage() {
       sort_order: c.sort_order ?? idx + 1,
       is_active: Array.isArray(c.nominees) && c.nominees.length > 0,
     }));
-  }
-
-  // 2. Fetch logged-in user's cast votes
-  let userVotesMap: Record<string, string> = {};
-  let user: any = null;
-  try {
-    const { data: userData } = await supabase.auth.getUser();
-    user = userData?.user ?? null;
-
-    if (user) {
-      const { data: userVotes } = await supabase
-        .from("votes")
-        .select("category_id, nominee_id")
-        .eq("voter_id", user.id)
-        .eq("voided", false);
-
-      if (userVotes) {
-        for (const uv of userVotes) {
-          userVotesMap[uv.category_id] = uv.nominee_id;
-        }
-      }
-    }
-  } catch (userErr) {
-    console.error("User lookup error in VotePage:", userErr);
-  }
-
-  // 3. Fetch category vote tallies
-  const categoryVotesMap: Record<string, number> = {};
-  try {
-    const { data: dbVoteCounts } = await supabase
-      .from("vote_counts")
-      .select("category_id, count");
-
-    if (dbVoteCounts && Array.isArray(dbVoteCounts) && dbVoteCounts.length > 0) {
-      for (const row of dbVoteCounts) {
-        categoryVotesMap[row.category_id] =
-          (categoryVotesMap[row.category_id] ?? 0) + Number(row.count);
-      }
-    }
-  } catch (countsErr) {
-    console.error("Vote counts error in VotePage:", countsErr);
   }
 
   return (

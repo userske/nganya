@@ -35,21 +35,27 @@ function extractSubtitle(nomineeStr: string): { name: string; subtitle: string |
 }
 
 export default async function ResultsPage() {
-  const supabase = await createClient();
-
   let categories: any[] = [];
   const initialCounts: Record<string, number> = {};
 
-  // Fetch active categories with nominees using public anon client
   try {
-    const { data: dbCategories, error } = await supabase
-      .from("categories")
-      .select("id, slug, name, group_name, is_active, nominees!nominees_category_id_fkey(id, name, subtitle, sort_order)")
-      .eq("is_active", true)
-      .order("sort_order", { ascending: true });
+    const supabase = await createClient();
 
-    if (!error && dbCategories && dbCategories.length > 0) {
-      categories = dbCategories.map((c: any) => ({
+    // Fetch active categories and non-zero vote counts in parallel
+    const [categoriesRes, countsRes] = await Promise.all([
+      supabase
+        .from("categories")
+        .select("id, slug, name, group_name, is_active, nominees!nominees_category_id_fkey(id, name, subtitle, sort_order)")
+        .eq("is_active", true)
+        .order("sort_order", { ascending: true }),
+      supabase
+        .from("vote_counts")
+        .select("nominee_id, count")
+        .gt("count", 0),
+    ]);
+
+    if (!categoriesRes.error && categoriesRes.data && categoriesRes.data.length > 0) {
+      categories = categoriesRes.data.map((c: any) => ({
         id: c.id,
         slug: c.slug,
         name: c.name,
@@ -61,6 +67,15 @@ export default async function ResultsPage() {
           categoryId: c.id,
         })),
       }));
+    }
+
+    if (!countsRes.error && countsRes.data && Array.isArray(countsRes.data)) {
+      for (const row of countsRes.data) {
+        const val = Number(row.count);
+        if (val > 0) {
+          initialCounts[row.nominee_id] = val;
+        }
+      }
     }
   } catch (err) {
     console.error("[ResultsPage DB error]:", err);
@@ -95,21 +110,6 @@ export default async function ResultsPage() {
         };
       }),
     }));
-  }
-
-  // Fetch current vote counts
-  try {
-    const { data: dbCounts } = await supabase
-      .from("vote_counts")
-      .select("nominee_id, count");
-
-    if (dbCounts && Array.isArray(dbCounts) && dbCounts.length > 0) {
-      for (const c of dbCounts as any[]) {
-        initialCounts[c.nominee_id] = Number(c.count);
-      }
-    }
-  } catch (countsErr) {
-    console.error("[ResultsPage counts error]:", countsErr);
   }
 
   return (

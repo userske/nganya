@@ -7,20 +7,25 @@ export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const categoryId = searchParams.get("categoryId");
 
+  const headers = {
+    "Cache-Control": "public, max-age=2, s-maxage=2, stale-while-revalidate=5",
+  };
+
   try {
     const supabase = await createClient();
 
     let query = supabase
       .from("vote_counts")
-      .select("category_id, nominee_id, count");
+      .select("category_id, nominee_id, count")
+      .gt("count", 0);
 
     if (categoryId) {
       query = query.eq("category_id", categoryId);
     }
 
     const { data, error } = await query;
-    if (!error && data && data.length > 0) {
-      return NextResponse.json({ counts: data });
+    if (!error && data) {
+      return NextResponse.json({ counts: data }, { headers });
     }
 
     // Fallback to adminClient if available
@@ -45,17 +50,14 @@ export async function GET(request: Request) {
           }
           tallyMap[key].count += 1;
         }
-        return NextResponse.json({ counts: Object.values(tallyMap) });
+        return NextResponse.json({ counts: Object.values(tallyMap) }, { headers });
       }
     } catch {
       // Fallback silently if adminClient query fails
     }
 
-    return NextResponse.json({ counts: [] });
+    return NextResponse.json({ counts: [] }, { headers });
   } catch (err: any) {
-    return NextResponse.json(
-      { counts: [] },
-      { status: 200 }
-    );
+    return NextResponse.json({ counts: [] }, { status: 200, headers });
   }
 }

@@ -1,4 +1,5 @@
 import { notFound } from "next/navigation";
+import { cookies } from "next/headers";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
 import { NomineeVoteClient } from "@/components/voting/NomineeVoteClient";
@@ -41,42 +42,87 @@ function extractSubtitle(nomineeStr: string): { name: string; subtitle: string |
 
 export default async function CategoryVotePage({ params }: PageProps) {
   const { categorySlug } = await params;
-  const supabase = await createClient();
+  let categoryData: any = null;
+  const initialCounts: Record<string, number> = {};
+  let existingVoteNomineeId: string | null = null;
+  let user: any = null;
 
-  // 1. Fetch category from database using public anon client
-  let catDb: any = null;
-  let nomDb: any[] = [];
   try {
-    const { data: categoryRow } = await supabase
-      .from("categories")
-      .select("id, slug, name, group_name, description, is_active")
-      .eq("slug", categorySlug)
-      .maybeSingle();
+    const supabase = await createClient();
 
-    if (categoryRow) {
-      catDb = categoryRow;
-      const { data: nomineesData } = await supabase
-        .from("nominees")
-        .select("id, name, subtitle, image_url, sort_order, is_active")
-        .eq("category_id", categoryRow.id)
-        .eq("is_active", true)
-        .order("sort_order", { ascending: true });
+    // Check if voter has session cookies before making auth calls
+    const cookieStore = await cookies();
+    const hasAuthToken = cookieStore.getAll().some(
+      (c) => c.name.includes("auth-token") || c.name.startsWith("sb-")
+    );
 
-      nomDb = nomineesData ?? [];
+    // Fetch category with nominees in a single join query
+    const promises: [Promise<any>, Promise<any>?] = [
+      supabase
+        .from("categories")
+        .select("id, slug, name, group_name, description, is_active, nominees!nominees_category_id_fkey(id, name, subtitle, image_url, sort_order, is_active)")
+        .eq("slug", categorySlug)
+        .maybeSingle(),
+    ];
+
+    if (hasAuthToken) {
+      promises.push(supabase.auth.getUser());
+    }
+
+    const [catRes, authRes] = await Promise.all(promises);
+
+    if (catRes && !catRes.error && catRes.data) {
+      const cat = catRes.data;
+      const validNominees = (cat.nominees || [])
+        .filter((n: any) => n.is_active !== false)
+        .sort((a: any, b: any) => (a.sort_order ?? 0) - (b.sort_order ?? 0));
+
+      categoryData = {
+        id: cat.id,
+        slug: cat.slug,
+        name: cat.name,
+        group_name: cat.group_name,
+        description: cat.description,
+        is_active: cat.is_active,
+        nominees: validNominees,
+      };
+
+      // Fetch vote counts for this specific category (non-zero only)
+      const { data: dbCounts } = await supabase
+        .from("vote_counts")
+        .select("nominee_id, count")
+        .eq("category_id", cat.id)
+        .gt("count", 0);
+
+      if (dbCounts && Array.isArray(dbCounts)) {
+        for (const c of dbCounts) {
+          const val = Number(c.count);
+          if (val > 0) initialCounts[c.nominee_id] = val;
+        }
+      }
+    }
+
+    // Check user vote if authenticated
+    if (authRes && authRes.data?.user && categoryData) {
+      user = authRes.data.user;
+      const { data: existingVote } = await supabase
+        .from("votes")
+        .select("nominee_id")
+        .eq("category_id", categoryData.id)
+        .eq("voter_id", user.id)
+        .eq("voided", false)
+        .maybeSingle();
+
+      if (existingVote) {
+        existingVoteNomineeId = existingVote.nominee_id;
+      }
     }
   } catch (err) {
-    console.error("Category lookup error:", err);
+    console.error("Error in CategoryVotePage:", err);
   }
 
-  let categoryData: any = null;
-
-  if (catDb) {
-    categoryData = {
-      ...catDb,
-      nominees: nomDb,
-    };
-  } else {
-    // Fallback: look up in categories_seed.json
+  // Fallback: look up in categories_seed.json if not found in DB
+  if (!categoryData) {
     const found = (rawData as any[]).find((c) => c.slug === categorySlug);
     if (!found) {
       notFound();
@@ -104,51 +150,6 @@ export default async function CategoryVotePage({ params }: PageProps) {
       group_name: "Special Awards",
       nominees: fallbackNominees,
     };
-  }
-
-  if (!categoryData) {
-    notFound();
-  }
-
-  // 2. Fetch initial vote counts for this category
-  const initialCounts: Record<string, number> = {};
-  try {
-    const { data: dbCounts } = await supabase
-      .from("vote_counts")
-      .select("nominee_id, count")
-      .eq("category_id", categoryData.id);
-
-    if (dbCounts && Array.isArray(dbCounts) && dbCounts.length > 0) {
-      for (const c of dbCounts) {
-        initialCounts[c.nominee_id] = Number(c.count);
-      }
-    }
-  } catch (countsErr) {
-    console.error("Counts lookup error in CategoryVotePage:", countsErr);
-  }
-
-  // 3. Fetch voter's existing vote if logged in
-  let existingVoteNomineeId: string | null = null;
-  let user: any = null;
-  try {
-    const { data: userData } = await supabase.auth.getUser();
-    user = userData?.user ?? null;
-
-    if (user) {
-      const { data: existingVote } = await supabase
-        .from("votes")
-        .select("nominee_id")
-        .eq("category_id", categoryData.id)
-        .eq("voter_id", user.id)
-        .eq("voided", false)
-        .maybeSingle();
-
-      if (existingVote) {
-        existingVoteNomineeId = existingVote.nominee_id;
-      }
-    }
-  } catch (userErr) {
-    console.error("User existing vote error:", userErr);
   }
 
   return (
