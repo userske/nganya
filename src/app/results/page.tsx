@@ -41,8 +41,8 @@ export default async function ResultsPage() {
   try {
     const supabase = createPublicClient();
 
-    // Fetch active categories and non-zero vote counts in parallel without touching cookies
-    const [categoriesRes, countsRes] = await Promise.all([
+    // Fetch active categories and non-zero vote counts with a 3.5s timeout guard
+    const fetchWithTimeout = Promise.all([
       supabase
         .from("categories")
         .select("id, slug, name, group_name, is_active, nominees!nominees_category_id_fkey(id, name, subtitle, sort_order)")
@@ -53,6 +53,12 @@ export default async function ResultsPage() {
         .select("nominee_id, count")
         .gt("count", 0),
     ]);
+
+    const timeoutGuard = new Promise<never>((_, reject) =>
+      setTimeout(() => reject(new Error("DB_TIMEOUT")), 3500)
+    );
+
+    const [categoriesRes, countsRes] = await Promise.race([fetchWithTimeout, timeoutGuard]);
 
     if (!categoriesRes.error && categoriesRes.data && categoriesRes.data.length > 0) {
       categories = categoriesRes.data.map((c: any) => ({
@@ -81,7 +87,7 @@ export default async function ResultsPage() {
     console.error("[ResultsPage DB error]:", err);
   }
 
-  // Fallback to local categories_seed.json if DB categories empty
+  // Fallback to local categories_seed.json if DB categories empty or timed out
   if (categories.length === 0) {
     categories = (rawData as any[]).map((c) => ({
       id: slugToUuid(c.slug),
