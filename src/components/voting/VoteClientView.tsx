@@ -5,7 +5,6 @@ import Link from "next/link";
 import { Search, Trophy, BarChart3, UserCheck, TrendingUp } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Progress } from "@/components/ui/progress";
 import { CategoryCard } from "./CategoryCard";
 import { VoteAuthDialog } from "./VoteAuthDialog";
 import { createClient } from "@/lib/supabase/client";
@@ -36,6 +35,7 @@ export function VoteClientView({
 }: VoteClientViewProps) {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedGroup, setSelectedGroup] = useState<string>("All");
+  const [displayLimit, setDisplayLimit] = useState<number>(18);
   const [authDialogOpen, setAuthDialogOpen] = useState(false);
   const [categoryVotes, setCategoryVotes] = useState<Record<string, number>>(initialCategoryVotes);
   const [userVotes, setUserVotes] = useState<Record<string, string>>(initialUserVotes);
@@ -107,7 +107,7 @@ export function VoteClientView({
       )
       .subscribe();
 
-    const interval = setInterval(fetchCounts, 3000);
+    const interval = setInterval(fetchCounts, 20000);
 
     return () => {
       isMounted = false;
@@ -138,6 +138,14 @@ export function VoteClientView({
       return matchesSearch && matchesGroup;
     });
   }, [categories, searchQuery, selectedGroup]);
+
+  // Progressive disclosure for initial SSR performance (prevents Edge Worker CPU 1102)
+  const visibleCategories = useMemo(() => {
+    if (selectedGroup !== "All" || searchQuery.trim().length > 0) {
+      return filteredCategories;
+    }
+    return filteredCategories.slice(0, displayLimit);
+  }, [filteredCategories, selectedGroup, searchQuery, displayLimit]);
 
   // Calculate vote progress
   const votedCount = Object.keys(userVotes).length;
@@ -217,7 +225,18 @@ export function VoteClientView({
             {votedCount} of {totalCategories} Categories Voted ({Math.round(progressPercent)}%)
           </span>
         </div>
-        <Progress value={progressPercent} className="h-2 bg-white/10" />
+        <div
+          className="w-full bg-white/10 h-2 rounded-full overflow-hidden"
+          role="progressbar"
+          aria-valuenow={Math.round(progressPercent)}
+          aria-valuemin={0}
+          aria-valuemax={100}
+        >
+          <div
+            className="h-full bg-amber-400 transition-[width] duration-300 ease-out"
+            style={{ width: `${progressPercent}%` }}
+          />
+        </div>
       </div>
 
       {/* Search and Filters */}
@@ -254,7 +273,7 @@ export function VoteClientView({
       </div>
 
       {/* Categories Grid */}
-      {filteredCategories.length === 0 ? (
+      {visibleCategories.length === 0 ? (
         <div className="text-center py-20 border border-white/5 rounded-2xl bg-white/[0.01]">
           <Trophy className="w-12 h-12 text-white/20 mx-auto mb-3" />
           <h3 className="text-lg font-bold text-white mb-1">No categories found</h3>
@@ -263,15 +282,28 @@ export function VoteClientView({
           </p>
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-          {filteredCategories.map((category) => (
-            <CategoryCard
-              key={category.id}
-              category={category}
-              userVotedNomineeName={userVotes[category.id] ?? null}
-              totalVotes={categoryVotes[category.id] ?? 0}
-            />
-          ))}
+        <div className="space-y-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+            {visibleCategories.map((category) => (
+              <CategoryCard
+                key={category.id}
+                category={category}
+                userVotedNomineeName={userVotes[category.id] ?? null}
+                totalVotes={categoryVotes[category.id] ?? 0}
+              />
+            ))}
+          </div>
+
+          {selectedGroup === "All" && !searchQuery && filteredCategories.length > displayLimit && (
+            <div className="text-center pt-4 pb-2">
+              <Button
+                onClick={() => setDisplayLimit((prev) => prev + 24)}
+                className="bg-amber-400 hover:bg-amber-300 text-black font-bold h-12 px-8 rounded-xl shadow-lg transition-transform active:scale-[0.98]"
+              >
+                Load More Categories ({filteredCategories.length - displayLimit} remaining)
+              </Button>
+            </div>
+          )}
         </div>
       )}
 

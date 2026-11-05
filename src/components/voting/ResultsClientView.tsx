@@ -92,7 +92,7 @@ export function ResultsClientView({ categories, initialCounts }: ResultsClientVi
       )
       .subscribe();
 
-    const interval = setInterval(fetchCounts, 3000);
+    const interval = setInterval(fetchCounts, 20000);
 
     return () => {
       isMounted = false;

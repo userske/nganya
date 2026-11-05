@@ -170,7 +170,7 @@ export function NomineeVoteClient({
       )
       .subscribe();
 
-    const interval = setInterval(syncCounts, 3000);
+    const interval = setInterval(syncCounts, 20000);
 
     return () => {
       isMounted = false;
