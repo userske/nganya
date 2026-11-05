@@ -5,6 +5,7 @@ import Link from "next/link";
 import { Search, Trophy, BarChart3, UserCheck, TrendingUp } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { Progress } from "@/components/ui/progress";
 import { CategoryCard } from "./CategoryCard";
 import { VoteAuthDialog } from "./VoteAuthDialog";
 import { createClient } from "@/lib/supabase/client";
@@ -28,44 +29,15 @@ interface VoteClientViewProps {
 
 export function VoteClientView({
   categories,
-  initialUserVotes = {},
+  initialUserVotes,
   initialCategoryVotes = {},
-  isAuthenticated = false,
+  isAuthenticated,
   userEmail,
 }: VoteClientViewProps) {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedGroup, setSelectedGroup] = useState<string>("All");
-  const [displayLimit, setDisplayLimit] = useState<number>(18);
   const [authDialogOpen, setAuthDialogOpen] = useState(false);
   const [categoryVotes, setCategoryVotes] = useState<Record<string, number>>(initialCategoryVotes);
-  const [userVotes, setUserVotes] = useState<Record<string, string>>(initialUserVotes);
-  const [isAuth, setIsAuth] = useState(isAuthenticated);
-  const [email, setEmail] = useState(userEmail);
-
-  // Client-side authentication check and user votes loader
-  useEffect(() => {
-    const supabase = createClient();
-    supabase.auth.getUser().then(async ({ data }) => {
-      const u = data?.user;
-      if (u) {
-        setIsAuth(true);
-        setEmail(u.email);
-        const { data: dbVotes } = await supabase
-          .from("votes")
-          .select("category_id, nominee_id")
-          .eq("voter_id", u.id)
-          .eq("voided", false);
-
-        if (dbVotes && dbVotes.length > 0) {
-          const map: Record<string, string> = {};
-          for (const uv of dbVotes) {
-            map[uv.category_id] = uv.nominee_id;
-          }
-          setUserVotes((prev) => ({ ...prev, ...map }));
-        }
-      }
-    }).catch(() => {});
-  }, []);
 
   // Live polling of category vote tallies
   useEffect(() => {
@@ -107,7 +79,7 @@ export function VoteClientView({
       )
       .subscribe();
 
-    const interval = setInterval(fetchCounts, 20000);
+    const interval = setInterval(fetchCounts, 3000);
 
     return () => {
       isMounted = false;
@@ -139,16 +111,8 @@ export function VoteClientView({
     });
   }, [categories, searchQuery, selectedGroup]);
 
-  // Progressive disclosure for initial SSR performance (prevents Edge Worker CPU 1102)
-  const visibleCategories = useMemo(() => {
-    if (selectedGroup !== "All" || searchQuery.trim().length > 0) {
-      return filteredCategories;
-    }
-    return filteredCategories.slice(0, displayLimit);
-  }, [filteredCategories, selectedGroup, searchQuery, displayLimit]);
-
   // Calculate vote progress
-  const votedCount = Object.keys(userVotes).length;
+  const votedCount = Object.keys(initialUserVotes).length;
   const totalCategories = categories.length;
   const progressPercent = totalCategories > 0 ? (votedCount / totalCategories) * 100 : 0;
 
@@ -196,10 +160,10 @@ export function VoteClientView({
             </Link>
           </Button>
 
-          {isAuth ? (
+          {isAuthenticated ? (
             <div className="flex items-center gap-2 px-3.5 py-2 rounded-xl bg-white/10 border border-white/20 text-white text-xs font-medium">
               <UserCheck className="w-4 h-4 text-emerald-400" />
-              <span className="truncate max-w-[140px]">{email}</span>
+              <span className="truncate max-w-[140px]">{userEmail}</span>
             </div>
           ) : (
             <Button
@@ -225,18 +189,7 @@ export function VoteClientView({
             {votedCount} of {totalCategories} Categories Voted ({Math.round(progressPercent)}%)
           </span>
         </div>
-        <div
-          className="w-full bg-white/10 h-2 rounded-full overflow-hidden"
-          role="progressbar"
-          aria-valuenow={Math.round(progressPercent)}
-          aria-valuemin={0}
-          aria-valuemax={100}
-        >
-          <div
-            className="h-full bg-amber-400 transition-[width] duration-300 ease-out"
-            style={{ width: `${progressPercent}%` }}
-          />
-        </div>
+        <Progress value={progressPercent} className="h-2 bg-white/10" />
       </div>
 
       {/* Search and Filters */}
@@ -273,7 +226,7 @@ export function VoteClientView({
       </div>
 
       {/* Categories Grid */}
-      {visibleCategories.length === 0 ? (
+      {filteredCategories.length === 0 ? (
         <div className="text-center py-20 border border-white/5 rounded-2xl bg-white/[0.01]">
           <Trophy className="w-12 h-12 text-white/20 mx-auto mb-3" />
           <h3 className="text-lg font-bold text-white mb-1">No categories found</h3>
@@ -282,28 +235,15 @@ export function VoteClientView({
           </p>
         </div>
       ) : (
-        <div className="space-y-8">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-            {visibleCategories.map((category) => (
-              <CategoryCard
-                key={category.id}
-                category={category}
-                userVotedNomineeName={userVotes[category.id] ?? null}
-                totalVotes={categoryVotes[category.id] ?? 0}
-              />
-            ))}
-          </div>
-
-          {selectedGroup === "All" && !searchQuery && filteredCategories.length > displayLimit && (
-            <div className="text-center pt-4 pb-2">
-              <Button
-                onClick={() => setDisplayLimit((prev) => prev + 24)}
-                className="bg-amber-400 hover:bg-amber-300 text-black font-bold h-12 px-8 rounded-xl shadow-lg transition-transform active:scale-[0.98]"
-              >
-                Load More Categories ({filteredCategories.length - displayLimit} remaining)
-              </Button>
-            </div>
-          )}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+          {filteredCategories.map((category) => (
+            <CategoryCard
+              key={category.id}
+              category={category}
+              userVotedNomineeName={initialUserVotes[category.id] ?? null}
+              totalVotes={categoryVotes[category.id] ?? 0}
+            />
+          ))}
         </div>
       )}
 

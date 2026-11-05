@@ -1,66 +1,49 @@
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
 import { VoteClientView } from "@/components/voting/VoteClientView";
-import { createPublicClient } from "@/lib/supabase/server";
+import { createClient, createAdminClient } from "@/lib/supabase/server";
+import { seedDatabaseFromLocalJson } from "@/lib/seed/seed-db";
 import rawData from "@/lib/seed/categories_seed.json";
+import crypto from "crypto";
 
-export const revalidate = 60; // Cache on Cloudflare edge CDN, revalidate every 60s
+export const dynamic = "force-dynamic";
 
 function slugToUuid(slug: string): string {
-  let h1 = 0xdeadbeef, h2 = 0x41c6ce57;
-  for (let i = 0; i < slug.length; i++) {
-    const ch = slug.charCodeAt(i);
-    h1 = Math.imul(h1 ^ ch, 2654435761);
-    h2 = Math.imul(h2 ^ ch, 1597334677);
-  }
-  const hex =
-    (h1 >>> 0).toString(16).padStart(8, "0") +
-    (h2 >>> 0).toString(16).padStart(8, "0") +
-    (Math.imul(h1, 31) >>> 0).toString(16).padStart(8, "0") +
-    (Math.imul(h2, 37) >>> 0).toString(16).padStart(8, "0");
-  return `${hex.slice(0, 8)}-${hex.slice(8, 12)}-4${hex.slice(13, 16)}-a${hex.slice(17, 20)}-${hex.slice(20, 32)}`;
+  const hash = crypto.createHash("md5").update(slug).digest("hex");
+  return `${hash.slice(0, 8)}-${hash.slice(8, 12)}-4${hash.slice(13, 16)}-a${hash.slice(17, 20)}-${hash.slice(20, 32)}`;
 }
 
 export default async function VotePage() {
-  let dbCategories: any[] = [];
-  const categoryVotesMap: Record<string, number> = {};
+  const supabase = await createClient();
+  const adminClient = await createAdminClient();
 
-  try {
-    const supabase = createPublicClient();
+  // 1. Fetch active categories from database (without nested aggregate query)
+  let { data: dbCategories, error: catError } = await adminClient
+    .from("categories")
+    .select("id, slug, name, group_name, sort_order, is_active")
+    .eq("is_active", true)
+    .order("sort_order", { ascending: true });
 
-    // Fetch active categories and non-zero vote counts in parallel
-    const [categoriesRes, countsRes] = await Promise.all([
-      supabase
+  // If DB categories empty or query failed, seed the database
+  if (!dbCategories || dbCategories.length === 0) {
+    try {
+      await seedDatabaseFromLocalJson();
+
+      const { data: refreshedCats } = await adminClient
         .from("categories")
         .select("id, slug, name, group_name, sort_order, is_active")
         .eq("is_active", true)
-        .order("sort_order", { ascending: true }),
-      supabase
-        .from("vote_counts")
-        .select("category_id, count")
-        .gt("count", 0),
-    ]);
+        .order("sort_order", { ascending: true });
 
-    if (!categoriesRes.error && categoriesRes.data && categoriesRes.data.length > 0) {
-      dbCategories = categoriesRes.data;
+      dbCategories = refreshedCats || [];
+    } catch (e) {
+      console.error("Auto-seed error in VotePage:", e);
     }
-
-    if (!countsRes.error && countsRes.data && Array.isArray(countsRes.data)) {
-      for (const row of countsRes.data) {
-        const val = Number(row.count);
-        if (val > 0) {
-          categoryVotesMap[row.category_id] =
-            (categoryVotesMap[row.category_id] ?? 0) + val;
-        }
-      }
-    }
-  } catch (err) {
-    console.error("Data lookup in VotePage:", err);
   }
 
   // Fallback to local categories if DB returned empty
   let categories: any[] = [];
-  if (dbCategories.length > 0) {
+  if (dbCategories && dbCategories.length > 0) {
     categories = dbCategories.map((c: any) => ({
       id: c.id,
       slug: c.slug,
@@ -70,6 +53,7 @@ export default async function VotePage() {
       is_active: c.is_active,
     }));
   } else {
+    // Generate valid UUID categories from JSON
     categories = (rawData as any[]).map((c, idx) => ({
       id: slugToUuid(c.slug),
       slug: c.slug,
@@ -92,6 +76,51 @@ export default async function VotePage() {
     }));
   }
 
+  // 2. Fetch logged-in user's cast votes
+  let userVotesMap: Record<string, string> = {};
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (user) {
+    const { data: userVotes } = await adminClient
+      .from("votes")
+      .select("category_id, nominee_id")
+      .eq("voter_id", user.id)
+      .eq("voided", false);
+
+    if (userVotes) {
+      for (const uv of userVotes) {
+        userVotesMap[uv.category_id] = uv.nominee_id;
+      }
+    }
+  }
+
+  // 3. Fetch category vote tallies
+  const categoryVotesMap: Record<string, number> = {};
+  const { data: dbVoteCounts } = await adminClient
+    .from("vote_counts")
+    .select("category_id, count");
+
+  if (dbVoteCounts && Array.isArray(dbVoteCounts) && dbVoteCounts.length > 0) {
+    for (const row of dbVoteCounts) {
+      categoryVotesMap[row.category_id] =
+        (categoryVotesMap[row.category_id] ?? 0) + Number(row.count);
+    }
+  } else {
+    const { data: rawVotes } = await adminClient
+      .from("votes")
+      .select("category_id")
+      .eq("voided", false);
+
+    if (rawVotes && Array.isArray(rawVotes)) {
+      for (const row of rawVotes) {
+        categoryVotesMap[row.category_id] =
+          (categoryVotesMap[row.category_id] ?? 0) + 1;
+      }
+    }
+  }
+
   return (
     <div className="min-h-screen bg-black text-white flex flex-col justify-between">
       <Navbar />
@@ -99,9 +128,10 @@ export default async function VotePage() {
       <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-28">
         <VoteClientView
           categories={categories}
-          initialUserVotes={{}}
+          initialUserVotes={userVotesMap}
           initialCategoryVotes={categoryVotesMap}
-          isAuthenticated={false}
+          isAuthenticated={Boolean(user)}
+          userEmail={user?.email}
         />
       </main>
 

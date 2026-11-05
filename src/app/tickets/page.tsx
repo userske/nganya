@@ -1,7 +1,7 @@
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
 import { TicketCheckoutClient } from "@/components/tickets/TicketCheckoutClient";
-import { createPublicClient } from "@/lib/supabase/server";
+import { createClient } from "@/lib/supabase/server";
 
 export const revalidate = 60; // Refresh ticket availability every minute
 
@@ -39,18 +39,13 @@ export const DEFAULT_TIERS = [
 ];
 
 export default async function TicketsPage() {
-  let tiersDb: any[] | null = null;
-  try {
-    const supabase = createPublicClient();
-    const { data } = await supabase
-      .from("ticket_tiers")
-      .select("*")
-      .eq("is_active", true)
-      .order("sort_order", { ascending: true });
-    tiersDb = data;
-  } catch (err) {
-    console.error("TicketsPage load error:", err);
-  }
+  const supabase = await createClient();
+
+  const { data: tiersDb } = await supabase
+    .from("ticket_tiers")
+    .select("*")
+    .eq("is_active", true)
+    .order("sort_order", { ascending: true });
 
   const tiers = tiersDb && tiersDb.length > 0 ? tiersDb : DEFAULT_TIERS;
 

@@ -32,7 +32,6 @@ export function ResultsClientView({ categories, initialCounts }: ResultsClientVi
   const [counts, setCounts] = useState<Record<string, number>>(initialCounts);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedGroup, setSelectedGroup] = useState<string>("All");
-  const [displayLimit, setDisplayLimit] = useState<number>(15);
 
   // Groups
   const groups = useMemo(() => {
@@ -92,7 +91,7 @@ export function ResultsClientView({ categories, initialCounts }: ResultsClientVi
       )
       .subscribe();
 
-    const interval = setInterval(fetchCounts, 20000);
+    const interval = setInterval(fetchCounts, 3000);
 
     return () => {
       isMounted = false;
@@ -122,14 +121,6 @@ export function ResultsClientView({ categories, initialCounts }: ResultsClientVi
       return matchesSearch && matchesGroup;
     });
   }, [categories, searchQuery, selectedGroup]);
-
-  // Progressive disclosure for initial SSR performance (prevents Edge Worker CPU 1102)
-  const visibleCategories = useMemo(() => {
-    if (selectedGroup !== "All" || searchQuery.trim().length > 0) {
-      return filteredCategories;
-    }
-    return filteredCategories.slice(0, displayLimit);
-  }, [filteredCategories, selectedGroup, searchQuery, displayLimit]);
 
   return (
     <div>
@@ -206,7 +197,7 @@ export function ResultsClientView({ categories, initialCounts }: ResultsClientVi
 
       {/* Leaderboard Category Cards */}
       <div className="space-y-8">
-        {visibleCategories.map((category) => {
+        {filteredCategories.map((category) => {
           // Calculate category total votes
           const totalCategoryVotes = category.nominees.reduce(
             (acc, n) => acc + (counts[n.id] ?? 0),
@@ -337,17 +328,6 @@ export function ResultsClientView({ categories, initialCounts }: ResultsClientVi
             </div>
           );
         })}
-
-        {selectedGroup === "All" && !searchQuery && filteredCategories.length > displayLimit && (
-          <div className="text-center pt-6 pb-4">
-            <Button
-              onClick={() => setDisplayLimit((prev) => prev + 25)}
-              className="bg-amber-400 hover:bg-amber-300 text-black font-bold h-12 px-8 rounded-xl shadow-lg transition-transform active:scale-[0.98]"
-            >
-              Load More Categories ({filteredCategories.length - displayLimit} remaining)
-            </Button>
-          </div>
-        )}
       </div>
     </div>
   );

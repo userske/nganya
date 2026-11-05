@@ -1,8 +1,4 @@
-/**
- * Paystack API client for transaction initialization and verification.
- * Uses Web Crypto API (SubtleCrypto) for HMAC so this works on both
- * Cloudflare Workers edge runtime and Node.js — no `import crypto` needed.
- */
+import crypto from "crypto";
 
 export interface InitializePaystackParams {
   amountKes: number;
@@ -38,13 +34,6 @@ export interface PaystackVerifyResponse {
     };
     metadata?: Record<string, any>;
   };
-}
-
-/** Returns a hex string from a Uint8Array. */
-function toHex(buf: ArrayBuffer): string {
-  return Array.from(new Uint8Array(buf))
-    .map((b) => b.toString(16).padStart(2, "0"))
-    .join("");
 }
 
 export class PaystackClient {
@@ -132,25 +121,16 @@ export class PaystackClient {
   }
 
   /**
-   * Validates Paystack webhook HMAC-SHA512 signature using SubtleCrypto.
-   * Compatible with Cloudflare Workers edge runtime and Node.js 18+.
+   * Validates Paystack webhook HMAC-SHA512 signature.
    */
-  async verifyWebhookSignature(rawBody: string, signature: string): Promise<boolean> {
+  verifyWebhookSignature(rawBody: string, signature: string): boolean {
     if (!this.secretKey || !signature) return false;
-    try {
-      const enc = new TextEncoder();
-      const key = await globalThis.crypto.subtle.importKey(
-        "raw",
-        enc.encode(this.secretKey),
-        { name: "HMAC", hash: "SHA-512" },
-        false,
-        ["sign"]
-      );
-      const sigBuffer = await globalThis.crypto.subtle.sign("HMAC", key, enc.encode(rawBody));
-      const hash = toHex(sigBuffer);
-      return hash === signature;
-    } catch {
-      return false;
-    }
+
+    const hash = crypto
+      .createHmac("sha512", this.secretKey)
+      .update(rawBody)
+      .digest("hex");
+
+    return hash === signature;
   }
 }

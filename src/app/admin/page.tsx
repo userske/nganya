@@ -102,35 +102,12 @@ export default async function AdminPage() {
     .select("id, name, slug, group_name, sort_order, is_active")
     .order("sort_order", { ascending: true });
 
-  // 3. Orders (Try adminClient, then fallback to authenticated supabase client)
-  let orders: any[] = [];
-  const { data: ordersWithTier } = await adminClient
+  // 3. Orders
+  const { data: orders } = await adminClient
     .from("orders")
     .select("id, order_number, buyer_name, buyer_email, buyer_phone, quantity, total_amount_kes, status, created_at, ticket_tiers(name)")
     .order("created_at", { ascending: false })
     .limit(100);
-
-  if (ordersWithTier && ordersWithTier.length > 0) {
-    orders = ordersWithTier;
-  } else {
-    const { data: rawAdminOrders } = await adminClient
-      .from("orders")
-      .select("id, order_number, buyer_name, buyer_email, buyer_phone, quantity, total_amount_kes, status, created_at, tier_id")
-      .order("created_at", { ascending: false })
-      .limit(100);
-
-    if (rawAdminOrders && rawAdminOrders.length > 0) {
-      orders = rawAdminOrders;
-    } else {
-      // Fallback: authenticated client (leverages is_admin() RLS policy for logged-in admin)
-      const { data: authOrders } = await supabase
-        .from("orders")
-        .select("id, order_number, buyer_name, buyer_email, buyer_phone, quantity, total_amount_kes, status, created_at, ticket_tiers(name)")
-        .order("created_at", { ascending: false })
-        .limit(100);
-      orders = authOrders || [];
-    }
-  }
 
   // 4. Ticket Tiers
   const { data: ticketTiers } = await adminClient

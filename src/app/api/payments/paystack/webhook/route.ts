@@ -15,7 +15,7 @@ export async function POST(request: Request) {
 
     // In production, signature verification is mandatory
     if (process.env.PAYSTACK_SECRET_KEY && signature) {
-      const isValid = await paystack.verifyWebhookSignature(rawBody, signature);
+      const isValid = paystack.verifyWebhookSignature(rawBody, signature);
       if (!isValid) {
         return NextResponse.json({ error: "Invalid signature" }, { status: 401 });
       }
@@ -102,7 +102,7 @@ export async function POST(request: Request) {
     for (let i = 0; i < order.quantity; i++) {
       const ticketCode = `CNA-TKT-${Math.random().toString(36).substring(2, 8).toUpperCase()}`;
 
-      const qrPayload = await generateSignedQrPayload({
+      const qrPayload = generateSignedQrPayload({
         code: ticketCode,
         orderNumber: order.order_number,
         tierName,

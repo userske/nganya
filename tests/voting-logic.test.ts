@@ -41,7 +41,7 @@ describe("Salted IP Hashing", () => {
     const hash2 = hashIp(ip, salt);
 
     expect(hash1).toBe(hash2);
-    expect(hash1).toHaveLength(32); // 128-bit pure-JS hash → 32-char hex string
+    expect(hash1).toHaveLength(64); // SHA-256 hex string
     expect(hash1).not.toContain(ip);
   });
 
@@ -62,36 +62,33 @@ describe("Ticket QR Code Signing and Verification", () => {
     issuedAt: Date.now(),
   };
 
-  it("generates a signed QR string and successfully verifies valid signature", async () => {
-    const signedQr = await generateSignedQrPayload(sampleTicket, "test-ticket-secret");
+  it("generates a signed QR string and successfully verifies valid signature", () => {
+    const signedQr = generateSignedQrPayload(sampleTicket, "test-ticket-secret");
     expect(signedQr).toContain(".");
 
-    const verified = await verifySignedQrPayload(signedQr, "test-ticket-secret");
+    const verified = verifySignedQrPayload(signedQr, "test-ticket-secret");
     expect(verified).not.toBeNull();
     expect(verified?.code).toBe("CNA-TKT-884920");
     expect(verified?.buyerName).toBe("Ali Hassan");
   });
 
-  it("rejects tampered QR payloads", async () => {
-    const signedQr = await generateSignedQrPayload(sampleTicket, "test-ticket-secret");
-    const dotIdx = signedQr.lastIndexOf(".");
-    const signature = signedQr.slice(dotIdx + 1);
+  it("rejects tampered QR payloads", () => {
+    const signedQr = generateSignedQrPayload(sampleTicket, "test-ticket-secret");
+    const [payloadB64, signature] = signedQr.split(".");
 
-    // Tamper with payload: encode a modified ticket as base64url
-    const tamperedJson = JSON.stringify({ ...sampleTicket, tierName: "VVIP Table of 5" });
-    const tamperedBytes = new TextEncoder().encode(tamperedJson);
-    let binary = "";
-    for (let i = 0; i < tamperedBytes.length; i++) binary += String.fromCharCode(tamperedBytes[i]);
-    const tamperedPayloadB64 = btoa(binary).replace(/\+/g, "-").replace(/\//g, "_").replace(/=/g, "");
+    // Tamper with payload
+    const tamperedPayloadB64 = Buffer.from(
+      JSON.stringify({ ...sampleTicket, tierName: "VVIP Table of 5" })
+    ).toString("base64url");
 
     const tamperedQr = `${tamperedPayloadB64}.${signature}`;
-    const result = await verifySignedQrPayload(tamperedQr, "test-ticket-secret");
+    const result = verifySignedQrPayload(tamperedQr, "test-ticket-secret");
     expect(result).toBeNull();
   });
 
-  it("rejects QR signed with a different secret", async () => {
-    const signedQr = await generateSignedQrPayload(sampleTicket, "secret-one");
-    const result = await verifySignedQrPayload(signedQr, "secret-two");
+  it("rejects QR signed with a different secret", () => {
+    const signedQr = generateSignedQrPayload(sampleTicket, "secret-one");
+    const result = verifySignedQrPayload(signedQr, "secret-two");
     expect(result).toBeNull();
   });
 });

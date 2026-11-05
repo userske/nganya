@@ -23,33 +23,6 @@ const nextConfig: NextConfig = {
   async headers() {
     return [
       {
-        source: "/results",
-        headers: [
-          {
-            key: "Cache-Control",
-            value: "public, max-age=10, s-maxage=30, stale-while-revalidate=60",
-          },
-        ],
-      },
-      {
-        source: "/vote",
-        headers: [
-          {
-            key: "Cache-Control",
-            value: "public, max-age=10, s-maxage=30, stale-while-revalidate=60",
-          },
-        ],
-      },
-      {
-        source: "/vote/:slug*",
-        headers: [
-          {
-            key: "Cache-Control",
-            value: "public, max-age=10, s-maxage=30, stale-while-revalidate=60",
-          },
-        ],
-      },
-      {
         source: "/(.*)",
         headers: [
           { key: "X-Frame-Options", value: "DENY" },
