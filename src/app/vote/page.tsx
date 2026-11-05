@@ -28,8 +28,8 @@ export default async function VotePage() {
   try {
     const supabase = createPublicClient();
 
-    // Fetch active categories and non-zero vote counts with a 3.5s timeout guard
-    const fetchWithTimeout = Promise.all([
+    // Fetch active categories and non-zero vote counts in parallel
+    const [categoriesRes, countsRes] = await Promise.all([
       supabase
         .from("categories")
         .select("id, slug, name, group_name, sort_order, is_active")
@@ -40,12 +40,6 @@ export default async function VotePage() {
         .select("category_id, count")
         .gt("count", 0),
     ]);
-
-    const timeoutGuard = new Promise<never>((_, reject) =>
-      setTimeout(() => reject(new Error("DB_TIMEOUT")), 3500)
-    );
-
-    const [categoriesRes, countsRes] = await Promise.race([fetchWithTimeout, timeoutGuard]);
 
     if (!categoriesRes.error && categoriesRes.data && categoriesRes.data.length > 0) {
       dbCategories = categoriesRes.data;
@@ -64,7 +58,7 @@ export default async function VotePage() {
     console.error("Data lookup in VotePage:", err);
   }
 
-  // Fallback to local categories if DB returned empty or timed out
+  // Fallback to local categories if DB returned empty
   let categories: any[] = [];
   if (dbCategories.length > 0) {
     categories = dbCategories.map((c: any) => ({
