@@ -34,14 +34,16 @@ export default async function ResultsPage() {
     .from("categories")
     .select("id, slug, name, group_name, sort_order, is_active")
     .eq("is_active", true)
-    .order("sort_order", { ascending: true });
+    .order("sort_order", { ascending: true })
+    .limit(2000);
 
   // 2. Fetch nominees from DB in separate flat query (avoids nested schema cache failures)
   let { data: dbNominees } = await adminClient
     .from("nominees")
     .select("id, category_id, name, subtitle, sort_order, is_active")
     .eq("is_active", true)
-    .order("sort_order", { ascending: true });
+    .order("sort_order", { ascending: true })
+    .limit(5000);
 
   // If categories or nominees empty, auto-seed and refetch
   if (!dbCategories || dbCategories.length === 0 || !dbNominees || dbNominees.length === 0) {
@@ -52,13 +54,15 @@ export default async function ResultsPage() {
         .from("categories")
         .select("id, slug, name, group_name, sort_order, is_active")
         .eq("is_active", true)
-        .order("sort_order", { ascending: true });
+        .order("sort_order", { ascending: true })
+        .limit(2000);
 
       const { data: refNoms } = await adminClient
         .from("nominees")
         .select("id, category_id, name, subtitle, sort_order, is_active")
         .eq("is_active", true)
-        .order("sort_order", { ascending: true });
+        .order("sort_order", { ascending: true })
+        .limit(5000);
 
       dbCategories = refCats || [];
       dbNominees = refNoms || [];
@@ -127,7 +131,8 @@ export default async function ResultsPage() {
 
   const { data: dbCounts } = await adminClient
     .from("vote_counts")
-    .select("nominee_id, count");
+    .select("nominee_id, count")
+    .limit(5000);
 
   if (dbCounts && Array.isArray(dbCounts) && dbCounts.length > 0) {
     for (const c of dbCounts as any[]) {
@@ -139,7 +144,8 @@ export default async function ResultsPage() {
   const { data: rawVotes } = await adminClient
     .from("votes")
     .select("nominee_id")
-    .eq("voided", false);
+    .eq("voided", false)
+    .limit(10000);
 
   if (rawVotes && Array.isArray(rawVotes)) {
     for (const v of rawVotes) {

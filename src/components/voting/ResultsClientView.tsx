@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useMemo } from "react";
 import Link from "next/link";
-import { Search, Vote, ArrowRight } from "lucide-react";
+import { Search, Vote, ArrowRight, Flame, Trophy, Layers } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -20,6 +20,7 @@ interface CategoryData {
   slug: string;
   name: string;
   group_name: string | null;
+  sort_order?: number;
   nominees: NomineeData[];
 }
 
@@ -32,6 +33,8 @@ export function ResultsClientView({ categories, initialCounts }: ResultsClientVi
   const [counts, setCounts] = useState<Record<string, number>>(initialCounts);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedGroup, setSelectedGroup] = useState<string>("All");
+  const [sortBy, setSortBy] = useState<"votes" | "order">("votes");
+  const [onlyWithVotes, setOnlyWithVotes] = useState<boolean>(false);
 
   // Groups
   const groups = useMemo(() => {
@@ -105,9 +108,28 @@ export function ResultsClientView({ categories, initialCounts }: ResultsClientVi
     return Object.values(counts).reduce((acc, c) => acc + c, 0);
   }, [counts]);
 
-  // Filter categories
-  const filteredCategories = useMemo(() => {
-    return categories.filter((c) => {
+  // Compute category totals
+  const categoryTotals = useMemo(() => {
+    const map = new Map<string, number>();
+    for (const c of categories) {
+      const sum = c.nominees.reduce((acc, n) => acc + (counts[n.id] ?? 0), 0);
+      map.set(c.id, sum);
+    }
+    return map;
+  }, [categories, counts]);
+
+  // Count active categories with votes > 0
+  const activeCategoriesCount = useMemo(() => {
+    let cnt = 0;
+    categoryTotals.forEach((total) => {
+      if (total > 0) cnt++;
+    });
+    return cnt;
+  }, [categoryTotals]);
+
+  // Filter and sort categories
+  const processedCategories = useMemo(() => {
+    let list = categories.filter((c) => {
       const matchesSearch =
         c.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
         c.nominees.some(
@@ -117,14 +139,32 @@ export function ResultsClientView({ categories, initialCounts }: ResultsClientVi
         );
 
       const matchesGroup = selectedGroup === "All" || c.group_name === selectedGroup;
+      const total = categoryTotals.get(c.id) ?? 0;
+      const matchesVoteFilter = !onlyWithVotes || total > 0;
 
-      return matchesSearch && matchesGroup;
+      return matchesSearch && matchesGroup && matchesVoteFilter;
     });
-  }, [categories, searchQuery, selectedGroup]);
+
+    // Sorting
+    return [...list].sort((a, b) => {
+      if (sortBy === "votes") {
+        const votesA = categoryTotals.get(a.id) ?? 0;
+        const votesB = categoryTotals.get(b.id) ?? 0;
+        if (votesB !== votesA) {
+          return votesB - votesA; // Highest votes first
+        }
+        return (a.sort_order ?? 999) - (b.sort_order ?? 999);
+      } else {
+        return (a.sort_order ?? 999) - (b.sort_order ?? 999);
+      }
+    });
+  }, [categories, searchQuery, selectedGroup, onlyWithVotes, sortBy, categoryTotals]);
 
   return (
-    <div className="space-y-8">
-      {/* Header */}
+    <div className="space-y-8 w-full">
+      {/* ─────────────────────────────────────────────────────────────
+          1. HEADER & LIVE TALLY STATUS
+      ───────────────────────────────────────────────────────────── */}
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 pb-8 border-b border-white/10">
         <div>
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/25 text-emerald-400 text-xs font-semibold uppercase tracking-widest mb-3">
@@ -135,7 +175,8 @@ export function ResultsClientView({ categories, initialCounts }: ResultsClientVi
             Awards Leaderboard
           </h1>
           <p className="text-white/50 text-xs sm:text-sm mt-2 max-w-xl leading-relaxed">
-            Realtime verified tallies updating live as votes are confirmed. Public, transparent, and direct across {categories.length} award categories.
+            Realtime verified tallies updating live as votes are confirmed. Public, transparent,
+            and direct across {categories.length} award categories ({activeCategoriesCount} active races).
           </p>
         </div>
 
@@ -162,23 +203,82 @@ export function ResultsClientView({ categories, initialCounts }: ResultsClientVi
         </div>
       </div>
 
-      {/* Search and Filters */}
+      {/* ─────────────────────────────────────────────────────────────
+          2. SEARCH, SORT & FILTERS
+      ───────────────────────────────────────────────────────────── */}
       <div className="space-y-4">
-        <div className="relative">
+        {/* Search Input */}
+        <div className="relative w-full">
           <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-white/40" />
           <Input
             aria-label="Search leaderboard"
-            placeholder="Search leaderboard by category or nominee name..."
+            placeholder="Search leaderboard by category, driver, conductor or fleet..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="pl-11 h-12 bg-white/[0.04] border-white/10 text-white placeholder:text-white/30 rounded-xl focus-visible:ring-2 focus-visible:ring-white text-sm"
+            className="pl-11 h-12 bg-white/[0.04] border-white/10 text-white placeholder:text-white/30 rounded-xl focus-visible:ring-2 focus-visible:ring-white text-sm w-full"
           />
         </div>
 
-        {/* Group Tabs */}
+        {/* View Controls: Sort & Active Races Toggle */}
+        <div className="flex flex-wrap items-center justify-between gap-3 pt-1">
+          {/* Active Races vs All Toggle */}
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => setOnlyWithVotes(false)}
+              className={`px-3.5 py-1.5 rounded-xl text-xs font-semibold transition-all ${
+                !onlyWithVotes
+                  ? "bg-amber-400 text-black font-bold shadow-sm"
+                  : "bg-white/5 text-white/60 hover:text-white hover:bg-white/10"
+              }`}
+            >
+              All Categories ({categories.length})
+            </button>
+
+            <button
+              onClick={() => setOnlyWithVotes(true)}
+              className={`px-3.5 py-1.5 rounded-xl text-xs font-semibold flex items-center gap-1.5 transition-all ${
+                onlyWithVotes
+                  ? "bg-amber-400 text-black font-bold shadow-sm"
+                  : "bg-white/5 text-white/60 hover:text-white hover:bg-white/10"
+              }`}
+            >
+              <Flame className="w-3.5 h-3.5 text-amber-500 fill-amber-500" />
+              Active Races Only ({activeCategoriesCount})
+            </button>
+          </div>
+
+          {/* Sort Switcher */}
+          <div className="flex items-center gap-1.5 bg-white/5 border border-white/10 p-1 rounded-xl text-xs">
+            <span className="text-white/40 px-2 font-mono text-[10px] uppercase">Sort by:</span>
+            <button
+              onClick={() => setSortBy("votes")}
+              className={`px-2.5 py-1 rounded-lg font-medium transition-all flex items-center gap-1 ${
+                sortBy === "votes"
+                  ? "bg-amber-400 text-black font-bold"
+                  : "text-white/60 hover:text-white"
+              }`}
+            >
+              <Trophy className="w-3 h-3" />
+              Most Votes First
+            </button>
+            <button
+              onClick={() => setSortBy("order")}
+              className={`px-2.5 py-1 rounded-lg font-medium transition-all flex items-center gap-1 ${
+                sortBy === "order"
+                  ? "bg-amber-400 text-black font-bold"
+                  : "text-white/60 hover:text-white"
+              }`}
+            >
+              <Layers className="w-3 h-3" />
+              Category Order
+            </button>
+          </div>
+        </div>
+
+        {/* Group Filter Tabs */}
         {groups.length > 1 && (
           <div
-            className="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-none"
+            className="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-none pt-2"
             role="tablist"
             aria-label="Category Groups"
           >
@@ -201,8 +301,10 @@ export function ResultsClientView({ categories, initialCounts }: ResultsClientVi
         )}
       </div>
 
-      {/* Leaderboard Category Cards */}
-      {filteredCategories.length === 0 ? (
+      {/* ─────────────────────────────────────────────────────────────
+          3. LEADERBOARD CATEGORY CARDS
+      ───────────────────────────────────────────────────────────── */}
+      {processedCategories.length === 0 ? (
         <div className="p-12 rounded-3xl bg-[#0c0c0c] border border-white/10 text-center space-y-4">
           <div className="w-12 h-12 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center text-white/50 mx-auto">
             <Search className="w-6 h-6" />
@@ -211,7 +313,9 @@ export function ResultsClientView({ categories, initialCounts }: ResultsClientVi
             No Categories Found
           </h3>
           <p className="text-white/50 text-xs sm:text-sm max-w-sm mx-auto">
-            No category or nominee matches &ldquo;{searchQuery}&rdquo;. Try another keyword or switch group filter.
+            {onlyWithVotes
+              ? "No active categories with votes match your filter."
+              : `No category or nominee matches "${searchQuery}".`}
           </p>
           <Button
             size="sm"
@@ -219,20 +323,17 @@ export function ResultsClientView({ categories, initialCounts }: ResultsClientVi
             onClick={() => {
               setSearchQuery("");
               setSelectedGroup("All");
+              setOnlyWithVotes(false);
             }}
             className="border-white/15 hover:bg-white/5 text-white text-xs h-9 px-4 rounded-xl"
           >
-            Clear Filters
+            Reset Filters
           </Button>
         </div>
       ) : (
         <div className="space-y-6">
-          {filteredCategories.map((category) => {
-            // Calculate category total votes
-            const totalCategoryVotes = category.nominees.reduce(
-              (acc, n) => acc + (counts[n.id] ?? 0),
-              0
-            );
+          {processedCategories.map((category) => {
+            const totalCategoryVotes = categoryTotals.get(category.id) ?? 0;
 
             // Sort nominees by votes descending
             const sortedNominees = [...category.nominees].sort((a, b) => {
@@ -244,12 +345,17 @@ export function ResultsClientView({ categories, initialCounts }: ResultsClientVi
             return (
               <div
                 key={category.id}
-                className="p-5 sm:p-7 rounded-2xl sm:rounded-3xl bg-[#0c0c0c] border border-white/10 backdrop-blur-sm"
+                className={`p-5 sm:p-7 rounded-2xl sm:rounded-3xl border transition-all duration-200 ${
+                  totalCategoryVotes > 0
+                    ? "bg-[#0d0d0d] border-amber-400/20 shadow-lg shadow-black/40"
+                    : "bg-[#090909] border-white/5 opacity-80 hover:opacity-100"
+                }`}
               >
+                {/* Category Header */}
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-5 pb-4 border-b border-white/10">
                   <div>
                     <div className="flex items-center gap-2.5 flex-wrap">
-                      <h2 className="text-lg sm:text-xl font-bold text-white tracking-tight">
+                      <h2 className="text-lg sm:text-xl font-black text-white tracking-tight">
                         {category.name}
                       </h2>
                       {category.group_name && (
@@ -260,10 +366,21 @@ export function ResultsClientView({ categories, initialCounts }: ResultsClientVi
                           {category.group_name}
                         </Badge>
                       )}
+                      {totalCategoryVotes > 0 && (
+                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-amber-400/10 border border-amber-400/30 text-amber-400 text-[10px] font-bold font-mono">
+                          <Flame className="w-3 h-3 fill-amber-400" />
+                          Live Race
+                        </span>
+                      )}
                     </div>
+
                     <p className="text-xs text-white/50 mt-1">
                       {category.nominees.length} Nominees &middot; Total Votes:{" "}
-                      <strong className="text-amber-400 font-mono font-bold">
+                      <strong
+                        className={`font-mono font-bold ${
+                          totalCategoryVotes > 0 ? "text-amber-400 text-sm" : "text-white/40"
+                        }`}
+                      >
                         {totalCategoryVotes.toLocaleString()}
                       </strong>
                     </p>
@@ -300,8 +417,12 @@ export function ResultsClientView({ categories, initialCounts }: ResultsClientVi
                         key={nominee.id}
                         className={`relative p-3.5 sm:p-4 rounded-xl border transition-all duration-150 ${
                           isFirst
-                            ? "bg-amber-400/[0.06] border-amber-400/30 shadow-[0_4px_24px_rgba(245,158,11,0.06)]"
-                            : "bg-white/[0.02] border-white/5 hover:border-white/15"
+                            ? "bg-amber-400/[0.07] border-amber-400/40 shadow-[0_4px_24px_rgba(245,158,11,0.08)]"
+                            : isSecond
+                            ? "bg-white/[0.04] border-white/15"
+                            : isThird
+                            ? "bg-white/[0.03] border-white/10"
+                            : "bg-white/[0.015] border-white/5 hover:border-white/10"
                         }`}
                       >
                         <div className="flex items-center justify-between gap-4 mb-2">
@@ -310,9 +431,11 @@ export function ResultsClientView({ categories, initialCounts }: ResultsClientVi
                             <div
                               className={`w-7 h-7 rounded-lg flex items-center justify-center text-xs font-bold shrink-0 font-mono ${
                                 isFirst
-                                  ? "bg-amber-400 text-black font-extrabold"
-                                  : isSecond || isThird
-                                  ? "bg-white/15 text-white"
+                                  ? "bg-amber-400 text-black font-extrabold shadow-sm shadow-amber-400/30"
+                                  : isSecond
+                                  ? "bg-slate-300 text-black font-bold"
+                                  : isThird
+                                  ? "bg-amber-700/80 text-white font-bold"
                                   : "bg-white/5 text-white/40 border border-white/10"
                               }`}
                             >
@@ -352,7 +475,13 @@ export function ResultsClientView({ categories, initialCounts }: ResultsClientVi
                         >
                           <div
                             className={`h-full transition-all duration-500 ease-out ${
-                              isFirst ? "bg-amber-400" : "bg-white/30"
+                              isFirst
+                                ? "bg-gradient-to-r from-amber-400 to-amber-500"
+                                : isSecond
+                                ? "bg-slate-300"
+                                : isThird
+                                ? "bg-amber-700"
+                                : "bg-white/20"
                             }`}
                             style={{ width: `${percentage}%` }}
                           />
