@@ -129,29 +129,36 @@ export default async function CategoryVotePage({ params }: PageProps) {
     notFound();
   }
 
-  // 2. Fetch initial vote counts for this category
+  // 2. Fetch initial vote counts for this category, reconciling vote_counts and raw votes
   const initialCounts: Record<string, number> = {};
+
   const { data: dbCounts } = (await adminClient
     .from("vote_counts")
     .select("nominee_id, count")
-    .eq("category_id", categoryData.id)) as any;
+    .eq("category_id", categoryData.id)
+    .limit(1000)) as any;
 
-  if (dbCounts && Array.isArray(dbCounts) && dbCounts.length > 0) {
+  if (dbCounts && Array.isArray(dbCounts)) {
     for (const c of dbCounts) {
       initialCounts[c.nominee_id] = Number(c.count);
     }
-  } else {
-    // Fallback: calculate from raw votes table
-    const { data: rawVotes } = (await adminClient
-      .from("votes")
-      .select("nominee_id")
-      .eq("category_id", categoryData.id)
-      .eq("voided", false)) as any;
+  }
 
-    if (rawVotes && Array.isArray(rawVotes)) {
-      for (const v of rawVotes) {
-        initialCounts[v.nominee_id] = (initialCounts[v.nominee_id] ?? 0) + 1;
-      }
+  // Always reconcile with raw verified votes to guarantee exact real-time accuracy
+  const { data: rawVotes } = (await adminClient
+    .from("votes")
+    .select("nominee_id")
+    .eq("category_id", categoryData.id)
+    .eq("voided", false)
+    .limit(10000)) as any;
+
+  if (rawVotes && Array.isArray(rawVotes) && rawVotes.length > 0) {
+    const rawMap: Record<string, number> = {};
+    for (const v of rawVotes) {
+      rawMap[v.nominee_id] = (rawMap[v.nominee_id] || 0) + 1;
+    }
+    for (const [nomId, rawCnt] of Object.entries(rawMap)) {
+      initialCounts[nomId] = Math.max(initialCounts[nomId] ?? 0, rawCnt);
     }
   }
 

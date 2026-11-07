@@ -100,7 +100,8 @@ export default async function AdminPage() {
   const { data: categories } = await adminClient
     .from("categories")
     .select("id, name, slug, group_name, sort_order, is_active")
-    .order("sort_order", { ascending: true });
+    .order("sort_order", { ascending: true })
+    .limit(2000);
 
   // 3. Orders — fetch all relevant fields including ticket_tiers name
   const { data: orders, error: ordersError } = await adminClient
@@ -119,12 +120,20 @@ export default async function AdminPage() {
     .select("*")
     .order("sort_order", { ascending: true });
 
-  // 5. Total Votes
+  // 5. Total Votes — calculate maximum between sum of vote_counts and verified votes table
   const { data: counts } = await adminClient
     .from("vote_counts")
-    .select("count");
+    .select("count")
+    .limit(5000);
 
-  const totalVotes = (counts || []).reduce((acc, c) => acc + Number(c.count), 0);
+  const sumCounts = (counts || []).reduce((acc, c) => acc + Number(c.count), 0);
+
+  const { count: rawVotesCount } = await adminClient
+    .from("votes")
+    .select("id", { count: "exact", head: true })
+    .eq("voided", false);
+
+  const totalVotes = Math.max(sumCounts, rawVotesCount || 0);
 
   // 6. Audit Log
   const { data: auditLogs } = await adminClient

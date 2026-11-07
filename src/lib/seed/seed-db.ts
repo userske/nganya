@@ -125,7 +125,8 @@ export async function seedDatabaseFromLocalJson() {
     }
   }
 
-  // 4. Batch upsert vote_counts in chunks
+  // 4. Batch initialize vote_counts rows with ignoreDuplicates: true
+  // This ensures existing vote counts are NEVER overwritten or zeroed out
   const voteCounts = insertedNominees.map((n) => ({
     category_id: n.category_id,
     nominee_id: n.id,
@@ -136,7 +137,37 @@ export async function seedDatabaseFromLocalJson() {
     const chunk = voteCounts.slice(i, i + chunkSize);
     await adminClient
       .from("vote_counts")
-      .upsert(chunk, { onConflict: "category_id,nominee_id" });
+      .upsert(chunk, { onConflict: "category_id,nominee_id", ignoreDuplicates: true });
+  }
+
+  // 4b. Reconcile vote_counts with all verified votes in the votes table
+  try {
+    const { data: validVotes } = await adminClient
+      .from("votes")
+      .select("category_id, nominee_id")
+      .eq("voided", false)
+      .limit(50000);
+
+    if (validVotes && validVotes.length > 0) {
+      const tallyMap: Record<string, { category_id: string; nominee_id: string; count: number }> = {};
+      for (const v of validVotes) {
+        const key = `${v.category_id}|${v.nominee_id}`;
+        if (!tallyMap[key]) {
+          tallyMap[key] = { category_id: v.category_id, nominee_id: v.nominee_id, count: 0 };
+        }
+        tallyMap[key].count += 1;
+      }
+
+      const updates = Object.values(tallyMap);
+      for (let i = 0; i < updates.length; i += chunkSize) {
+        const chunk = updates.slice(i, i + chunkSize);
+        await adminClient
+          .from("vote_counts")
+          .upsert(chunk, { onConflict: "category_id,nominee_id" });
+      }
+    }
+  } catch (reconcileErr) {
+    console.error("[seedDatabase] Vote counts reconciliation error:", reconcileErr);
   }
 
   // 5. Ensure ticket tiers exist

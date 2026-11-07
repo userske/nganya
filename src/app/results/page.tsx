@@ -140,18 +140,20 @@ export default async function ResultsPage() {
     }
   }
 
-  // Also query raw votes table for any uncounted tallies
+  // Also query verified raw votes table and reconcile with the maximum
   const { data: rawVotes } = await adminClient
     .from("votes")
     .select("nominee_id")
     .eq("voided", false)
-    .limit(10000);
+    .limit(50000);
 
-  if (rawVotes && Array.isArray(rawVotes)) {
+  if (rawVotes && Array.isArray(rawVotes) && rawVotes.length > 0) {
+    const rawMap: Record<string, number> = {};
     for (const v of rawVotes) {
-      if (initialCounts[v.nominee_id] === undefined) {
-        initialCounts[v.nominee_id] = (initialCounts[v.nominee_id] ?? 0) + 1;
-      }
+      rawMap[v.nominee_id] = (rawMap[v.nominee_id] || 0) + 1;
+    }
+    for (const [nomId, rawCnt] of Object.entries(rawMap)) {
+      initialCounts[nomId] = Math.max(initialCounts[nomId] ?? 0, rawCnt);
     }
   }
 
