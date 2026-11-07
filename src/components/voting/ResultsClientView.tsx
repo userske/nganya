@@ -123,9 +123,9 @@ export function ResultsClientView({ categories, initialCounts }: ResultsClientVi
   }, [categories, searchQuery, selectedGroup]);
 
   return (
-    <div>
+    <div className="space-y-8">
       {/* Header */}
-      <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-10 pb-8 border-b border-white/10">
+      <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 pb-8 border-b border-white/10">
         <div>
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/25 text-emerald-400 text-xs font-semibold uppercase tracking-widest mb-3">
             <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
@@ -134,15 +134,15 @@ export function ResultsClientView({ categories, initialCounts }: ResultsClientVi
           <h1 className="text-3xl sm:text-5xl font-black text-white tracking-tight uppercase">
             Awards Leaderboard
           </h1>
-          <p className="text-white/50 text-sm sm:text-base mt-2 max-w-xl leading-relaxed">
-            Realtime verified tallies updating live as votes are confirmed. Public, transparent, and direct.
+          <p className="text-white/50 text-xs sm:text-sm mt-2 max-w-xl leading-relaxed">
+            Realtime verified tallies updating live as votes are confirmed. Public, transparent, and direct across {categories.length} award categories.
           </p>
         </div>
 
         <div className="flex flex-wrap items-center gap-3">
           {/* Total Votes Stat Card */}
           <div className="p-3 sm:p-4 rounded-2xl bg-white/[0.04] border border-white/10 text-right">
-            <div className="text-[11px] uppercase tracking-wider text-white/40 font-mono">
+            <div className="text-[10px] uppercase tracking-wider text-white/40 font-mono">
               Total Verified Votes
             </div>
             <div className="text-2xl sm:text-3xl font-black text-amber-400 font-mono">
@@ -152,7 +152,7 @@ export function ResultsClientView({ categories, initialCounts }: ResultsClientVi
 
           <Button
             asChild
-            className="bg-amber-400 hover:bg-amber-300 text-black font-bold h-12 rounded-xl focus-visible:ring-2 focus-visible:ring-amber-400"
+            className="bg-amber-400 hover:bg-amber-300 text-black font-bold h-12 px-5 rounded-xl focus-visible:ring-2 focus-visible:ring-amber-400 text-sm shadow-lg shadow-amber-400/10"
           >
             <Link href="/vote">
               <Vote className="w-4 h-4 mr-2" />
@@ -163,7 +163,7 @@ export function ResultsClientView({ categories, initialCounts }: ResultsClientVi
       </div>
 
       {/* Search and Filters */}
-      <div className="space-y-4 mb-8">
+      <div className="space-y-4">
         <div className="relative">
           <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-white/40" />
           <Input
@@ -176,159 +176,196 @@ export function ResultsClientView({ categories, initialCounts }: ResultsClientVi
         </div>
 
         {/* Group Tabs */}
-        <div className="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-none" role="tablist" aria-label="Category Groups">
-          {groups.map((group) => (
-            <button
-              key={group}
-              role="tab"
-              aria-selected={selectedGroup === group}
-              onClick={() => setSelectedGroup(group)}
-              className={`px-4 py-2 rounded-xl text-xs font-medium whitespace-nowrap transition-[background-color,color] duration-150 ease-out active:scale-[0.97] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white ${
-                selectedGroup === group
-                  ? "bg-amber-400 text-black font-bold shadow-sm"
-                  : "bg-white/[0.04] text-white/60 hover:text-white hover:bg-white/[0.08] border border-white/5"
-              }`}
-            >
-              {group}
-            </button>
-          ))}
-        </div>
+        {groups.length > 1 && (
+          <div
+            className="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-none"
+            role="tablist"
+            aria-label="Category Groups"
+          >
+            {groups.map((group) => (
+              <button
+                key={group}
+                role="tab"
+                aria-selected={selectedGroup === group}
+                onClick={() => setSelectedGroup(group)}
+                className={`px-4 py-2 rounded-xl text-xs font-semibold whitespace-nowrap transition-all duration-150 ease-out active:scale-[0.97] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white shrink-0 ${
+                  selectedGroup === group
+                    ? "bg-amber-400 text-black font-bold shadow-sm"
+                    : "bg-white/[0.04] text-white/60 hover:text-white hover:bg-white/[0.08] border border-white/5"
+                }`}
+              >
+                {group}
+              </button>
+            ))}
+          </div>
+        )}
       </div>
 
       {/* Leaderboard Category Cards */}
-      <div className="space-y-8">
-        {filteredCategories.map((category) => {
-          // Calculate category total votes
-          const totalCategoryVotes = category.nominees.reduce(
-            (acc, n) => acc + (counts[n.id] ?? 0),
-            0
-          );
+      {filteredCategories.length === 0 ? (
+        <div className="p-12 rounded-3xl bg-[#0c0c0c] border border-white/10 text-center space-y-4">
+          <div className="w-12 h-12 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center text-white/50 mx-auto">
+            <Search className="w-6 h-6" />
+          </div>
+          <h3 className="text-lg font-bold text-white uppercase tracking-tight">
+            No Categories Found
+          </h3>
+          <p className="text-white/50 text-xs sm:text-sm max-w-sm mx-auto">
+            No category or nominee matches &ldquo;{searchQuery}&rdquo;. Try another keyword or switch group filter.
+          </p>
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={() => {
+              setSearchQuery("");
+              setSelectedGroup("All");
+            }}
+            className="border-white/15 hover:bg-white/5 text-white text-xs h-9 px-4 rounded-xl"
+          >
+            Clear Filters
+          </Button>
+        </div>
+      ) : (
+        <div className="space-y-6">
+          {filteredCategories.map((category) => {
+            // Calculate category total votes
+            const totalCategoryVotes = category.nominees.reduce(
+              (acc, n) => acc + (counts[n.id] ?? 0),
+              0
+            );
 
-          // Sort nominees by votes descending
-          const sortedNominees = [...category.nominees].sort((a, b) => {
-            const votesA = counts[a.id] ?? 0;
-            const votesB = counts[b.id] ?? 0;
-            return votesB - votesA;
-          });
+            // Sort nominees by votes descending
+            const sortedNominees = [...category.nominees].sort((a, b) => {
+              const votesA = counts[a.id] ?? 0;
+              const votesB = counts[b.id] ?? 0;
+              return votesB - votesA;
+            });
 
-          return (
-            <div
-              key={category.id}
-              className="p-6 sm:p-8 rounded-2xl bg-[#0c0c0c] border border-white/10 backdrop-blur-sm"
-            >
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6 pb-4 border-b border-white/10">
-                <div>
-                  <div className="flex items-center gap-3">
-                    <h2 className="text-xl sm:text-2xl font-bold text-white tracking-tight">
-                      {category.name}
-                    </h2>
-                    {category.group_name && (
-                      <Badge
-                        variant="outline"
-                        className="text-[10px] uppercase font-semibold bg-white/5 border-white/10 text-white/70 py-0.5 px-2"
-                      >
-                        {category.group_name}
-                      </Badge>
-                    )}
+            return (
+              <div
+                key={category.id}
+                className="p-5 sm:p-7 rounded-2xl sm:rounded-3xl bg-[#0c0c0c] border border-white/10 backdrop-blur-sm"
+              >
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-5 pb-4 border-b border-white/10">
+                  <div>
+                    <div className="flex items-center gap-2.5 flex-wrap">
+                      <h2 className="text-lg sm:text-xl font-bold text-white tracking-tight">
+                        {category.name}
+                      </h2>
+                      {category.group_name && (
+                        <Badge
+                          variant="outline"
+                          className="text-[10px] uppercase font-semibold bg-white/5 border-white/10 text-white/70 py-0.5 px-2"
+                        >
+                          {category.group_name}
+                        </Badge>
+                      )}
+                    </div>
+                    <p className="text-xs text-white/50 mt-1">
+                      {category.nominees.length} Nominees &middot; Total Votes:{" "}
+                      <strong className="text-amber-400 font-mono font-bold">
+                        {totalCategoryVotes.toLocaleString()}
+                      </strong>
+                    </p>
                   </div>
-                  <p className="text-xs text-white/50 mt-1">
-                    {category.nominees.length} Nominees • Total Votes:{" "}
-                    <strong className="text-amber-400 font-mono font-bold">
-                      {totalCategoryVotes.toLocaleString()}
-                    </strong>
-                  </p>
+
+                  <Button
+                    asChild
+                    size="sm"
+                    variant="outline"
+                    className="border-white/20 hover:border-amber-400/50 hover:text-amber-300 text-white text-xs hover:bg-white/5 focus-visible:ring-2 focus-visible:ring-amber-400 h-9 px-3.5 rounded-xl shrink-0"
+                  >
+                    <Link href={`/vote/${category.slug}`}>
+                      Vote in this Category
+                      <ArrowRight className="w-3.5 h-3.5 ml-1.5" />
+                    </Link>
+                  </Button>
                 </div>
 
-                <Button
-                  asChild
-                  size="sm"
-                  variant="outline"
-                  className="border-white/20 hover:border-amber-400/50 hover:text-amber-300 text-white text-xs hover:bg-white/5 focus-visible:ring-2 focus-visible:ring-amber-400"
-                >
-                  <Link href={`/vote/${category.slug}`}>
-                    Vote in this Category
-                    <ArrowRight className="w-3.5 h-3.5 ml-1.5" />
-                  </Link>
-                </Button>
-              </div>
+                {/* Nominees Ranked List */}
+                <div className="space-y-2.5">
+                  {sortedNominees.map((nominee, rank) => {
+                    const voteCount = counts[nominee.id] ?? 0;
+                    const percentage =
+                      totalCategoryVotes > 0
+                        ? Math.round((voteCount / totalCategoryVotes) * 100)
+                        : 0;
 
-              {/* Nominees Ranked List */}
-              <div className="space-y-3">
-                {sortedNominees.map((nominee, rank) => {
-                  const voteCount = counts[nominee.id] ?? 0;
-                  const percentage =
-                    totalCategoryVotes > 0
-                      ? Math.round((voteCount / totalCategoryVotes) * 100)
-                      : 0;
+                    const isFirst = rank === 0 && voteCount > 0;
+                    const isSecond = rank === 1 && voteCount > 0;
+                    const isThird = rank === 2 && voteCount > 0;
 
-                  const isFirst = rank === 0 && voteCount > 0;
-                  const isSecond = rank === 1 && voteCount > 0;
-                  const isThird = rank === 2 && voteCount > 0;
+                    return (
+                      <div
+                        key={nominee.id}
+                        className={`relative p-3.5 sm:p-4 rounded-xl border transition-all duration-150 ${
+                          isFirst
+                            ? "bg-amber-400/[0.06] border-amber-400/30 shadow-[0_4px_24px_rgba(245,158,11,0.06)]"
+                            : "bg-white/[0.02] border-white/5 hover:border-white/15"
+                        }`}
+                      >
+                        <div className="flex items-center justify-between gap-4 mb-2">
+                          <div className="flex items-center gap-3 min-w-0">
+                            {/* Rank badge */}
+                            <div
+                              className={`w-7 h-7 rounded-lg flex items-center justify-center text-xs font-bold shrink-0 font-mono ${
+                                isFirst
+                                  ? "bg-amber-400 text-black font-extrabold"
+                                  : isSecond || isThird
+                                  ? "bg-white/15 text-white"
+                                  : "bg-white/5 text-white/40 border border-white/10"
+                              }`}
+                            >
+                              {rank + 1}
+                            </div>
 
-                  return (
-                    <div
-                      key={nominee.id}
-                      className={`relative p-4 rounded-xl border transition-[background-color,border-color,box-shadow] duration-200 ease-out ${
-                        isFirst
-                          ? "bg-amber-400/[0.06] border-amber-400/30 shadow-[0_4px_24px_rgba(245,158,11,0.06)]"
-                          : "bg-white/[0.02] border-white/5 hover:border-white/15"
-                      }`}
-                    >
-                      <div className="flex items-center justify-between gap-4 mb-2">
-                        <div className="flex items-center gap-3 min-w-0">
-                          {/* Rank badge */}
-                          <div
-                            className={`w-7 h-7 rounded-lg flex items-center justify-center text-xs font-bold shrink-0 font-mono ${
-                              isFirst
-                                ? "bg-amber-400 text-black font-extrabold"
-                                : isSecond || isThird
-                                ? "bg-white/15 text-white"
-                                : "bg-white/5 text-white/40 border border-white/10"
-                            }`}
-                          >
-                            {rank + 1}
-                          </div>
-
-                          <div className="min-w-0">
-                            <span className="font-bold text-white text-base truncate block">
-                              {nominee.name}
-                            </span>
-                            {nominee.subtitle && (
-                              <span className="text-xs text-white/50 font-mono block">
-                                {nominee.subtitle}
+                            <div className="min-w-0">
+                              <span className="font-bold text-white text-sm sm:text-base truncate block">
+                                {nominee.name}
                               </span>
-                            )}
+                              {nominee.subtitle && (
+                                <span className="text-xs text-white/50 font-mono block truncate">
+                                  {nominee.subtitle}
+                                </span>
+                              )}
+                            </div>
+                          </div>
+
+                          {/* Votes and Percentage */}
+                          <div className="text-right shrink-0">
+                            <div className="text-sm sm:text-base font-bold text-white font-mono">
+                              {voteCount.toLocaleString()} {voteCount === 1 ? "vote" : "votes"}
+                            </div>
+                            <div className="text-xs text-amber-400/80 font-mono font-semibold">
+                              {percentage}%
+                            </div>
                           </div>
                         </div>
 
-                        {/* Votes and Percentage */}
-                        <div className="text-right shrink-0">
-                          <div className="text-sm sm:text-base font-bold text-white font-mono">
-                            {voteCount.toLocaleString()} {voteCount === 1 ? "vote" : "votes"}
-                          </div>
-                          <div className="text-xs text-amber-400/80 font-mono font-semibold">
-                            {percentage}%
-                          </div>
-                        </div>
-                      </div>
-
-                      {/* Vote share bar */}
-                      <div className="w-full bg-white/5 h-2 rounded-full overflow-hidden" role="progressbar" aria-valuenow={percentage} aria-valuemin={0} aria-valuemax={100}>
+                        {/* Vote share bar */}
                         <div
-                          className={`h-full transition-[width] duration-500 ease-out ${
-                            isFirst ? "bg-amber-400" : "bg-white/30"
-                          }`}
-                          style={{ width: `${percentage}%` }}
-                        />
+                          className="w-full bg-white/5 h-1.5 sm:h-2 rounded-full overflow-hidden"
+                          role="progressbar"
+                          aria-valuenow={percentage}
+                          aria-valuemin={0}
+                          aria-valuemax={100}
+                        >
+                          <div
+                            className={`h-full transition-all duration-500 ease-out ${
+                              isFirst ? "bg-amber-400" : "bg-white/30"
+                            }`}
+                            style={{ width: `${percentage}%` }}
+                          />
+                        </div>
                       </div>
-                    </div>
-                  );
-                })}
+                    );
+                  })}
+                </div>
               </div>
-            </div>
-          );
-        })}
-      </div>
+            );
+          })}
+        </div>
+      )}
     </div>
   );
 }

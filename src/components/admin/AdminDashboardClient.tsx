@@ -240,36 +240,36 @@ export function AdminDashboardClient({
   }, [ordersList, orderSearch, orderStatusFilter]);
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-8 w-full">
       {/* ─────────────────────────────────────────────────────────────
           1. COMMAND CENTER HEADER & LIVE STATUS
       ───────────────────────────────────────────────────────────── */}
-      <div className="relative rounded-2xl sm:rounded-3xl overflow-hidden border border-white/10 bg-gradient-to-b from-[#141414] via-[#0c0c0c] to-[#080808] p-5 sm:p-8 shadow-2xl">
-        <div className="flex flex-col lg:flex-row lg:items-start justify-between gap-5 pb-5 border-b border-white/10">
-          <div className="min-w-0">
+      <div className="w-full rounded-2xl sm:rounded-3xl border border-white/10 bg-gradient-to-b from-[#141414] via-[#0c0c0c] to-[#080808] p-5 sm:p-8 shadow-2xl">
+        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6 pb-6 border-b border-white/10">
+          <div className="min-w-0 flex-1">
             <div className="flex flex-wrap items-center gap-2 mb-3">
               <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-xs font-semibold uppercase tracking-wider">
                 <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
                 Live Operations
               </span>
 
-              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/5 border border-white/10 text-white/60 text-xs font-mono truncate max-w-[240px]">
+              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/5 border border-white/10 text-white/70 text-xs font-mono">
                 <ShieldCheck className="w-3.5 h-3.5 text-amber-400 shrink-0" />
-                <span className="truncate">{adminUser?.email || "Super Admin"}</span>
+                <span>{adminUser?.email || "info@coastalnganyaawards.com"}</span>
               </span>
             </div>
 
-            <h1 className="text-xl sm:text-3xl font-black text-white uppercase tracking-tight">
+            <h1 className="text-2xl sm:text-4xl font-black text-white uppercase tracking-tight">
               Executive Control Panel
             </h1>
-            <p className="text-xs text-white/50 mt-1 max-w-xl leading-relaxed">
+            <p className="text-xs sm:text-sm text-white/50 mt-1 max-w-2xl leading-relaxed">
               Real-time governance for Coastal Nganya Awards 2026. Manage award categories,
               ticket sales inventory, gate security, and live vote verification.
             </p>
           </div>
 
-          {/* Quick Access Action Buttons */}
-          <div className="flex flex-wrap items-center gap-2 shrink-0">
+          {/* Quick Access Action Toolbar */}
+          <div className="flex flex-wrap items-center gap-2.5 shrink-0">
             <Button
               asChild
               className="bg-amber-400 hover:bg-amber-300 text-black font-bold h-10 px-4 rounded-xl shadow-lg shadow-amber-400/10 text-xs"
@@ -283,9 +283,9 @@ export function AdminDashboardClient({
             <Button
               variant="outline"
               onClick={() => window.location.reload()}
-              className="border-white/15 bg-white/5 hover:bg-white/10 text-white font-semibold h-10 px-3 rounded-xl text-xs"
+              className="border-white/15 bg-white/5 hover:bg-white/10 text-white font-semibold h-10 px-3.5 rounded-xl text-xs"
             >
-              <RefreshCw className="w-4 h-4 mr-1.5 text-amber-400" />
+              <RefreshCw className="w-3.5 h-3.5 mr-1.5 text-amber-400" />
               Refresh Data
             </Button>
 
@@ -293,11 +293,11 @@ export function AdminDashboardClient({
               variant="outline"
               onClick={handleSeedDatabase}
               disabled={isSeeding}
-              className="border-white/15 bg-white/5 hover:bg-white/10 text-white font-semibold h-10 px-3 rounded-xl text-xs"
+              className="border-white/15 bg-white/5 hover:bg-white/10 text-white font-semibold h-10 px-3.5 rounded-xl text-xs"
             >
               {isSeeding ? (
                 <>
-                  <Loader2 className="w-4 h-4 mr-1.5 animate-spin text-amber-400" />
+                  <Loader2 className="w-3.5 h-3.5 mr-1.5 animate-spin text-amber-400" />
                   Seeding...
                 </>
               ) : (
@@ -308,7 +308,7 @@ export function AdminDashboardClient({
             <Button
               asChild
               variant="ghost"
-              className="border border-white/10 hover:bg-white/5 text-white/80 h-10 px-3 rounded-xl text-xs"
+              className="border border-white/10 hover:bg-white/5 text-white/80 h-10 px-3.5 rounded-xl text-xs"
             >
               <Link href="/results" target="_blank">
                 <ExternalLink className="w-3.5 h-3.5 mr-1.5" />
@@ -319,11 +319,11 @@ export function AdminDashboardClient({
         </div>
 
         {/* Key Executive Metrics Bar */}
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 pt-5">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 pt-6">
           {/* 1. Verified Votes */}
-          <div className="p-4 rounded-2xl bg-white/[0.02] border border-white/5">
+          <div className="p-4 sm:p-5 rounded-2xl bg-white/[0.02] border border-white/5">
             <div className="flex items-center justify-between text-xs mb-1">
-              <span className="text-white/40 uppercase tracking-wider font-semibold flex items-center gap-1.5">
+              <span className="text-white/40 uppercase tracking-wider font-semibold flex items-center gap-1.5 text-[11px]">
                 <Vote className="w-3.5 h-3.5 text-amber-400" />
                 Votes
               </span>
@@ -338,9 +338,9 @@ export function AdminDashboardClient({
           </div>
 
           {/* 2. Gross Ticket Sales */}
-          <div className="p-4 rounded-2xl bg-white/[0.02] border border-white/5">
+          <div className="p-4 sm:p-5 rounded-2xl bg-white/[0.02] border border-white/5">
             <div className="flex items-center justify-between text-xs mb-1">
-              <span className="text-white/40 uppercase tracking-wider font-semibold flex items-center gap-1.5">
+              <span className="text-white/40 uppercase tracking-wider font-semibold flex items-center gap-1.5 text-[11px]">
                 <DollarSign className="w-3.5 h-3.5 text-amber-400" />
                 Revenue
               </span>
@@ -355,9 +355,9 @@ export function AdminDashboardClient({
           </div>
 
           {/* 3. Passes Issued */}
-          <div className="p-4 rounded-2xl bg-white/[0.02] border border-white/5">
+          <div className="p-4 sm:p-5 rounded-2xl bg-white/[0.02] border border-white/5">
             <div className="flex items-center justify-between text-xs mb-1">
-              <span className="text-white/40 uppercase tracking-wider font-semibold flex items-center gap-1.5">
+              <span className="text-white/40 uppercase tracking-wider font-semibold flex items-center gap-1.5 text-[11px]">
                 <Ticket className="w-3.5 h-3.5 text-amber-400" />
                 Passes
               </span>
@@ -373,9 +373,9 @@ export function AdminDashboardClient({
           </div>
 
           {/* 4. Active Categories */}
-          <div className="p-4 rounded-2xl bg-white/[0.02] border border-white/5">
+          <div className="p-4 sm:p-5 rounded-2xl bg-white/[0.02] border border-white/5">
             <div className="flex items-center justify-between text-xs mb-1">
-              <span className="text-white/40 uppercase tracking-wider font-semibold flex items-center gap-1.5">
+              <span className="text-white/40 uppercase tracking-wider font-semibold flex items-center gap-1.5 text-[11px]">
                 <Trophy className="w-3.5 h-3.5 text-amber-400" />
                 Ballots
               </span>
@@ -395,13 +395,13 @@ export function AdminDashboardClient({
       {/* ─────────────────────────────────────────────────────────────
           2. MASTER DASHBOARD TABS
       ───────────────────────────────────────────────────────────── */}
-      <Tabs defaultValue="overview" className="w-full space-y-6">
+      <Tabs defaultValue="overview" className="w-full flex flex-col space-y-6">
         {/* Horizontally scrollable tab bar */}
-        <div className="overflow-x-auto pb-1 -mx-1 px-1">
-          <TabsList className="bg-white/5 border border-white/10 p-1 rounded-2xl inline-flex flex-row h-auto gap-1 min-w-max">
+        <div className="w-full overflow-x-auto pb-1 scrollbar-none">
+          <TabsList className="bg-[#121212] border border-white/10 p-1.5 rounded-2xl inline-flex flex-row items-center h-auto gap-1.5 min-w-max">
             <TabsTrigger
               value="overview"
-              className="rounded-xl text-xs py-2 px-3 sm:px-4 data-[state=active]:bg-amber-400 data-[state=active]:text-black font-bold transition-all shrink-0 whitespace-nowrap"
+              className="rounded-xl text-xs sm:text-sm py-2 px-3.5 sm:px-4.5 data-[state=active]:bg-amber-400 data-[state=active]:text-black font-bold transition-all shrink-0 whitespace-nowrap text-white/70 hover:text-white"
             >
               <Activity className="w-3.5 h-3.5 mr-1.5" />
               Overview
@@ -409,7 +409,7 @@ export function AdminDashboardClient({
 
             <TabsTrigger
               value="settings"
-              className="rounded-xl text-xs py-2 px-3 sm:px-4 data-[state=active]:bg-amber-400 data-[state=active]:text-black font-bold transition-all shrink-0 whitespace-nowrap"
+              className="rounded-xl text-xs sm:text-sm py-2 px-3.5 sm:px-4.5 data-[state=active]:bg-amber-400 data-[state=active]:text-black font-bold transition-all shrink-0 whitespace-nowrap text-white/70 hover:text-white"
             >
               <Settings className="w-3.5 h-3.5 mr-1.5" />
               Settings
@@ -417,7 +417,7 @@ export function AdminDashboardClient({
 
             <TabsTrigger
               value="categories"
-              className="rounded-xl text-xs py-2 px-3 sm:px-4 data-[state=active]:bg-amber-400 data-[state=active]:text-black font-bold transition-all shrink-0 whitespace-nowrap"
+              className="rounded-xl text-xs sm:text-sm py-2 px-3.5 sm:px-4.5 data-[state=active]:bg-amber-400 data-[state=active]:text-black font-bold transition-all shrink-0 whitespace-nowrap text-white/70 hover:text-white"
             >
               <Trophy className="w-3.5 h-3.5 mr-1.5" />
               Categories ({categoriesList.length})
@@ -425,7 +425,7 @@ export function AdminDashboardClient({
 
             <TabsTrigger
               value="tickets"
-              className="rounded-xl text-xs py-2 px-3 sm:px-4 data-[state=active]:bg-amber-400 data-[state=active]:text-black font-bold transition-all shrink-0 whitespace-nowrap"
+              className="rounded-xl text-xs sm:text-sm py-2 px-3.5 sm:px-4.5 data-[state=active]:bg-amber-400 data-[state=active]:text-black font-bold transition-all shrink-0 whitespace-nowrap text-white/70 hover:text-white"
             >
               <Ticket className="w-3.5 h-3.5 mr-1.5" />
               Tickets ({ordersList.length})
@@ -433,7 +433,7 @@ export function AdminDashboardClient({
 
             <TabsTrigger
               value="security"
-              className="rounded-xl text-xs py-2 px-3 sm:px-4 data-[state=active]:bg-amber-400 data-[state=active]:text-black font-bold transition-all shrink-0 whitespace-nowrap"
+              className="rounded-xl text-xs sm:text-sm py-2 px-3.5 sm:px-4.5 data-[state=active]:bg-amber-400 data-[state=active]:text-black font-bold transition-all shrink-0 whitespace-nowrap text-white/70 hover:text-white"
             >
               <ShieldAlert className="w-3.5 h-3.5 mr-1.5" />
               Anti-Abuse
@@ -441,7 +441,7 @@ export function AdminDashboardClient({
 
             <TabsTrigger
               value="audit"
-              className="rounded-xl text-xs py-2 px-3 sm:px-4 data-[state=active]:bg-amber-400 data-[state=active]:text-black font-bold transition-all shrink-0 whitespace-nowrap"
+              className="rounded-xl text-xs sm:text-sm py-2 px-3.5 sm:px-4.5 data-[state=active]:bg-amber-400 data-[state=active]:text-black font-bold transition-all shrink-0 whitespace-nowrap text-white/70 hover:text-white"
             >
               <History className="w-3.5 h-3.5 mr-1.5" />
               Audit ({auditLogs.length})
@@ -452,7 +452,7 @@ export function AdminDashboardClient({
         {/* ═══════════════════════════════════════════════════════════
             TAB 1: COMMAND OVERVIEW & QUICK TOGGLES
         ════════════════════════════════════════════════════════════ */}
-        <TabsContent value="overview" className="space-y-6 outline-none">
+        <TabsContent value="overview" className="w-full space-y-6 outline-none">
           {/* Quick Toggles Row */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {/* Toggle 1: Ticket Sales Gate */}
@@ -588,7 +588,7 @@ export function AdminDashboardClient({
               </div>
             ) : (
               <div className="divide-y divide-white/5">
-                {ordersList.slice(0, 8).map((o) => (
+                {ordersList.slice(0, 6).map((o) => (
                   <div
                     key={o.id}
                     className="py-3 flex items-center justify-between gap-4 text-xs font-mono"
@@ -631,7 +631,7 @@ export function AdminDashboardClient({
         {/* ═══════════════════════════════════════════════════════════
             TAB 2: EVENT SETTINGS
         ════════════════════════════════════════════════════════════ */}
-        <TabsContent value="settings" className="space-y-6 outline-none">
+        <TabsContent value="settings" className="w-full space-y-6 outline-none">
           <div className="p-5 sm:p-8 rounded-2xl bg-[#0d0d0d] border border-white/10 max-w-3xl space-y-6">
             <div>
               <h2 className="text-base font-bold text-white uppercase tracking-wider">
@@ -746,9 +746,9 @@ export function AdminDashboardClient({
         {/* ═══════════════════════════════════════════════════════════
             TAB 3: CATEGORIES & NOMINEES
         ════════════════════════════════════════════════════════════ */}
-        <TabsContent value="categories" className="space-y-4 outline-none">
+        <TabsContent value="categories" className="w-full space-y-4 outline-none">
           {/* Controls Bar */}
-          <div className="p-4 rounded-2xl bg-[#0d0d0d] border border-white/10 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4">
+          <div className="p-4 rounded-2xl bg-[#0d0d0d] border border-white/10 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4 w-full">
             <div className="relative flex-1 max-w-md">
               <Search className="w-4 h-4 text-white/40 absolute left-3 top-1/2 -translate-y-1/2" />
               <Input
@@ -787,7 +787,7 @@ export function AdminDashboardClient({
 
           {/* Group Filter Pills */}
           {categoryGroups.length > 0 && (
-            <div className="flex items-center gap-1.5 overflow-x-auto pb-1">
+            <div className="flex items-center gap-1.5 overflow-x-auto pb-1 scrollbar-none">
               <button
                 onClick={() => setSelectedGroup("all")}
                 className={`text-xs px-3.5 py-1.5 rounded-xl font-semibold transition-all shrink-0 ${
@@ -818,7 +818,7 @@ export function AdminDashboardClient({
           )}
 
           {/* Table */}
-          <div className="rounded-2xl border border-white/10 overflow-hidden bg-[#0d0d0d] overflow-x-auto">
+          <div className="rounded-2xl border border-white/10 overflow-hidden bg-[#0d0d0d] overflow-x-auto w-full">
             <table className="w-full text-left text-xs min-w-[500px]">
               <thead className="bg-white/5 border-b border-white/10 text-white/50 uppercase tracking-wider font-mono">
                 <tr>
@@ -832,7 +832,7 @@ export function AdminDashboardClient({
                 {filteredCategories.length === 0 ? (
                   <tr>
                     <td colSpan={4} className="p-8 text-center text-white/40">
-                      No categories found. Click &ldquo;Seed from JSON&rdquo; to populate all 61 official award categories.
+                      No categories found. Click &ldquo;Seed from JSON&rdquo; to populate all official award categories.
                     </td>
                   </tr>
                 ) : (
@@ -886,9 +886,10 @@ export function AdminDashboardClient({
         {/* ═══════════════════════════════════════════════════════════
             TAB 4: TICKETS & ORDERS
         ════════════════════════════════════════════════════════════ */}
-        <TabsContent value="tickets" className="space-y-4 outline-none">
-          <div className="p-4 rounded-2xl bg-[#0d0d0d] border border-white/10 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4">
-            <div className="relative flex-1 max-w-md">
+        <TabsContent value="tickets" className="w-full space-y-4 outline-none">
+          {/* Controls Bar: Search & Status Filter */}
+          <div className="p-4 rounded-2xl bg-[#0d0d0d] border border-white/10 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4 w-full">
+            <div className="relative flex-1 max-w-md min-w-[260px]">
               <Search className="w-4 h-4 text-white/40 absolute left-3 top-1/2 -translate-y-1/2" />
               <Input
                 placeholder="Search order ref, name, phone or email..."
@@ -898,16 +899,16 @@ export function AdminDashboardClient({
               />
             </div>
 
-            {/* Status Filter */}
-            <div className="flex items-center gap-1.5 overflow-x-auto">
+            {/* Status Filter Pills */}
+            <div className="flex items-center gap-1.5 overflow-x-auto scrollbar-none">
               {["all", "confirmed", "pending", "failed"].map((st) => (
                 <button
                   key={st}
                   onClick={() => setOrderStatusFilter(st)}
-                  className={`text-xs px-3 py-1.5 rounded-xl font-semibold uppercase font-mono transition-all shrink-0 ${
+                  className={`text-xs px-3.5 py-1.5 rounded-xl font-semibold uppercase font-mono transition-all shrink-0 ${
                     orderStatusFilter === st
-                      ? "bg-amber-400 text-black"
-                      : "bg-white/5 text-white/60 hover:text-white"
+                      ? "bg-amber-400 text-black font-bold"
+                      : "bg-white/5 text-white/60 hover:text-white hover:bg-white/10"
                   }`}
                 >
                   {st}
@@ -916,14 +917,14 @@ export function AdminDashboardClient({
             </div>
           </div>
 
-          {/* Summary row */}
-          <div className="flex items-center gap-3 text-xs font-mono text-white/50 px-1">
+          {/* Summary Metric Strip */}
+          <div className="flex flex-wrap items-center gap-3 text-xs font-mono text-white/50 px-1">
             <span>
               Showing <strong className="text-white">{filteredOrders.length}</strong> orders
             </span>
             <span>&middot;</span>
             <span>
-              <strong className="text-amber-400">{confirmedOrders.length}</strong> confirmed
+              <strong className="text-emerald-400">{confirmedOrders.length}</strong> confirmed
             </span>
             <span>&middot;</span>
             <span>
@@ -931,8 +932,9 @@ export function AdminDashboardClient({
             </span>
           </div>
 
-          <div className="rounded-2xl border border-white/10 overflow-hidden bg-[#0d0d0d] overflow-x-auto">
-            <table className="w-full text-left text-xs font-mono min-w-[760px]">
+          {/* Orders Table */}
+          <div className="rounded-2xl border border-white/10 overflow-hidden bg-[#0d0d0d] overflow-x-auto w-full">
+            <table className="w-full text-left text-xs font-mono min-w-[800px]">
               <thead className="bg-white/5 border-b border-white/10 text-white/50 uppercase tracking-wider">
                 <tr>
                   <th className="p-3.5">Order Ref</th>
@@ -964,7 +966,7 @@ export function AdminDashboardClient({
                         <div className="text-white/30 truncate max-w-[140px]">{o.buyer_email}</div>
                       </td>
                       <td className="p-3.5 text-white/70">
-                        {(o as any).ticket_tiers?.name || "—"}
+                        {(o as any).ticket_tiers?.name || "Regular"}
                       </td>
                       <td className="p-3.5">
                         <span className="font-bold text-amber-400">
@@ -1026,7 +1028,7 @@ export function AdminDashboardClient({
         {/* ═══════════════════════════════════════════════════════════
             TAB 5: ANTI-ABUSE & IP SECURITY
         ════════════════════════════════════════════════════════════ */}
-        <TabsContent value="security" className="space-y-4 outline-none">
+        <TabsContent value="security" className="w-full space-y-4 outline-none">
           <div className="p-5 sm:p-8 rounded-2xl bg-[#0d0d0d] border border-white/10 space-y-4">
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 rounded-xl bg-amber-400/10 border border-amber-400/20 flex items-center justify-center text-amber-400 shrink-0">
@@ -1081,8 +1083,8 @@ export function AdminDashboardClient({
         {/* ═══════════════════════════════════════════════════════════
             TAB 6: AUDIT LOG
         ════════════════════════════════════════════════════════════ */}
-        <TabsContent value="audit" className="space-y-4 outline-none">
-          <div className="rounded-2xl border border-white/10 overflow-hidden bg-[#0d0d0d] overflow-x-auto">
+        <TabsContent value="audit" className="w-full space-y-4 outline-none">
+          <div className="rounded-2xl border border-white/10 overflow-hidden bg-[#0d0d0d] overflow-x-auto w-full">
             <table className="w-full text-left text-xs font-mono min-w-[400px]">
               <thead className="bg-white/5 border-b border-white/10 text-white/50 uppercase tracking-wider">
                 <tr>

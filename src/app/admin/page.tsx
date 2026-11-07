@@ -59,7 +59,7 @@ export default async function AdminPage() {
       <div className="min-h-screen bg-black text-white flex flex-col justify-between">
         <Navbar />
 
-        <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-24 flex items-center justify-center">
+        <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 pt-28 sm:pt-32 pb-20 flex items-center justify-center">
           <div className="max-w-md w-full p-8 rounded-3xl bg-[#0a0a0a] border border-white/10 text-center shadow-2xl">
             <div className="w-14 h-14 rounded-2xl bg-amber-400/10 border border-amber-400/25 flex items-center justify-center text-amber-400 mx-auto mb-4 shadow-[0_0_20px_rgba(245,158,11,0.15)]">
               <ShieldAlert className="w-7 h-7" />
@@ -137,7 +137,7 @@ export default async function AdminPage() {
     <div className="min-h-screen bg-black text-white flex flex-col">
       <Navbar />
 
-      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 pt-20 sm:pt-24 pb-16">
+      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 pt-28 sm:pt-32 pb-20">
         <AdminDashboardClient
           initialSettings={settings || {}}
           categories={categories || []}
