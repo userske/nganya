@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { createAdminClient } from "@/lib/supabase/server";
+import { fulfillOrder } from "@/lib/payments/fulfillment";
 
 export const dynamic = "force-dynamic";
 
@@ -24,23 +25,43 @@ export async function GET(request: Request) {
     return NextResponse.json({ error: "Order not found" }, { status: 404 });
   }
 
-  // If confirmed, fetch tickets
+  let finalOrder = order;
   let tickets: any[] = [];
-  if (order.status === "confirmed") {
+
+  // If pending, verify with Paystack and fulfill immediately if payment was successful
+  if (order.status === "pending") {
+    try {
+      const fulfillment = await fulfillOrder({
+        orderNumber: ref,
+        reference: ref,
+        verifyWithPaystack: true,
+      });
+
+      if (fulfillment.success && fulfillment.order) {
+        finalOrder = fulfillment.order;
+        tickets = fulfillment.tickets || [];
+      }
+    } catch (verifyErr) {
+      console.warn("[Order Status] Paystack direct verify attempt error:", verifyErr);
+    }
+  }
+
+  // If confirmed, retrieve tickets if not already populated
+  if (finalOrder.status === "confirmed" && tickets.length === 0) {
     const { data: tktData } = await supabase
       .from("tickets")
       .select("id, ticket_code, status, qr_payload, created_at")
-      .eq("order_id", order.id);
+      .eq("order_id", finalOrder.id);
 
     tickets = tktData ?? [];
   }
 
   return NextResponse.json({
-    status: order.status,
-    orderNumber: order.order_number,
-    buyerName: order.buyer_name,
-    buyerEmail: order.buyer_email,
-    tierName: (order as any).ticket_tiers?.name,
+    status: finalOrder.status,
+    orderNumber: finalOrder.order_number,
+    buyerName: finalOrder.buyer_name,
+    buyerEmail: finalOrder.buyer_email,
+    tierName: (finalOrder as any).ticket_tiers?.name,
     tickets,
   });
 }

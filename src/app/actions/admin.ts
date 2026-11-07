@@ -64,8 +64,8 @@ export async function updateEventSettingsAction(formData: {
     .update({
       event_name: formData.eventName,
       tagline: formData.tagline,
-      event_date: formData.eventDate,
-      event_time: formData.eventTime,
+      eventDate: formData.eventDate,
+      eventTime: formData.eventTime,
       venue_name: formData.venueName,
       ticket_sales_open: formData.ticketSalesOpen,
       results_frozen: formData.resultsFrozen,
@@ -170,4 +170,34 @@ export async function voidVoteAction(voteId: string, reason: string) {
   revalidatePath("/results");
   revalidatePath("/admin");
   return { success: true };
+}
+
+/**
+ * Manually query Paystack for an order and trigger fulfillment if paid
+ */
+export async function syncPaystackOrderAction(orderNumber: string) {
+  const adminUser = await verifyAdminRole();
+  const { fulfillOrder } = await import("@/lib/payments/fulfillment");
+
+  const result = await fulfillOrder({
+    orderNumber,
+    reference: orderNumber,
+    verifyWithPaystack: true,
+  });
+
+  if (!result.success) {
+    return { success: false, error: result.error || "Order not verified as paid on Paystack" };
+  }
+
+  const adminClient = await createAdminClient();
+  await adminClient.from("audit_log").insert({
+    actor_id: adminUser.id,
+    action: "SYNC_ORDER_PAYSTACK",
+    entity_type: "order",
+    entity_id: orderNumber,
+    details: { status: result.status },
+  });
+
+  revalidatePath("/admin");
+  return { success: true, order: result.order };
 }

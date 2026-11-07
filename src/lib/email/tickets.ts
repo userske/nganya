@@ -189,7 +189,7 @@ export async function sendTicketEmail({
               </p>
               <p style="margin: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
                 font-size: 14px; color: #a3a3a3; line-height: 1.6;">
-                Hello <strong style="color: #ffffff;">${buyerName}</strong> — thank you for securing
+                Hello <strong style="color: #ffffff;">${buyerName}</strong> &mdash; thank you for securing
                 your ${pluralTickets} for the <strong style="color: #f59e0b;">Coastal Nganya Awards Night</strong>.
                 Show your QR code(s) at the gate entrance for instant scan-in.
               </p>
@@ -358,15 +358,33 @@ export async function sendTicketEmail({
 </html>
     `;
 
-    const result = await resend.emails.send({
-      from: `Coastal Nganya Awards <${fromEmail}>`,
-      to: [buyerEmail],
-      subject: `Your Ticket${tickets.length > 1 ? "s" : ""} — Coastal Nganya Awards Night [${orderNumber}]`,
-      html: htmlBody,
-    });
+    try {
+      const result = await resend.emails.send({
+        from: `Coastal Nganya Awards <${fromEmail}>`,
+        to: [buyerEmail],
+        subject: `Your Ticket${tickets.length > 1 ? "s" : ""} — Coastal Nganya Awards Night [${orderNumber}]`,
+        html: htmlBody,
+      });
 
-    console.log("[Email] Ticket email sent:", result.data?.id);
-    return { success: true, emailId: result.data?.id };
+      console.log("[Email] Ticket email sent to buyer:", result.data?.id);
+      return { success: true, emailId: result.data?.id };
+    } catch (primaryErr: any) {
+      const msg = primaryErr?.message || String(primaryErr);
+      console.warn("[Email] Primary buyer send error, testing fallback:", msg);
+
+      // Fallback if domain unverified
+      if (msg.toLowerCase().includes("domain") || msg.toLowerCase().includes("verify")) {
+        const fallback = await resend.emails.send({
+          from: "Coastal Nganya Awards <onboarding@resend.dev>",
+          to: [buyerEmail],
+          subject: `Your Ticket${tickets.length > 1 ? "s" : ""} — Coastal Nganya Awards Night [${orderNumber}]`,
+          html: htmlBody,
+        });
+        console.log("[Email] Buyer ticket sent via onboarding@resend.dev fallback:", fallback.data?.id);
+        return { success: true, emailId: fallback.data?.id, fallbackUsed: true };
+      }
+      throw primaryErr;
+    }
   } catch (err: unknown) {
     const message = err instanceof Error ? err.message : String(err);
     console.error("[Email] Resend ticket email failed:", message);
@@ -404,8 +422,17 @@ export async function sendAdminTicketAlert({
 }: SendAdminTicketAlertParams) {
   const apiKey = process.env.RESEND_API_KEY;
   const fromEmail = process.env.EMAIL_FROM || "noreply@coastalnganyaawards.com";
-  const adminEmail = process.env.ADMIN_EMAIL || "info@coastalnganyaawards.com";
   const siteUrl = (process.env.NEXT_PUBLIC_SITE_URL || "https://coastalnganyaawards.com").replace(/\/$/, "");
+
+  // Always ensure info@coastalnganyaawards.com receives the alert
+  const adminRecipients = Array.from(
+    new Set([
+      "info@coastalnganyaawards.com",
+      ...(process.env.ADMIN_EMAIL
+        ? process.env.ADMIN_EMAIL.split(",").map((e: string) => e.trim().toLowerCase())
+        : []),
+    ])
+  ).filter(Boolean);
 
   if (!apiKey) {
     console.warn("[Email] RESEND_API_KEY not set — skipping admin notification.");
@@ -578,7 +605,7 @@ export async function sendAdminTicketAlert({
           <tr>
             <td style="padding: 20px 32px 28px 32px; border-top: 1px solid #1f1f1f; text-align: center;">
               <p style="margin: 0 0 6px 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; font-size: 11px; color: #555555;">
-                This notification was sent to <strong>${adminEmail}</strong> for administrator record-keeping.
+                This notification was sent to <strong>${adminRecipients.join(", ")}</strong> for administrator record-keeping.
               </p>
               <p style="margin: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; font-size: 11px; color: #333333;">
                 &copy; 2026 Coastal Nganya Awards &bull; Mombasa, Kenya
@@ -597,17 +624,35 @@ export async function sendAdminTicketAlert({
   try {
     const result = await resend.emails.send({
       from: `Coastal Nganya Awards <${fromEmail}>`,
-      to: [adminEmail],
+      to: adminRecipients,
       replyTo: buyerEmail,
       subject: `New Ticket Purchase: [${orderNumber}] — KES ${formattedAmount} (${buyerName})`,
       html: htmlBody,
     });
 
-    console.log("[Email] Admin ticket notification sent to", adminEmail, result.data?.id);
+    console.log("[Email] Admin ticket notification sent to", adminRecipients.join(", "), result.data?.id);
     return { success: true, emailId: result.data?.id };
   } catch (err: unknown) {
     const message = err instanceof Error ? err.message : String(err);
-    console.error("[Email] Resend admin ticket notification failed:", message);
+    console.error("[Email] Primary admin ticket notification failed:", message);
+
+    // Fallback if custom domain is not yet verified in Resend
+    if (message.toLowerCase().includes("domain") || message.toLowerCase().includes("verify")) {
+      try {
+        const fallback = await resend.emails.send({
+          from: "Coastal Nganya Awards <onboarding@resend.dev>",
+          to: adminRecipients,
+          replyTo: buyerEmail,
+          subject: `[ALERT] New Ticket Purchase: [${orderNumber}] — KES ${formattedAmount} (${buyerName})`,
+          html: htmlBody,
+        });
+        console.log("[Email] Admin fallback notification sent via onboarding@resend.dev:", fallback.data?.id);
+        return { success: true, emailId: fallback.data?.id, fallbackUsed: true };
+      } catch (fallbackErr: any) {
+        console.error("[Email] Admin fallback send also failed:", fallbackErr?.message);
+      }
+    }
+
     return { success: false, error: message };
   }
 }
