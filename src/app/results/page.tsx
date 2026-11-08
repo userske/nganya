@@ -144,7 +144,7 @@ export default async function ResultsPage() {
     <div className="min-h-screen bg-black text-white flex flex-col justify-between">
       <Navbar />
 
-      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 pt-28 sm:pt-32 pb-20">
+      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 pt-28 sm:pt-32 pb-32 sm:pb-36 pb-safe">
         <ResultsClientView
           categories={categories}
           initialCounts={initialCounts}

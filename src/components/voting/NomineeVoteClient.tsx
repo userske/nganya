@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useCallback } from "react";
 import Link from "next/link";
 import {
   CheckCircle2,
@@ -74,15 +74,111 @@ export function NomineeVoteClient({
   const isLocked = Boolean(votedNomineeId);
   const totalCategoryVotes = Object.values(counts).reduce((acc, c) => acc + c, 0);
 
-  // ─── CLIENT-SIDE AUTH CHECK ──────────────────────────────────────────────
+  // ─── EXECUTE VOTE HANDLER ────────────────────────────────────────────────
+  const executeVote = useCallback(
+    async (targetNomineeId?: string) => {
+      const nomId = targetNomineeId || selectedNomineeId;
+      if (!nomId || isLocked) return;
+
+      setIsSubmitting(true);
+      setConfirmModalOpen(false);
+
+      try {
+        const result = await submitVoteAction(category.id, nomId);
+
+        if (result.success) {
+          setVotedNomineeId(nomId);
+          setSelectedNomineeId(nomId);
+          setCounts((prev) => ({
+            ...prev,
+            [nomId]: (prev[nomId] ?? 0) + 1,
+          }));
+
+          // Clean up pending vote storage
+          try {
+            localStorage.removeItem("cna_pending_vote");
+            if (typeof window !== "undefined" && window.location.search) {
+              window.history.replaceState({}, document.title, window.location.pathname);
+            }
+          } catch {}
+
+          toast.success("Vote recorded in live leaderboard!", {
+            description: `Your vote for ${result.nominee_name} has been counted in real time.`,
+          });
+
+          // Refresh live category count
+          fetch(`/api/vote/counts?categoryId=${category.id}`)
+            .then((res) => res.json())
+            .then((json) => {
+              if (json.counts && Array.isArray(json.counts)) {
+                const map: Record<string, number> = {};
+                for (const item of json.counts) {
+                  map[item.nominee_id] = Number(item.count);
+                }
+                setCounts((prev) => ({ ...prev, ...map }));
+              }
+            })
+            .catch(() => {});
+        } else {
+          if (result.error === "NOT_AUTHENTICATED") {
+            setIsAuthenticated(false);
+            setAuthModalOpen(true);
+          } else {
+            toast.error("Could not cast vote", {
+              description: result.error || "An error occurred while casting your vote.",
+            });
+          }
+        }
+      } catch {
+        toast.error("Network error. Please check your connection.");
+      } finally {
+        setIsSubmitting(false);
+      }
+    },
+    [category.id, isLocked, selectedNomineeId]
+  );
+
+  // ─── CLIENT-SIDE AUTH CHECK & AUTO-VOTE RESTORATION ─────────────────────
   useEffect(() => {
     const supabase = createClient();
 
-    const checkSession = async () => {
-      const { data: { user } } = await supabase.auth.getUser();
+    const checkSessionAndPendingVote = async () => {
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
       const authed = Boolean(user);
       setIsAuthenticated(authed);
       setAuthChecked(true);
+
+      // Check URL query parameters or localStorage for pending vote from magic link
+      if (typeof window !== "undefined") {
+        const searchParams = new URLSearchParams(window.location.search);
+        const autoVote = searchParams.get("auto_vote") === "1";
+        const selectedFromUrl = searchParams.get("selected_nominee");
+
+        let pendingNomineeId: string | null = selectedFromUrl;
+
+        if (!pendingNomineeId) {
+          try {
+            const raw = localStorage.getItem("cna_pending_vote");
+            if (raw) {
+              const parsed = JSON.parse(raw);
+              if (parsed.categoryId === category.id || parsed.categorySlug === category.slug) {
+                pendingNomineeId = parsed.nomineeId;
+              }
+            }
+          } catch {}
+        }
+
+        if (pendingNomineeId && nominees.some((n) => n.id === pendingNomineeId)) {
+          setSelectedNomineeId(pendingNomineeId);
+
+          // If voter is now authenticated and hasn't voted yet, auto-execute vote!
+          if (authed && !votedNomineeId) {
+            executeVote(pendingNomineeId);
+          }
+        }
+      }
 
       if (authed && selectedNomineeId && authModalOpen) {
         setAuthModalOpen(false);
@@ -90,25 +186,25 @@ export function NomineeVoteClient({
       }
     };
 
-    checkSession();
+    checkSessionAndPendingVote();
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      (_event, session) => {
-        const authed = Boolean(session?.user);
-        setIsAuthenticated(authed);
-        setAuthChecked(true);
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((_event, session) => {
+      const authed = Boolean(session?.user);
+      setIsAuthenticated(authed);
+      setAuthChecked(true);
 
-        if (authed && authModalOpen) {
-          setAuthModalOpen(false);
-          setTimeout(() => setConfirmModalOpen(true), 150);
-        }
+      if (authed && authModalOpen) {
+        setAuthModalOpen(false);
+        setTimeout(() => setConfirmModalOpen(true), 150);
       }
-    );
+    });
 
     return () => {
       subscription.unsubscribe();
     };
-  }, [authModalOpen, selectedNomineeId]);
+  }, [authModalOpen, category.id, category.slug, executeVote, nominees, selectedNomineeId, votedNomineeId]);
 
   // ─── REALTIME VOTE COUNTS ────────────────────────────────────────────────
   useEffect(() => {
@@ -166,7 +262,6 @@ export function NomineeVoteClient({
   }, [category.id]);
 
   // ─── RANKINGS & LEADERBOARD SORT ─────────────────────────────────────────
-  // Calculate exact rank for each nominee based on vote counts
   const rankedNominees = useMemo(() => {
     const list = [...nominees].sort((a, b) => {
       const votesA = counts[a.id] ?? 0;
@@ -181,11 +276,9 @@ export function NomineeVoteClient({
       return list;
     }
 
-    // If user prefers original ballot order
     return [...nominees].sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0));
   }, [nominees, counts, sortByLeaderboard]);
 
-  // Fast map from nomineeId -> rank position (#1, #2, #3...)
   const rankMap = useMemo(() => {
     const sorted = [...nominees].sort((a, b) => {
       const votesA = counts[a.id] ?? 0;
@@ -217,59 +310,26 @@ export function NomineeVoteClient({
 
   const handleVoteSubmitClick = () => {
     if (!selectedNomineeId) return;
+
+    // Save pending vote in localStorage in case user needs magic link
+    try {
+      localStorage.setItem(
+        "cna_pending_vote",
+        JSON.stringify({
+          categoryId: category.id,
+          categorySlug: category.slug,
+          nomineeId: selectedNomineeId,
+          nomineeName: selectedNominee?.name,
+          timestamp: Date.now(),
+        })
+      );
+    } catch {}
+
     if (!isAuthenticated) {
       setAuthModalOpen(true);
       return;
     }
     setConfirmModalOpen(true);
-  };
-
-  const executeVote = async () => {
-    if (!selectedNomineeId) return;
-    setIsSubmitting(true);
-    setConfirmModalOpen(false);
-
-    try {
-      const result = await submitVoteAction(category.id, selectedNomineeId);
-
-      if (result.success) {
-        setVotedNomineeId(selectedNomineeId);
-        setCounts((prev) => ({
-          ...prev,
-          [selectedNomineeId]: (prev[selectedNomineeId] ?? 0) + 1,
-        }));
-
-        toast.success("Vote recorded in live leaderboard!", {
-          description: `Your vote for ${result.nominee_name} has been counted in real time.`,
-        });
-
-        fetch(`/api/vote/counts?categoryId=${category.id}`)
-          .then((res) => res.json())
-          .then((json) => {
-            if (json.counts && Array.isArray(json.counts)) {
-              const map: Record<string, number> = {};
-              for (const item of json.counts) {
-                map[item.nominee_id] = Number(item.count);
-              }
-              setCounts((prev) => ({ ...prev, ...map }));
-            }
-          })
-          .catch(() => {});
-      } else {
-        if (result.error === "NOT_AUTHENTICATED") {
-          setIsAuthenticated(false);
-          setAuthModalOpen(true);
-        } else {
-          toast.error("Could not cast vote", {
-            description: result.error || "An error occurred while casting your vote.",
-          });
-        }
-      }
-    } catch {
-      toast.error("Network error. Please check your connection.");
-    } finally {
-      setIsSubmitting(false);
-    }
   };
 
   const selectedNominee = nominees.find((n) => n.id === selectedNomineeId);
@@ -289,153 +349,107 @@ export function NomineeVoteClient({
     return topNom;
   }, [nominees, counts]);
 
-  // ─── RENDER ──────────────────────────────────────────────────────────────
   return (
-    <div>
+    <div className="pb-36 sm:pb-40">
       {/* Back button and group badge */}
       <div className="flex items-center justify-between gap-4 mb-6">
         <Button
           asChild
           variant="ghost"
           size="sm"
-          className="text-white/60 hover:text-white hover:bg-white/5 pl-2 focus-visible:ring-2 focus-visible:ring-white"
+          className="text-white/60 hover:text-white -ml-2 text-xs"
         >
           <Link href="/vote">
             <ChevronLeft className="w-4 h-4 mr-1" />
-            Back to All Categories
+            All Categories
           </Link>
         </Button>
 
-        <div className="flex items-center gap-2">
-          {category.group_name && (
-            <Badge
-              variant="outline"
-              className="text-xs uppercase tracking-wider bg-white/5 border-white/10 text-white/70 py-1 px-3 rounded-full"
-            >
-              {category.group_name}
-            </Badge>
-          )}
-
-          <Button
-            asChild
-            variant="ghost"
-            size="sm"
-            className="text-amber-400 hover:text-amber-300 hover:bg-amber-400/10 text-xs font-semibold"
+        {category.group_name && (
+          <Badge
+            variant="outline"
+            className="text-[11px] uppercase tracking-wider font-semibold border-white/10 text-white/70 px-3 py-1 bg-white/5"
           >
-            <Link href="/results">
-              <BarChart3 className="w-3.5 h-3.5 mr-1.5" />
-              Full Leaderboard
-            </Link>
-          </Button>
-        </div>
-      </div>
-
-      {/* Category Title Header with Live Realtime Stats */}
-      <div className="mb-10 pb-8 border-b border-white/10">
-        <div className="flex flex-wrap items-center justify-between gap-3 mb-4">
-          <div className="flex items-center gap-2">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/25 text-emerald-400 text-xs font-semibold uppercase tracking-wider">
-              <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-              Live Leaderboard Tally
-            </div>
-
-            {leaderNominee && (
-              <div className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-400/10 border border-amber-400/30 text-amber-300 text-xs font-mono">
-                <Trophy className="w-3.5 h-3.5 text-amber-400" />
-                <span>#1 {leaderNominee.name}</span>
-              </div>
-            )}
-          </div>
-
-          <div className="flex items-center gap-2 text-xs font-mono text-white/70 bg-white/5 border border-white/10 px-3.5 py-1.5 rounded-full">
-            <span className="text-white/40 uppercase">Total Category Votes:</span>
-            <strong className="text-amber-400 font-bold">{totalCategoryVotes.toLocaleString()}</strong>
-          </div>
-        </div>
-
-        <h1 className="text-3xl sm:text-5xl font-black text-white uppercase tracking-tight mb-3">
-          {category.name}
-        </h1>
-        <p className="text-white/50 text-sm sm:text-base max-w-2xl leading-relaxed">
-          {category.description ||
-            "Select your nominee below to cast your verified vote. Nominees are ranked in real time by vote count (#1, #2, #3...)."}
-        </p>
-
-        {/* Locked banner if voted */}
-        {isLocked && votedNominee && (
-          <div
-            role="status"
-            className="mt-6 p-4 sm:p-5 rounded-2xl bg-[#0a1811] border border-emerald-500/30 flex flex-col sm:flex-row sm:items-center justify-between gap-4 text-white shadow-[0_4px_24px_rgba(16,185,129,0.08)]"
-          >
-            <div className="flex items-center gap-3.5">
-              <div className="w-10 h-10 rounded-xl bg-emerald-500/20 border border-emerald-500/30 flex items-center justify-center text-emerald-400 shrink-0 font-bold font-mono">
-                #{rankMap[votedNominee.id] ?? 1}
-              </div>
-              <div>
-                <div className="text-xs uppercase tracking-wider font-bold text-emerald-400 flex items-center gap-1.5">
-                  <CheckCircle2 className="w-3.5 h-3.5" />
-                  Your Vote is Confirmed & Counted
-                </div>
-                <div className="text-sm font-semibold text-white">
-                  You voted for: <span className="underline underline-offset-2">{votedNominee.name}</span>
-                  {votedNominee.subtitle && ` (${votedNominee.subtitle})`}
-                  <span className="text-emerald-400 font-mono text-xs ml-2 font-bold">
-                    (Currently Rank #{rankMap[votedNominee.id] ?? 1})
-                  </span>
-                </div>
-              </div>
-            </div>
-
-            <Button
-              asChild
-              size="sm"
-              variant="outline"
-              className="border-emerald-500/40 hover:border-emerald-400 text-emerald-300 hover:text-white bg-emerald-950/30 hover:bg-emerald-900/40 text-xs shrink-0 rounded-xl"
-            >
-              <Link href="/results">
-                View All Categories
-              </Link>
-            </Button>
-          </div>
+            {category.group_name}
+          </Badge>
         )}
       </div>
 
-      {/* Leaderboard View Controls */}
-      <div className="flex items-center justify-between gap-3 mb-6">
-        <div className="flex items-center gap-2">
-          <span className="text-xs uppercase font-mono tracking-wider text-white/50">
-            Leaderboard Standings:
-          </span>
-          <span className="text-xs text-amber-400 font-mono font-bold">
-            Ranked #1 to #{nominees.length}
-          </span>
+      {/* Category Header */}
+      <div className="mb-8">
+        <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 pb-6 border-b border-white/10">
+          <div>
+            <h1 className="text-3xl sm:text-5xl font-black text-white tracking-tight uppercase">
+              {category.name}
+            </h1>
+            {category.description && (
+              <p className="text-white/60 text-sm sm:text-base mt-2 max-w-2xl leading-relaxed">
+                {category.description}
+              </p>
+            )}
+          </div>
+
+          {/* Category Total Votes & Leader Badge */}
+          <div className="flex items-center gap-3 shrink-0">
+            <div className="p-3 sm:p-4 rounded-2xl bg-white/[0.04] border border-white/10 text-right">
+              <div className="text-[10px] uppercase tracking-wider text-white/40 font-mono">
+                Category Total
+              </div>
+              <div className="text-2xl sm:text-3xl font-black text-amber-400 font-mono">
+                {totalCategoryVotes.toLocaleString()}
+              </div>
+              <div className="text-[10px] text-white/40 font-mono">
+                {nominees.length} Nominees
+              </div>
+            </div>
+          </div>
         </div>
 
-        <button
-          onClick={() => setSortByLeaderboard(!sortByLeaderboard)}
-          className="inline-flex items-center gap-1.5 text-xs font-mono text-white/60 hover:text-white bg-white/5 hover:bg-white/10 border border-white/10 px-3 py-1.5 rounded-xl transition-colors"
-        >
-          <ArrowUpDown className="w-3 h-3 text-amber-400" />
-          <span>Sort: {sortByLeaderboard ? "Ranked (#1, #2, #3...)" : "Ballot Order"}</span>
-        </button>
+        {/* Status banner if already voted */}
+        {isLocked && votedNominee && (
+          <div className="mt-6 p-4 sm:p-5 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 flex items-start sm:items-center gap-3 text-emerald-300">
+            <CheckCircle2 className="w-5 h-5 text-emerald-400 shrink-0 mt-0.5 sm:mt-0" />
+            <div className="flex-1 text-xs sm:text-sm">
+              <span className="font-bold text-white">Your vote has been verified and counted: </span>
+              <span className="text-emerald-300 font-semibold">{votedNominee.name}</span>
+              <span className="text-white/50 block sm:inline sm:ml-2">
+                (Votes are locked. Thank you for participating!)
+              </span>
+            </div>
+          </div>
+        )}
+
+        {/* View Controls: Sort Toggle */}
+        <div className="flex items-center justify-between gap-4 mt-6">
+          <div className="text-xs text-white/50 font-mono">
+            {isLocked
+              ? "Voting completed for this category."
+              : "Select your nominee below and cast your vote."}
+          </div>
+
+          <button
+            type="button"
+            onClick={() => setSortByLeaderboard((prev) => !prev)}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-mono bg-white/5 hover:bg-white/10 border border-white/10 text-white/80 transition-colors"
+          >
+            <ArrowUpDown className="w-3 h-3 text-amber-400" />
+            <span>{sortByLeaderboard ? "Sorted by: Leaderboard" : "Sorted by: Ballot Order"}</span>
+          </button>
+        </div>
       </div>
 
-      {/* Nominees Leaderboard Grid */}
-      <div
-        role="radiogroup"
-        aria-label={`Nominees Leaderboard for ${category.name}`}
-        className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 mb-12"
-      >
+      {/* Nominees Grid */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
         {rankedNominees.map((nominee) => {
-          const rank = rankMap[nominee.id] ?? 1;
-          const isSelected = selectedNomineeId === nominee.id;
-          const isThisVoted = votedNomineeId === nominee.id;
           const voteCount = counts[nominee.id] ?? 0;
           const percentage =
             totalCategoryVotes > 0
               ? Math.round((voteCount / totalCategoryVotes) * 100)
               : 0;
 
+          const isSelected = selectedNomineeId === nominee.id;
+          const isThisVoted = votedNomineeId === nominee.id;
+          const rank = rankMap[nominee.id] ?? 1;
           const isFirst = rank === 1 && voteCount > 0;
           const isSecond = rank === 2 && voteCount > 0;
           const isThird = rank === 3 && voteCount > 0;
@@ -443,60 +457,51 @@ export function NomineeVoteClient({
           return (
             <div
               key={nominee.id}
-              role="radio"
-              aria-checked={isThisVoted || isSelected}
-              aria-disabled={isLocked}
+              role="button"
               tabIndex={isLocked ? -1 : 0}
+              aria-pressed={isSelected}
               onClick={() => handleNomineeClick(nominee.id)}
               onKeyDown={(e) => handleKeyDownNominee(e, nominee.id)}
-              className={`relative p-6 rounded-2xl transition-[background-color,border-color,box-shadow,transform] duration-200 ease-out border text-left select-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-400 ${
+              className={`group relative p-5 rounded-2xl sm:rounded-3xl border transition-all duration-200 select-none text-left ${
+                isLocked ? "cursor-default" : "cursor-pointer active:scale-[0.99]"
+              } ${
                 isThisVoted
-                  ? "bg-[#0b1712] border-emerald-500 shadow-[0_0_24px_rgba(16,185,129,0.18)]"
-                  : isSelected && !isLocked
-                  ? "bg-amber-950/20 border-amber-400 shadow-[0_0_24px_rgba(245,158,11,0.2)] active:scale-[0.99] cursor-pointer"
+                  ? "bg-emerald-500/10 border-emerald-400/50 shadow-lg shadow-emerald-500/10"
+                  : isSelected
+                  ? "bg-amber-400/10 border-amber-400 shadow-xl shadow-amber-400/15 ring-2 ring-amber-400"
                   : isFirst
-                  ? "bg-gradient-to-b from-[#191307] to-[#0c0c0c] border-amber-400/50 shadow-[0_4px_24px_rgba(245,158,11,0.1)] hover:border-amber-400/80 cursor-pointer"
-                  : isSecond
-                  ? "bg-gradient-to-b from-[#141517] to-[#0c0c0c] border-slate-400/30 hover:border-slate-300/60 cursor-pointer"
-                  : isThird
-                  ? "bg-gradient-to-b from-[#17110c] to-[#0c0c0c] border-amber-900/30 hover:border-amber-800/50 cursor-pointer"
-                  : isLocked
-                  ? "bg-[#0c0c0c] border-white/10 hover:border-white/20 cursor-default"
-                  : "bg-[#0c0c0c] border-white/10 hover:border-amber-400/40 hover:bg-[#121212] active:scale-[0.99] cursor-pointer"
+                  ? "bg-[#0f0f0f] border-amber-400/30 hover:border-amber-400/60"
+                  : "bg-[#0a0a0a] border-white/10 hover:border-white/25 hover:bg-white/[0.02]"
               }`}
             >
-              {/* Top Row: Rank Badge & Status */}
-              <div className="flex items-center justify-between mb-4">
-                <div className="flex items-center gap-2.5">
-                  {/* Leaderboard Number Badge (1, 2, 3...) */}
+              {/* Top row: Rank badge + vote percentage */}
+              <div className="flex items-center justify-between gap-3 mb-4">
+                <div className="flex items-center gap-2">
                   <div
-                    className={`w-9 h-9 rounded-xl flex items-center justify-center font-black text-sm font-mono shrink-0 shadow-sm ${
+                    className={`w-7 h-7 rounded-lg flex items-center justify-center text-xs font-mono font-bold shrink-0 ${
                       isThisVoted
-                        ? "bg-emerald-500 text-black border border-emerald-400 font-black"
-                        : isSelected
-                        ? "bg-amber-400 text-black border border-amber-300 font-black"
+                        ? "bg-emerald-400 text-black font-extrabold"
                         : isFirst
-                        ? "bg-gradient-to-br from-amber-300 via-amber-400 to-amber-500 text-black border border-amber-300 shadow-[0_0_15px_rgba(245,158,11,0.4)]"
+                        ? "bg-amber-400 text-black font-extrabold shadow-sm shadow-amber-400/40"
                         : isSecond
-                        ? "bg-gradient-to-br from-slate-200 to-slate-400 text-black border border-white/60"
+                        ? "bg-slate-300 text-black font-bold"
                         : isThird
-                        ? "bg-gradient-to-br from-amber-700 via-amber-800 to-amber-900 text-amber-100 border border-amber-600/50"
-                        : "bg-white/5 text-white/60 border border-white/10"
+                        ? "bg-amber-700/80 text-white font-bold"
+                        : "bg-white/5 text-white/50 border border-white/10"
                     }`}
                   >
-                    #{rank}
+                    {rank}
                   </div>
 
-                  {/* Leader Badge */}
-                  {isFirst && !isThisVoted && (
-                    <span className="inline-flex items-center gap-1 text-[10px] font-bold uppercase tracking-wider text-amber-400 bg-amber-400/10 border border-amber-400/30 px-2.5 py-0.5 rounded-full font-mono">
-                      <TrendingUp className="w-3 h-3" />
-                      Rank #1
+                  {isFirst && (
+                    <span className="text-[10px] uppercase font-bold tracking-wider text-amber-400 font-mono inline-flex items-center gap-1">
+                      <Trophy className="w-3 h-3 fill-amber-400" />
+                      Leader
                     </span>
                   )}
 
                   {isThisVoted && (
-                    <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-emerald-400 bg-emerald-500/10 border border-emerald-500/25 px-2.5 py-1 rounded-full">
+                    <span className="text-[10px] uppercase font-bold tracking-wider text-emerald-400 font-mono inline-flex items-center gap-1">
                       <CheckCircle2 className="w-3.5 h-3.5" />
                       Your Vote
                     </span>
@@ -515,7 +520,7 @@ export function NomineeVoteClient({
               </div>
 
               {/* Nominee Title & Subtitle */}
-              <h3 className="text-xl font-bold text-white mb-1 tracking-tight">
+              <h3 className="text-lg sm:text-xl font-bold text-white mb-1 tracking-tight">
                 {nominee.name}
               </h3>
               {nominee.subtitle && (
@@ -556,17 +561,17 @@ export function NomineeVoteClient({
         })}
       </div>
 
-      {/* Floating Action Bar */}
+      {/* Floating Action Bar (positioned safely above iOS Safari bottom bar) */}
       {!isLocked && (
-        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 w-[92%] max-w-xl z-30 pb-safe">
-          <div className="p-4 rounded-2xl bg-[#0a0a0a]/95 border border-amber-500/25 shadow-2xl backdrop-blur-xl flex items-center justify-between gap-4">
+        <div className="fixed bottom-[calc(1.5rem+env(safe-area-inset-bottom,0px))] left-1/2 -translate-x-1/2 w-[92%] max-w-xl z-30">
+          <div className="p-3.5 sm:p-4 rounded-2xl bg-[#0a0a0a]/95 border border-amber-500/30 shadow-2xl backdrop-blur-xl flex items-center justify-between gap-4">
             <div className="min-w-0 truncate">
               {selectedNominee ? (
                 <div>
-                  <div className="text-[11px] uppercase tracking-wider text-amber-400/80 font-medium">
+                  <div className="text-[10px] uppercase tracking-wider text-amber-400/80 font-medium">
                     Selected (Rank #{rankMap[selectedNominee.id] ?? 1}):
                   </div>
-                  <div className="text-sm font-semibold text-white truncate">
+                  <div className="text-xs sm:text-sm font-semibold text-white truncate">
                     {selectedNominee.name}
                     {selectedNominee.subtitle && ` (${selectedNominee.subtitle})`}
                   </div>
@@ -575,7 +580,7 @@ export function NomineeVoteClient({
                 <div className="text-xs text-white/50">
                   {authChecked && isAuthenticated
                     ? "Select a nominee above to cast your vote"
-                    : "Select a nominee — you'll verify your email once to vote"}
+                    : "Select a nominee to cast your vote"}
                 </div>
               )}
             </div>
@@ -583,7 +588,7 @@ export function NomineeVoteClient({
             <Button
               disabled={!selectedNomineeId || isSubmitting}
               onClick={handleVoteSubmitClick}
-              className="bg-gradient-to-r from-amber-400 via-amber-500 to-amber-600 hover:brightness-110 text-black font-bold px-6 h-11 rounded-xl shadow-[0_0_20px_rgba(245,158,11,0.25)] shrink-0 focus-visible:ring-2 focus-visible:ring-amber-400 active:scale-[0.98]"
+              className="bg-amber-400 hover:bg-amber-300 text-black font-bold px-5 sm:px-6 h-11 rounded-xl shadow-[0_0_20px_rgba(245,158,11,0.25)] shrink-0 focus-visible:ring-2 focus-visible:ring-amber-400 active:scale-[0.98] text-xs sm:text-sm"
             >
               {isSubmitting ? (
                 <>
@@ -592,8 +597,8 @@ export function NomineeVoteClient({
                 </>
               ) : (
                 <>
-                  <Vote className="w-4 h-4 mr-2" />
-                  {isAuthenticated ? "Confirm Vote" : "Vote (Verify Email)"}
+                  <Vote className="w-4 h-4 mr-1.5" />
+                  {isAuthenticated ? "Confirm Vote" : "Vote (Magic Link)"}
                 </>
               )}
             </Button>
@@ -632,7 +637,7 @@ export function NomineeVoteClient({
               Cancel
             </Button>
             <Button
-              onClick={executeVote}
+              onClick={() => executeVote()}
               className="bg-amber-400 hover:bg-amber-300 text-black font-bold focus-visible:ring-2 focus-visible:ring-amber-400"
             >
               Confirm & Cast Vote
@@ -641,7 +646,7 @@ export function NomineeVoteClient({
         </DialogContent>
       </Dialog>
 
-      {/* Auth Dialog — only shown when user is not authenticated */}
+      {/* Auth Dialog (Pure Magic Link) */}
       <VoteAuthDialog
         open={authModalOpen}
         onOpenChange={setAuthModalOpen}
@@ -651,6 +656,8 @@ export function NomineeVoteClient({
         }}
         nomineeName={selectedNominee?.name}
         categoryName={category.name}
+        categorySlug={category.slug}
+        nomineeId={selectedNomineeId ?? undefined}
       />
     </div>
   );
