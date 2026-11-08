@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, Suspense, useEffect } from "react";
-import { useSearchParams } from "next/navigation";
+import { useSearchParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import {
   Mail,
@@ -9,26 +9,31 @@ import {
   ArrowRight,
   ShieldCheck,
   ChevronLeft,
-  MailCheck,
+  KeyRound,
   RefreshCw,
   Clock,
+  CheckCircle2,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { sendOtpAction } from "@/app/actions/auth";
+import { sendOtpAction, verifyOtpAction } from "@/app/actions/auth";
+import { createClient } from "@/lib/supabase/client";
 import { checkEmailTypo } from "@/lib/auth/email";
 import { toast } from "sonner";
 
 function LoginForm() {
+  const router = useRouter();
   const searchParams = useSearchParams();
   const nextUrl = searchParams.get("next") || searchParams.get("redirectTo") || "/vote";
   const isAdminLogin = nextUrl.startsWith("/admin");
 
-  const [step, setStep] = useState<"email" | "sent">("email");
+  const [step, setStep] = useState<"email" | "code">("email");
   const [email, setEmail] = useState("");
+  const [otpCode, setOtpCode] = useState("");
   const [suggestedEmail, setSuggestedEmail] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [isVerifying, setIsVerifying] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [countdown, setCountdown] = useState<number>(0);
 
@@ -56,9 +61,9 @@ function LoginForm() {
     try {
       const result = await sendOtpAction(email, undefined, nextUrl);
       if (result.success) {
-        setStep("sent");
+        setStep("code");
         setCountdown(60);
-        toast.success("Sign-in link sent!", {
+        toast.success("Verification code sent!", {
           description: `Check your inbox at ${email}`,
         });
       } else {
@@ -66,9 +71,9 @@ function LoginForm() {
           const waitTime = result.retryAfterSeconds || 60;
           setCountdown(waitTime);
           setErrorMessage(null);
-          toast.info(`Please wait ${waitTime}s before requesting another link.`);
+          toast.info(`Please wait ${waitTime}s before requesting another code.`);
         } else {
-          setErrorMessage(result.error || "Failed to send link. Please try again.");
+          setErrorMessage(result.error || "Failed to send code. Please try again.");
           if (result.suggestedEmail) {
             setSuggestedEmail(result.suggestedEmail);
           }
@@ -81,6 +86,52 @@ function LoginForm() {
     }
   };
 
+  const handleVerifyCode = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const cleanToken = otpCode.trim();
+    if (!cleanToken || cleanToken.length < 6) {
+      setErrorMessage("Please enter the complete 6-digit verification code.");
+      return;
+    }
+
+    setErrorMessage(null);
+    setIsVerifying(true);
+
+    try {
+      const supabase = createClient();
+
+      const { data, error } = await supabase.auth.verifyOtp({
+        email: email.trim().toLowerCase(),
+        token: cleanToken,
+        type: "email",
+      });
+
+      if (error || !data.user) {
+        setErrorMessage(
+          error?.message?.includes("expired")
+            ? "Verification code has expired. Please request a new code."
+            : "Invalid verification code. Please check your email or click resend."
+        );
+        setIsVerifying(false);
+        return;
+      }
+
+      try {
+        await verifyOtpAction(email, cleanToken);
+      } catch {
+        // Non-blocking
+      }
+
+      toast.success("Signed in successfully!");
+      router.push(nextUrl);
+      router.refresh();
+    } catch (err: any) {
+      setErrorMessage(err?.message || "Failed to verify code. Please try again.");
+    } finally {
+      setIsVerifying(false);
+    }
+  };
+
   const handleResend = async () => {
     if (countdown > 0) return;
     setErrorMessage(null);
@@ -89,13 +140,13 @@ function LoginForm() {
       const result = await sendOtpAction(email, undefined, nextUrl);
       if (result.success) {
         setCountdown(60);
-        toast.success("Link resent!", { description: `Check your inbox at ${email}` });
+        toast.success("Code resent!", { description: `Check your inbox at ${email}` });
       } else {
         if (result.rateLimited) {
           const waitTime = result.retryAfterSeconds || 60;
           setCountdown(waitTime);
           setErrorMessage(null);
-          toast.info(`Please wait ${waitTime}s before requesting another link.`);
+          toast.info(`Please wait ${waitTime}s before requesting another code.`);
         } else {
           setErrorMessage(result.error || "Failed to resend.");
         }
@@ -108,48 +159,43 @@ function LoginForm() {
   };
 
   return (
-    <div className="w-full max-w-md p-8 sm:p-10 rounded-3xl bg-[#0a0a0a]/95 border border-white/10 shadow-2xl backdrop-blur-xl">
+    <div className="w-full max-w-md p-8 rounded-3xl bg-[#0c0c0c] border border-white/10 shadow-2xl">
       <div className="text-center mb-8">
-        <Link
-          href="/"
-          className="inline-flex items-center gap-2 mb-4 group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white rounded-lg"
-        >
-          <div className="w-12 h-12 rounded-2xl bg-amber-400/10 border border-amber-400/25 flex items-center justify-center text-amber-400 group-hover:scale-105 transition-transform shadow-[0_0_20px_rgba(245,158,11,0.15)]">
-            {step === "sent" ? (
-              <MailCheck className="w-6 h-6 text-emerald-400" />
-            ) : (
-              <Mail className="w-6 h-6 text-amber-400" />
-            )}
-          </div>
-        </Link>
+        <div className="w-14 h-14 rounded-2xl bg-amber-400/10 border border-amber-400/25 flex items-center justify-center text-amber-400 mx-auto mb-4 shadow-[0_0_20px_rgba(245,158,11,0.15)]">
+          {step === "email" ? (
+            <Mail className="w-7 h-7" />
+          ) : (
+            <KeyRound className="w-7 h-7 text-amber-400" />
+          )}
+        </div>
 
-        <h1 className="text-2xl sm:text-3xl font-black text-white uppercase tracking-tight">
-          {step === "email"
-            ? isAdminLogin
-              ? "Admin Sign In"
-              : "Voter Verification"
-            : "Check Your Inbox"}
+        <h1 className="text-2xl font-bold text-white tracking-tight uppercase">
+          {isAdminLogin
+            ? "Admin Portal Sign-In"
+            : step === "email"
+            ? "Voter Sign-In"
+            : "Enter 6-Digit Code"}
         </h1>
+
         <p className="text-white/50 text-xs sm:text-sm mt-2 leading-relaxed">
-          {step === "email"
-            ? isAdminLogin
-              ? "Enter your admin email. We'll send you a secure one-click sign-in link."
-              : "Enter your personal email. We'll send you a sign-in link. No passwords needed."
-            : <>
-                We sent a sign-in link to{" "}
-                <span className="text-white font-medium">{email}</span>.
-                Click the link in your email to{" "}
-                {isAdminLogin ? "access the admin dashboard." : "verify your voting session."}
-              </>}
+          {step === "email" ? (
+            isAdminLogin
+              ? "Sign in with your authorized admin email to manage event operations."
+              : "Verify your email to cast official votes. Passwordless and instant."
+          ) : (
+            <>
+              We sent a 6-digit code to <strong className="text-white font-mono">{email}</strong>.
+            </>
+          )}
         </p>
       </div>
 
-      {/* Live Countdown Cooldown Notice */}
-      {countdown > 0 && (
-        <div className="mb-6 p-3.5 rounded-xl bg-amber-400/10 border border-amber-400/25 flex items-center gap-2.5 text-xs text-amber-300">
+      {/* Security Cooldown Notice */}
+      {countdown > 0 && step === "email" && (
+        <div className="mb-4 p-3 rounded-xl bg-amber-400/10 border border-amber-400/25 flex items-center gap-2.5 text-xs text-amber-300">
           <Clock className="w-4 h-4 shrink-0 animate-pulse text-amber-400" />
           <div className="flex-1">
-            <span>Security cooldown active. You can request another link in </span>
+            <span>Security cooldown active. You can request another code in </span>
             <strong className="text-white font-mono font-bold text-sm">{countdown}s</strong>
           </div>
         </div>
@@ -158,30 +204,33 @@ function LoginForm() {
       {errorMessage && (
         <div
           role="alert"
-          className="mb-6 p-3.5 rounded-xl bg-rose-500/10 border border-rose-500/20 text-rose-300 text-xs leading-relaxed"
+          className="mb-6 p-4 rounded-xl bg-rose-500/10 border border-rose-500/20 text-rose-300 text-xs leading-relaxed"
         >
           {errorMessage}
         </div>
       )}
 
       {step === "email" ? (
-        <form onSubmit={handleSendLink} className="space-y-5">
+        <form onSubmit={handleSendLink} className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="email" className="text-xs uppercase tracking-wider text-white/60">
+            <Label
+              htmlFor="email-input"
+              className="text-xs uppercase tracking-wider text-white/60"
+            >
               Email Address
             </Label>
             <Input
-              id="email"
+              id="email-input"
               type="email"
               autoComplete="email"
-              placeholder={isAdminLogin ? "info@coastalnganyaawards.com" : "name@example.com"}
+              placeholder="name@example.com"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
-              className="bg-white/5 border-white/10 text-white placeholder:text-white/30 h-12 rounded-xl focus-visible:ring-2 focus-visible:ring-amber-400"
+              className="bg-white/5 border-white/10 text-white placeholder:text-white/30 h-12 rounded-xl focus-visible:ring-2 focus-visible:ring-amber-400 text-sm"
             />
 
-            {/* Smart Typo Suggestion Chip */}
+            {/* Typo Suggestion Chip */}
             {suggestedEmail && (
               <div className="p-2.5 rounded-lg bg-amber-400/10 border border-amber-400/25 flex items-center justify-between text-xs">
                 <span className="text-amber-300">
@@ -204,7 +253,7 @@ function LoginForm() {
             <p className="text-[11px] text-white/40">
               {isAdminLogin
                 ? "Use your registered admin address (e.g. info@coastalnganyaawards.com)."
-                : "Enter an active inbox you have access to. Links expire in 1 hour."}
+                : "Enter an active inbox you have access to. Codes expire in 1 hour."}
             </p>
           </div>
 
@@ -216,7 +265,7 @@ function LoginForm() {
             {isLoading ? (
               <>
                 <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                Sending link...
+                Sending code...
               </>
             ) : countdown > 0 ? (
               <>
@@ -225,55 +274,100 @@ function LoginForm() {
               </>
             ) : (
               <>
-                Send Sign-In Link
+                Send 6-Digit Code
                 <ArrowRight className="w-4 h-4 ml-2" />
               </>
             )}
           </Button>
         </form>
       ) : (
-        <div className="space-y-5">
-          {/* Inbox card */}
-          <div className="rounded-2xl bg-white/5 border border-white/10 p-6 text-center space-y-2">
-            <MailCheck className="w-10 h-10 text-emerald-400 mx-auto mb-2" />
-            <p className="text-white text-sm font-semibold">Link sent to</p>
-            <p className="text-white/80 text-sm font-mono truncate">{email}</p>
-            <p className="text-white/40 text-xs mt-2 leading-relaxed">
-              Open your email client and click{" "}
-              <strong className="text-white/70">
-                Sign in to Coastal Nganya Awards
-              </strong>
-              . If you don&apos;t see it, check your spam/junk folder.
+        <form onSubmit={handleVerifyCode} className="space-y-4">
+          <div className="space-y-2">
+            <Label
+              htmlFor="otp-input"
+              className="text-xs uppercase tracking-wider text-white/60"
+            >
+              6-Digit Verification Code
+            </Label>
+            <Input
+              id="otp-input"
+              type="text"
+              inputMode="numeric"
+              autoComplete="one-time-code"
+              pattern="[0-9]*"
+              maxLength={6}
+              placeholder="000000"
+              value={otpCode}
+              onChange={(e) => {
+                const val = e.target.value.replace(/\D/g, "");
+                setOtpCode(val);
+              }}
+              autoFocus
+              required
+              className="bg-white/5 border-white/10 text-white placeholder:text-white/20 h-14 rounded-xl text-center font-mono text-3xl font-bold tracking-[0.35em] focus-visible:ring-2 focus-visible:ring-amber-400"
+            />
+            <p className="text-[11px] text-white/40 text-center">
+              Check your inbox for the 6-digit confirmation code.
             </p>
           </div>
 
-          <div className="flex items-center justify-between text-xs text-white/50">
-            <button
-              type="button"
-              onClick={() => { setStep("email"); setErrorMessage(null); }}
-              className="hover:text-white underline underline-offset-4 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-white rounded"
-            >
-              Use different email
-            </button>
-            <button
-              type="button"
-              onClick={handleResend}
-              disabled={isLoading || countdown > 0}
-              className="flex items-center gap-1.5 hover:text-white underline underline-offset-4 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-white rounded disabled:opacity-40 disabled:no-underline"
-            >
-              {isLoading ? (
-                <Loader2 className="w-3.5 h-3.5 animate-spin" />
-              ) : countdown > 0 ? (
-                <span className="font-mono text-amber-400">Resend in {countdown}s</span>
-              ) : (
-                <>
-                  <RefreshCw className="w-3.5 h-3.5" />
-                  Resend link
-                </>
-              )}
-            </button>
+          <Button
+            type="submit"
+            disabled={isVerifying || otpCode.trim().length < 6}
+            className="w-full bg-amber-400 hover:bg-amber-300 disabled:bg-neutral-800 disabled:text-neutral-500 text-black font-bold h-12 rounded-xl text-sm transition-all focus-visible:ring-2 focus-visible:ring-amber-400"
+          >
+            {isVerifying ? (
+              <>
+                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                Verifying...
+              </>
+            ) : (
+              <>
+                <CheckCircle2 className="w-4 h-4 mr-2" />
+                Verify & Sign In
+              </>
+            )}
+          </Button>
+
+          <div className="pt-2 border-t border-white/5 space-y-3">
+            <p className="text-[11px] text-white/40 text-center leading-relaxed">
+              Prefer clicking? You can also click the sign-in link sent to{" "}
+              <span className="text-white font-mono">{email}</span>.
+            </p>
+
+            <div className="flex items-center justify-between text-xs text-white/50 pt-1">
+              <button
+                type="button"
+                onClick={() => {
+                  setStep("email");
+                  setErrorMessage(null);
+                  setOtpCode("");
+                }}
+                className="hover:text-white underline underline-offset-4 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-white rounded"
+              >
+                Use different email
+              </button>
+
+              <button
+                type="button"
+                onClick={handleResend}
+                disabled={isLoading || countdown > 0}
+                className="flex items-center gap-1.5 hover:text-white underline underline-offset-4 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-white rounded disabled:opacity-40 disabled:no-underline"
+              >
+                {isLoading ? (
+                  <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                ) : countdown > 0 ? (
+                  <span className="font-mono text-amber-400">Resend in {countdown}s</span>
+                ) : (
+                  <>
+                    <RefreshCw className="w-3.5 h-3.5" />
+                    Resend code
+                  </>
+                )}
+              </button>
+            </div>
           </div>
-        </div>
+        </form>
       )}
 
       <div className="mt-8 pt-6 border-t border-white/10 flex items-center justify-center gap-2 text-xs text-white/40 font-mono">
@@ -301,7 +395,14 @@ export default function LoginPage() {
         </Button>
       </div>
 
-      <Suspense fallback={<div className="text-white/40">Loading...</div>}>
+      <Suspense
+        fallback={
+          <div className="w-full max-w-md p-8 rounded-3xl bg-[#0c0c0c] border border-white/10 text-center text-white/40">
+            <Loader2 className="w-6 h-6 animate-spin mx-auto mb-2 text-amber-400" />
+            Loading portal...
+          </div>
+        }
+      >
         <LoginForm />
       </Suspense>
     </div>

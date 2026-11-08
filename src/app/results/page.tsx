@@ -126,34 +126,17 @@ export default async function ResultsPage() {
       });
   }
 
-  // 5. Fetch current vote counts
+  // 5. Fetch current authoritative vote counts
   const initialCounts: Record<string, number> = {};
 
   const { data: dbCounts } = await adminClient
     .from("vote_counts")
     .select("nominee_id, count")
-    .limit(5000);
+    .limit(1000);
 
   if (dbCounts && Array.isArray(dbCounts) && dbCounts.length > 0) {
     for (const c of dbCounts as any[]) {
       initialCounts[c.nominee_id] = Number(c.count);
-    }
-  }
-
-  // Also query verified raw votes table and reconcile with the maximum
-  const { data: rawVotes } = await adminClient
-    .from("votes")
-    .select("nominee_id")
-    .eq("voided", false)
-    .limit(50000);
-
-  if (rawVotes && Array.isArray(rawVotes) && rawVotes.length > 0) {
-    const rawMap: Record<string, number> = {};
-    for (const v of rawVotes) {
-      rawMap[v.nominee_id] = (rawMap[v.nominee_id] || 0) + 1;
-    }
-    for (const [nomId, rawCnt] of Object.entries(rawMap)) {
-      initialCounts[nomId] = Math.max(initialCounts[nomId] ?? 0, rawCnt);
     }
   }
 

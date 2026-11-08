@@ -126,7 +126,7 @@ export async function seedDatabaseFromLocalJson() {
   }
 
   // 4. Batch initialize vote_counts rows with ignoreDuplicates: true
-  // This ensures existing vote counts are NEVER overwritten or zeroed out
+  // This guarantees existing vote counts are NEVER overwritten or zeroed out
   const voteCounts = insertedNominees.map((n) => ({
     category_id: n.category_id,
     nominee_id: n.id,
@@ -140,17 +140,28 @@ export async function seedDatabaseFromLocalJson() {
       .upsert(chunk, { onConflict: "category_id,nominee_id", ignoreDuplicates: true });
   }
 
-  // 4b. Reconcile vote_counts with all verified votes in the votes table
+  // 4b. Reconcile vote_counts with ALL verified votes in the votes table using paginated retrieval
   try {
-    const { data: validVotes } = await adminClient
-      .from("votes")
-      .select("category_id, nominee_id")
-      .eq("voided", false)
-      .limit(50000);
+    const allVotes: { category_id: string; nominee_id: string }[] = [];
+    let offset = 0;
+    const pageSize = 1000;
 
-    if (validVotes && validVotes.length > 0) {
+    while (true) {
+      const { data: chunk, error: chunkErr } = await adminClient
+        .from("votes")
+        .select("category_id, nominee_id")
+        .eq("voided", false)
+        .range(offset, offset + pageSize - 1);
+
+      if (chunkErr || !chunk || chunk.length === 0) break;
+      allVotes.push(...chunk);
+      if (chunk.length < pageSize) break;
+      offset += pageSize;
+    }
+
+    if (allVotes.length > 0) {
       const tallyMap: Record<string, { category_id: string; nominee_id: string; count: number }> = {};
-      for (const v of validVotes) {
+      for (const v of allVotes) {
         const key = `${v.category_id}|${v.nominee_id}`;
         if (!tallyMap[key]) {
           tallyMap[key] = { category_id: v.category_id, nominee_id: v.nominee_id, count: 0 };

@@ -13,7 +13,7 @@ export async function GET(request: Request) {
     let query = adminClient
       .from("vote_counts")
       .select("category_id, nominee_id, count")
-      .limit(5000);
+      .limit(1000);
 
     if (categoryId) {
       query = query.eq("category_id", categoryId);
@@ -25,55 +25,35 @@ export async function GET(request: Request) {
       return NextResponse.json({ error: error.message }, { status: 500 });
     }
 
-    // Build a baseline tally map from vote_counts
-    const tallyMap = new Map<string, { category_id: string; nominee_id: string; count: number }>();
-
-    if (data && Array.isArray(data)) {
-      for (const item of data) {
-        const key = `${item.category_id}|${item.nominee_id}`;
-        tallyMap.set(key, {
-          category_id: item.category_id,
-          nominee_id: item.nominee_id,
-          count: Number(item.count) || 0,
-        });
-      }
+    // Authoritative tallies from vote_counts (all 515 nominees)
+    if (data && Array.isArray(data) && data.length > 0) {
+      return NextResponse.json({ counts: data });
     }
 
-    // Also reconcile with verified votes table to guarantee live accuracy
+    // Fallback if vote_counts is empty: aggregate from votes table
     let votesQuery = adminClient
       .from("votes")
       .select("category_id, nominee_id")
-      .eq("voided", false)
-      .limit(50000);
+      .eq("voided", false);
 
     if (categoryId) {
       votesQuery = votesQuery.eq("category_id", categoryId);
     }
 
-    const { data: rawVotes } = await votesQuery;
+    const { data: rawVotes } = await votesQuery.limit(5000);
     if (rawVotes && Array.isArray(rawVotes) && rawVotes.length > 0) {
-      const rawCountMap: Record<string, number> = {};
+      const tallyMap: Record<string, { category_id: string; nominee_id: string; count: number }> = {};
       for (const v of rawVotes) {
         const key = `${v.category_id}|${v.nominee_id}`;
-        rawCountMap[key] = (rawCountMap[key] || 0) + 1;
-      }
-
-      for (const [key, rawCount] of Object.entries(rawCountMap)) {
-        const existing = tallyMap.get(key);
-        if (existing) {
-          existing.count = Math.max(existing.count, rawCount);
-        } else {
-          const [catId, nomId] = key.split("|");
-          tallyMap.set(key, {
-            category_id: catId,
-            nominee_id: nomId,
-            count: rawCount,
-          });
+        if (!tallyMap[key]) {
+          tallyMap[key] = { category_id: v.category_id, nominee_id: v.nominee_id, count: 0 };
         }
+        tallyMap[key].count += 1;
       }
+      return NextResponse.json({ counts: Object.values(tallyMap) });
     }
 
-    return NextResponse.json({ counts: Array.from(tallyMap.values()) });
+    return NextResponse.json({ counts: [] });
   } catch (err: any) {
     return NextResponse.json(
       { error: err?.message || "Failed to fetch counts" },

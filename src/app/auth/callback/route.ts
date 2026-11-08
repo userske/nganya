@@ -6,7 +6,7 @@ import { createServerClient } from "@supabase/ssr";
  * Handles Supabase auth redirects (magic link clicks).
  *
  * 1. Exchanges the one-time code for session cookies
- * 2. Writes session cookies directly to the redirect response
+ * 2. Writes session cookies directly to the redirect response with full options
  * 3. Upserts profile and assigns admin role if email matches
  * 4. Redirects to destination (Admin -> /admin, Voter -> next or /vote)
  */
@@ -20,8 +20,8 @@ export async function GET(request: NextRequest) {
     return NextResponse.redirect(`${origin}/login?error=missing_code`);
   }
 
-  // Temporary response to capture session cookies
-  let cookieCaptureResponse = NextResponse.next();
+  // Captured cookies with full attribute preservation
+  const capturedCookies: Array<{ name: string; value: string; options: any }> = [];
 
   const supabase = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -32,9 +32,7 @@ export async function GET(request: NextRequest) {
           return request.cookies.getAll();
         },
         setAll(cookiesToSet) {
-          cookiesToSet.forEach(({ name, value, options }) => {
-            cookieCaptureResponse.cookies.set(name, value, options);
-          });
+          capturedCookies.push(...cookiesToSet);
         },
       },
     }
@@ -92,10 +90,15 @@ export async function GET(request: NextRequest) {
     finalDestination = "/admin";
   }
 
-  // Create final redirect response and copy all captured cookies
+  // Create final redirect response and copy all captured cookies with full options
   const finalResponse = NextResponse.redirect(`${origin}${finalDestination}`);
-  cookieCaptureResponse.cookies.getAll().forEach((cookie) => {
-    finalResponse.cookies.set(cookie.name, cookie.value, cookie);
+  capturedCookies.forEach(({ name, value, options }) => {
+    finalResponse.cookies.set(name, value, {
+      ...options,
+      path: "/",
+      sameSite: "lax",
+      secure: process.env.NODE_ENV === "production",
+    });
   });
 
   return finalResponse;
