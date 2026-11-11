@@ -5,18 +5,23 @@ import { createServerClient } from "@supabase/ssr";
 /**
  * Handles Supabase auth redirects (magic link clicks).
  *
- * 1. Exchanges the one-time code for session cookies
- * 2. Writes session cookies directly to the redirect response with full options
- * 3. Upserts profile and assigns admin role if email matches
- * 4. Redirects to destination (Admin -> /admin, Voter -> next or /vote)
+ * Supports both:
+ * 1. Fast direct token_hash verification via Resend (instant 1-click magic link)
+ * 2. Standard PKCE code exchange from Supabase
+ *
+ * Writes session cookies directly to the redirect response with full attributes.
+ * Upserts profile and assigns admin role if email matches.
+ * Redirects to destination (Admin -> /admin, Voter -> next or /vote).
  */
 export async function GET(request: NextRequest) {
   const { searchParams, origin } = new URL(request.url);
 
   const code = searchParams.get("code");
+  const tokenHash = searchParams.get("token_hash");
+  const type = (searchParams.get("type") as any) || "magiclink";
   const nextParam = searchParams.get("next");
 
-  if (!code) {
+  if (!code && !tokenHash) {
     return NextResponse.redirect(`${origin}/login?error=missing_code`);
   }
 
@@ -38,14 +43,39 @@ export async function GET(request: NextRequest) {
     }
   );
 
-  const { data, error } = await supabase.auth.exchangeCodeForSession(code);
+  let user: any = null;
 
-  if (error || !data.user) {
-    console.error("Auth callback error exchanging code:", error?.message);
+  // 1. Direct token_hash verification (Fast path from Resend instant magic links)
+  if (tokenHash) {
+    const { data, error } = await supabase.auth.verifyOtp({
+      token_hash: tokenHash,
+      type,
+    });
+
+    if (error || !data.user) {
+      console.error("[Auth Callback] token_hash verification failed:", error?.message);
+      return NextResponse.redirect(`${origin}/login?error=auth_failed`);
+    }
+
+    user = data.user;
+  }
+  // 2. PKCE code exchange (Standard Supabase redirect path)
+  else if (code) {
+    const { data, error } = await supabase.auth.exchangeCodeForSession(code);
+
+    if (error || !data.user) {
+      console.error("[Auth Callback] Code exchange failed:", error?.message);
+      return NextResponse.redirect(`${origin}/login?error=auth_failed`);
+    }
+
+    user = data.user;
+  }
+
+  if (!user) {
     return NextResponse.redirect(`${origin}/login?error=auth_failed`);
   }
 
-  const userEmail = (data.user.email || "").toLowerCase().trim();
+  const userEmail = (user.email || "").toLowerCase().trim();
 
   // Recognized admin emails
   const adminEmails = [
@@ -62,7 +92,7 @@ export async function GET(request: NextRequest) {
     const { data: existingProfile } = await supabase
       .from("profiles")
       .select("role")
-      .eq("id", data.user.id)
+      .eq("id", user.id)
       .maybeSingle();
 
     const roleToAssign =
@@ -72,14 +102,14 @@ export async function GET(request: NextRequest) {
 
     await supabase.from("profiles").upsert(
       {
-        id: data.user.id,
+        id: user.id,
         email_normalized: userEmail,
         role: roleToAssign,
       },
       { onConflict: "id" }
     );
   } catch (err) {
-    console.error("Profile upsert warning:", err);
+    console.error("[Auth Callback] Profile upsert warning:", err);
   }
 
   // Target destination
