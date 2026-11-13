@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState, useMemo } from "react";
 import Link from "next/link";
@@ -19,6 +19,9 @@ import {
   ExternalLink,
   ShieldCheck,
   Check,
+  Mail,
+  Send,
+  X,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -29,6 +32,8 @@ import {
   updateEventSettingsAction,
   toggleCategoryStatusAction,
   syncPaystackOrderAction,
+  resendOrderTicketsAction,
+  resendAllConfirmedTicketsAction,
 } from "@/app/actions/admin";
 import { toast } from "sonner";
 import { format } from "date-fns";
@@ -70,6 +75,8 @@ export function AdminDashboardClient({
   const [orderStatusFilter, setOrderStatusFilter] = useState<string>("all");
   const [isSeeding, setIsSeeding] = useState(false);
   const [syncingOrderId, setSyncingOrderId] = useState<string | null>(null);
+  const [resendingOrderId, setResendingOrderId] = useState<string | null>(null);
+  const [isResendingAll, setIsResendingAll] = useState(false);
 
   // Financial & Ticketing Metrics
   const confirmedOrders = useMemo(() => {
@@ -193,6 +200,53 @@ export function AdminDashboardClient({
     }
   };
 
+
+  // Resend Ticket QR for a Single Order
+  const handleResendOrderTickets = async (orderNumber: string) => {
+    setResendingOrderId(orderNumber);
+    try {
+      const res = await resendOrderTicketsAction(orderNumber);
+      if (res.success) {
+        toast.success(`QR ticket email sent to ${res.recipient}`, {
+          description: `Dispatched ${res.ticketCount} ticket(s) for order ${orderNumber}.`,
+        });
+      } else {
+        toast.error("Resend failed", { description: res.error });
+      }
+    } catch {
+      toast.error("Network error while resending tickets.");
+    } finally {
+      setResendingOrderId(null);
+    }
+  };
+
+  // Resend All Confirmed Orders
+  const handleResendAllTickets = async () => {
+    if (!confirm("Resend QR ticket emails to ALL confirmed buyers? This will email every confirmed order.")) return;
+    setIsResendingAll(true);
+    try {
+      const res = await resendAllConfirmedTicketsAction();
+      if (res.sentCount > 0) {
+        toast.success(`Sent ${res.sentCount} of ${res.totalOrders} orders`, {
+          description: res.failedCount > 0
+            ? `${res.failedCount} failed — check audit log.`
+            : "All ticket emails dispatched successfully.",
+        });
+      } else if (res.totalOrders === 0) {
+        toast.info("No confirmed orders found to resend.");
+      } else {
+        toast.error(`All ${res.failedCount} sends failed`, {
+          description: res.errors?.[0] || "Check server logs.",
+        });
+      }
+    } catch {
+      toast.error("Network error while resending all tickets.");
+    } finally {
+      setIsResendingAll(false);
+    }
+  };
+
+
   // Seed Database Handler
   const handleSeedDatabase = async () => {
     setIsSeeding(true);
@@ -250,9 +304,9 @@ export function AdminDashboardClient({
 
   return (
     <div className="space-y-8 w-full">
-      {/* ─────────────────────────────────────────────────────────────
+      {/* â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
           1. COMMAND CENTER HEADER & LIVE STATUS
-      ───────────────────────────────────────────────────────────── */}
+      â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
       <div className="w-full rounded-2xl sm:rounded-3xl border border-white/10 bg-gradient-to-b from-[#141414] via-[#0c0c0c] to-[#080808] p-5 sm:p-8 shadow-2xl">
         <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6 pb-6 border-b border-white/10">
           <div className="min-w-0 flex-1">
@@ -401,9 +455,9 @@ export function AdminDashboardClient({
         </div>
       </div>
 
-      {/* ─────────────────────────────────────────────────────────────
+      {/* â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
           2. MASTER DASHBOARD TABS (Fluid Apple Segmented Controls)
-      ───────────────────────────────────────────────────────────── */}
+      â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
       <div className="w-full flex flex-col space-y-6">
         {/* Horizontally scrollable tab bar */}
         <div className="w-full overflow-x-auto pb-1 scrollbar-none">
@@ -434,9 +488,9 @@ export function AdminDashboardClient({
           </div>
         </div>
 
-        {/* ═══════════════════════════════════════════════════════════
+        {/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
             TAB 1: COMMAND OVERVIEW & QUICK TOGGLES
-        ════════════════════════════════════════════════════════════ */}
+        â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */}
         {activeTab === "overview" && (
           <div role="tabpanel" className="w-full space-y-6 pt-1">
             {/* Quick Toggles Row */}
@@ -615,9 +669,9 @@ export function AdminDashboardClient({
           </div>
         )}
 
-        {/* ═══════════════════════════════════════════════════════════
+        {/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
             TAB 2: EVENT SETTINGS
-        ════════════════════════════════════════════════════════════ */}
+        â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */}
         {activeTab === "settings" && (
           <div role="tabpanel" className="w-full space-y-6 pt-1">
             <div className="p-5 sm:p-8 rounded-2xl bg-[#0d0d0d] border border-white/10 max-w-3xl space-y-6">
@@ -732,9 +786,9 @@ export function AdminDashboardClient({
           </div>
         )}
 
-        {/* ═══════════════════════════════════════════════════════════
+        {/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
             TAB 3: CATEGORIES & NOMINEES
-        ════════════════════════════════════════════════════════════ */}
+        â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */}
         {activeTab === "categories" && (
           <div role="tabpanel" className="w-full space-y-4 pt-1">
             {/* Controls Bar */}
@@ -874,9 +928,9 @@ export function AdminDashboardClient({
           </div>
         )}
 
-        {/* ═══════════════════════════════════════════════════════════
+        {/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
             TAB 4: TICKETS & ORDERS
-        ════════════════════════════════════════════════════════════ */}
+        â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */}
         {activeTab === "tickets" && (
           <div role="tabpanel" className="w-full space-y-4 pt-1">
             {/* Controls Bar: Search & Status Filter */}
@@ -924,6 +978,37 @@ export function AdminDashboardClient({
               </span>
             </div>
 
+            {/* Resend All QR Codes Banner */}
+            {confirmedOrders.length > 0 && (
+              <div className={lex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 p-4 rounded-2xl border }>
+                <div>
+                  <div className={	ext-sm font-bold }>
+                    Send QR Ticket Emails
+                  </div>
+                  <div className='text-xs text-white/50 mt-0.5'>
+                    Dispatch QR code passes to all {confirmedOrders.length} confirmed buyer{confirmedOrders.length !== 1 ? 's' : ''}.
+                  </div>
+                </div>
+                <Button
+                  onClick={handleResendAllTickets}
+                  disabled={isResendingAll}
+                  className='shrink-0 bg-amber-400 hover:bg-amber-300 text-black font-bold h-9 px-4 text-xs rounded-xl'
+                >
+                  {isResendingAll ? (
+                    <>
+                      <Loader2 className='w-3.5 h-3.5 mr-1.5 animate-spin' />
+                      Sending All...
+                    </>
+                  ) : (
+                    <>
+                      <Send className='w-3.5 h-3.5 mr-1.5' />
+                      Resend QR to All Buyers
+                    </>
+                  )}
+                </Button>
+              </div>
+            )}
+
             {/* Orders Table */}
             <div className="rounded-2xl border border-white/10 overflow-hidden bg-[#0d0d0d] overflow-x-auto w-full">
               <table className="w-full text-left text-xs font-mono min-w-[800px]">
@@ -954,7 +1039,7 @@ export function AdminDashboardClient({
                         <td className="p-3.5 font-bold text-white">{o.order_number}</td>
                         <td className="p-3.5 text-white font-sans">{o.buyer_name}</td>
                         <td className="p-3.5 text-white/50 text-[11px]">
-                          <div>{o.buyer_phone || "—"}</div>
+                          <div>{o.buyer_phone || "â€”"}</div>
                           <div className="text-white/30 truncate max-w-[140px]">{o.buyer_email}</div>
                         </td>
                         <td className="p-3.5 text-white/70">
@@ -982,7 +1067,7 @@ export function AdminDashboardClient({
                           </span>
                         </td>
                         <td className="p-3.5 text-white/40 text-[11px]">
-                          {o.created_at ? format(new Date(o.created_at), "d MMM, h:mm a") : "—"}
+                          {o.created_at ? format(new Date(o.created_at), "d MMM, h:mm a") : "â€”"}
                         </td>
                         <td className="p-3.5 text-right">
                           {o.status === "pending" ? (
@@ -1003,10 +1088,31 @@ export function AdminDashboardClient({
                               )}
                             </Button>
                           ) : (
-                            <span className="text-emerald-400 text-[11px] font-sans inline-flex items-center gap-1">
-                              <Check className="w-3.5 h-3.5" />
-                              Confirmed
-                            </span>
+                            <div className='flex flex-col items-end gap-1.5'>
+                              <span className='text-emerald-400 text-[11px] font-sans inline-flex items-center gap-1'>
+                                <Check className='w-3.5 h-3.5' />
+                                Confirmed
+                              </span>
+                              <Button
+                                size='sm'
+                                variant='ghost'
+                                onClick={() => handleResendOrderTickets(o.order_number)}
+                                disabled={resendingOrderId === o.order_number}
+                                className='h-7 px-2 text-[10px] font-sans text-amber-400 hover:text-amber-300 hover:bg-amber-400/10 border border-amber-400/20'
+                              >
+                                {resendingOrderId === o.order_number ? (
+                                  <>
+                                    <Loader2 className='w-3 h-3 mr-1 animate-spin' />
+                                    Sending...
+                                  </>
+                                ) : (
+                                  <>
+                                    <Mail className='w-3 h-3 mr-1' />
+                                    Resend QR
+                                  </>
+                                )}
+                              </Button>
+                            </div>
                           )}
                         </td>
                       </tr>
@@ -1018,9 +1124,9 @@ export function AdminDashboardClient({
           </div>
         )}
 
-        {/* ═══════════════════════════════════════════════════════════
+        {/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
             TAB 5: ANTI-ABUSE & IP SECURITY
-        ════════════════════════════════════════════════════════════ */}
+        â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */}
         {activeTab === "security" && (
           <div role="tabpanel" className="w-full space-y-4 pt-1">
             <div className="p-5 sm:p-8 rounded-2xl bg-[#0d0d0d] border border-white/10 space-y-4">
@@ -1033,7 +1139,7 @@ export function AdminDashboardClient({
                     Salted IP Cluster Monitoring & Fraud Protection
                   </h2>
                   <p className="text-xs text-white/50">
-                    Kenyan carrier networks use shared Carrier-Grade NAT — IPs are hashed.
+                    Kenyan carrier networks use shared Carrier-Grade NAT â€” IPs are hashed.
                   </p>
                 </div>
               </div>
@@ -1064,7 +1170,7 @@ export function AdminDashboardClient({
                           Hash: {c.ip_hash.substring(0, 16)}...
                         </span>
                         <span className="text-white/40 ml-4">
-                          {c.voters_count} voters · {c.votes_count} votes
+                          {c.voters_count} voters Â· {c.votes_count} votes
                         </span>
                       </div>
                     </div>
@@ -1075,9 +1181,9 @@ export function AdminDashboardClient({
           </div>
         )}
 
-        {/* ═══════════════════════════════════════════════════════════
+        {/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
             TAB 6: AUDIT LOG
-        ════════════════════════════════════════════════════════════ */}
+        â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */}
         {activeTab === "audit" && (
           <div role="tabpanel" className="w-full space-y-4 pt-1">
             <div className="rounded-2xl border border-white/10 overflow-hidden bg-[#0d0d0d] overflow-x-auto w-full">
@@ -1118,3 +1224,4 @@ export function AdminDashboardClient({
     </div>
   );
 }
+

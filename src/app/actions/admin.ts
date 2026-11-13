@@ -173,6 +173,174 @@ export async function voidVoteAction(voteId: string, reason: string) {
 }
 
 /**
+ * Resend ticket QR email for a single confirmed order.
+ * Admin-only. Looks up all tickets for the order and fires sendTicketEmail.
+ */
+export async function resendOrderTicketsAction(orderNumber: string): Promise<{
+  success: boolean;
+  recipient?: string;
+  ticketCount?: number;
+  error?: string;
+}> {
+  const adminUser = await verifyAdminRole();
+  const adminClient = await createAdminClient();
+
+  // Fetch the order
+  const { data: order, error: orderErr } = await adminClient
+    .from("orders")
+    .select("id, order_number, buyer_name, buyer_email, status, ticket_tiers(name)")
+    .eq("order_number", orderNumber)
+    .maybeSingle();
+
+  if (orderErr || !order) {
+    return { success: false, error: "Order not found" };
+  }
+
+  if (order.status !== "confirmed") {
+    return { success: false, error: `Order status is '${order.status}' — only confirmed orders can have tickets resent.` };
+  }
+
+  // Fetch the tickets for this order
+  const { data: tickets, error: ticketsErr } = await adminClient
+    .from("tickets")
+    .select("ticket_code, tier_name")
+    .eq("order_number", orderNumber);
+
+  if (ticketsErr || !tickets || tickets.length === 0) {
+    return { success: false, error: "No tickets found for this order" };
+  }
+
+  const { generateSignedQrPayload } = await import("@/lib/security/ticket-crypto");
+  const { sendTicketEmail } = await import("@/lib/email/tickets");
+
+  const ticketParams = tickets.map((t) => ({
+    ticketCode: t.ticket_code,
+    tierName: t.tier_name || (order as any).ticket_tiers?.name || "Regular",
+    qrPayload: generateSignedQrPayload({
+      code: t.ticket_code,
+      orderNumber: order.order_number,
+      tierName: t.tier_name || "Regular",
+      buyerName: order.buyer_name,
+      issuedAt: Date.now(),
+    }),
+  }));
+
+  const result = await sendTicketEmail({
+    buyerName: order.buyer_name,
+    buyerEmail: order.buyer_email,
+    orderNumber: order.order_number,
+    tickets: ticketParams,
+  });
+
+  await adminClient.from("audit_log").insert({
+    actor_id: adminUser.id,
+    action: "ADMIN_RESEND_TICKETS",
+    entity_type: "order",
+    entity_id: orderNumber,
+    details: { recipient: order.buyer_email, ticketCount: tickets.length, emailSuccess: result.success },
+  });
+
+  if (!result.success) {
+    return { success: false, error: result.error || "Email delivery failed" };
+  }
+
+  return { success: true, recipient: order.buyer_email, ticketCount: tickets.length };
+}
+
+/**
+ * Resend ticket QR emails for ALL confirmed orders.
+ * Admin-only. Iterates every confirmed order and fires sendTicketEmail per order.
+ */
+export async function resendAllConfirmedTicketsAction(): Promise<{
+  success: boolean;
+  totalOrders: number;
+  sentCount: number;
+  failedCount: number;
+  errors?: string[];
+}> {
+  const adminUser = await verifyAdminRole();
+  const adminClient = await createAdminClient();
+
+  // Fetch all confirmed orders
+  const { data: confirmedOrders, error: ordersErr } = await adminClient
+    .from("orders")
+    .select("id, order_number, buyer_name, buyer_email, status, ticket_tiers(name)")
+    .eq("status", "confirmed")
+    .order("created_at", { ascending: true });
+
+  if (ordersErr || !confirmedOrders) {
+    return { success: false, totalOrders: 0, sentCount: 0, failedCount: 0, errors: [ordersErr?.message || "Failed to fetch orders"] };
+  }
+
+  const { generateSignedQrPayload } = await import("@/lib/security/ticket-crypto");
+  const { sendTicketEmail } = await import("@/lib/email/tickets");
+
+  let sentCount = 0;
+  let failedCount = 0;
+  const errors: string[] = [];
+
+  for (const order of confirmedOrders) {
+    try {
+      const { data: tickets } = await adminClient
+        .from("tickets")
+        .select("ticket_code, tier_name")
+        .eq("order_number", order.order_number);
+
+      if (!tickets || tickets.length === 0) {
+        failedCount++;
+        errors.push(`${order.order_number}: no tickets found`);
+        continue;
+      }
+
+      const ticketParams = tickets.map((t) => ({
+        ticketCode: t.ticket_code,
+        tierName: t.tier_name || (order as any).ticket_tiers?.name || "Regular",
+        qrPayload: generateSignedQrPayload({
+          code: t.ticket_code,
+          orderNumber: order.order_number,
+          tierName: t.tier_name || "Regular",
+          buyerName: order.buyer_name,
+          issuedAt: Date.now(),
+        }),
+      }));
+
+      const result = await sendTicketEmail({
+        buyerName: order.buyer_name,
+        buyerEmail: order.buyer_email,
+        orderNumber: order.order_number,
+        tickets: ticketParams,
+      });
+
+      if (result.success) {
+        sentCount++;
+      } else {
+        failedCount++;
+        errors.push(`${order.order_number} (${order.buyer_email}): ${result.error}`);
+      }
+    } catch (err: any) {
+      failedCount++;
+      errors.push(`${order.order_number}: ${err?.message || "Unknown error"}`);
+    }
+  }
+
+  await adminClient.from("audit_log").insert({
+    actor_id: adminUser.id,
+    action: "ADMIN_RESEND_ALL_TICKETS",
+    entity_type: "order",
+    entity_id: "all",
+    details: { totalOrders: confirmedOrders.length, sentCount, failedCount },
+  });
+
+  return {
+    success: failedCount === 0,
+    totalOrders: confirmedOrders.length,
+    sentCount,
+    failedCount,
+    errors: errors.length > 0 ? errors : undefined,
+  };
+}
+
+/**
  * Manually query Paystack for an order and trigger fulfillment if paid
  */
 export async function syncPaystackOrderAction(orderNumber: string) {
