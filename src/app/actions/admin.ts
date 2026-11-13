@@ -1,4 +1,4 @@
-"use server";
+﻿"use server";
 
 import { revalidatePath } from "next/cache";
 import { createClient, createAdminClient } from "@/lib/supabase/server";
@@ -197,14 +197,14 @@ export async function resendOrderTicketsAction(orderNumber: string): Promise<{
   }
 
   if (order.status !== "confirmed") {
-    return { success: false, error: `Order status is '${order.status}' — only confirmed orders can have tickets resent.` };
+    return { success: false, error: `Order status is '${order.status}' â€” only confirmed orders can have tickets resent.` };
   }
 
-  // Fetch the tickets for this order
+  // Fetch the tickets for this order using order UUID (order_id FK)
   const { data: tickets, error: ticketsErr } = await adminClient
     .from("tickets")
-    .select("ticket_code, tier_name")
-    .eq("order_number", orderNumber);
+    .select("ticket_code, qr_payload, buyer_name, buyer_email")
+    .eq("order_id", order.id);
 
   if (ticketsErr || !tickets || tickets.length === 0) {
     return { success: false, error: "No tickets found for this order" };
@@ -213,13 +213,15 @@ export async function resendOrderTicketsAction(orderNumber: string): Promise<{
   const { generateSignedQrPayload } = await import("@/lib/security/ticket-crypto");
   const { sendTicketEmail } = await import("@/lib/email/tickets");
 
+  const tierName = (order as any).ticket_tiers?.name || "Regular";
+
   const ticketParams = tickets.map((t) => ({
     ticketCode: t.ticket_code,
-    tierName: t.tier_name || (order as any).ticket_tiers?.name || "Regular",
-    qrPayload: generateSignedQrPayload({
+    tierName: tierName,
+    qrPayload: t.qr_payload || generateSignedQrPayload({
       code: t.ticket_code,
       orderNumber: order.order_number,
-      tierName: t.tier_name || "Regular",
+      tierName: tierName,
       buyerName: order.buyer_name,
       issuedAt: Date.now(),
     }),
@@ -283,8 +285,8 @@ export async function resendAllConfirmedTicketsAction(): Promise<{
     try {
       const { data: tickets } = await adminClient
         .from("tickets")
-        .select("ticket_code, tier_name")
-        .eq("order_number", order.order_number);
+        .select("ticket_code, qr_payload, buyer_name")
+        .eq("order_id", order.id);
 
       if (!tickets || tickets.length === 0) {
         failedCount++;
@@ -292,13 +294,15 @@ export async function resendAllConfirmedTicketsAction(): Promise<{
         continue;
       }
 
+      const tierName = (order as any).ticket_tiers?.name || "Regular";
+
       const ticketParams = tickets.map((t) => ({
         ticketCode: t.ticket_code,
-        tierName: t.tier_name || (order as any).ticket_tiers?.name || "Regular",
-        qrPayload: generateSignedQrPayload({
+        tierName: tierName,
+        qrPayload: t.qr_payload || generateSignedQrPayload({
           code: t.ticket_code,
           orderNumber: order.order_number,
-          tierName: t.tier_name || "Regular",
+          tierName: tierName,
           buyerName: order.buyer_name,
           issuedAt: Date.now(),
         }),
