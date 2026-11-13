@@ -193,3 +193,43 @@ body {
     scroll-behavior: auto !important;
   }
 }
+
+/* Print / Save PDF stylesheet for ticket passes */
+@media print {
+  body {
+    background: #ffffff !important;
+    color: #000000 !important;
+  }
+  body * {
+    visibility: hidden;
+  }
+  #admin-ticket-print-area,
+  #admin-ticket-print-area * {
+    visibility: visible;
+  }
+  #admin-ticket-print-area {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100% !important;
+    max-width: 100% !important;
+    margin: 0 !important;
+    padding: 20px !important;
+    background: #ffffff !important;
+    color: #000000 !important;
+    border: none !important;
+    box-shadow: none !important;
+  }
+  #admin-ticket-print-area .print\:hidden {
+    display: none !important;
+  }
+  #admin-ticket-print-area .print\:border-black {
+    border-color: #000000 !important;
+  }
+  #admin-ticket-print-area .print\:bg-white {
+    background-color: #ffffff !important;
+  }
+  #admin-ticket-print-area .print\:text-black {
+    color: #000000 !important;
+  }
+}

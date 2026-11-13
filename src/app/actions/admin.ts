@@ -197,7 +197,7 @@ export async function resendOrderTicketsAction(orderNumber: string): Promise<{
   }
 
   if (order.status !== "confirmed") {
-    return { success: false, error: `Order status is '${order.status}' â€” only confirmed orders can have tickets resent.` };
+    return { success: false, error: `Order status is '${order.status}' Ã¢â‚¬â€ only confirmed orders can have tickets resent.` };
   }
 
   // Fetch the tickets for this order using order UUID (order_id FK)
@@ -372,4 +372,38 @@ export async function syncPaystackOrderAction(orderNumber: string) {
 
   revalidatePath("/admin");
   return { success: true, order: result.order };
+}
+
+/**
+ * Retrieve tickets and details for an order for admin view / PDF download.
+ */
+export async function getAdminOrderTicketsAction(orderNumber: string): Promise<{
+  success: boolean;
+  order?: any;
+  tickets?: any[];
+  error?: string;
+}> {
+  await verifyAdminRole();
+  const adminClient = await createAdminClient();
+
+  const { data: order, error: orderErr } = await adminClient
+    .from('orders')
+    .select('id, order_number, buyer_name, buyer_email, buyer_phone, quantity, total_amount_kes, status, created_at, ticket_tiers(name, price_kes)')
+    .eq('order_number', orderNumber)
+    .maybeSingle();
+
+  if (orderErr || !order) {
+    return { success: false, error: 'Order not found' };
+  }
+
+  const { data: tickets, error: ticketsErr } = await adminClient
+    .from('tickets')
+    .select('id, ticket_code, status, qr_payload, created_at, buyer_name')
+    .eq('order_id', order.id);
+
+  if (ticketsErr) {
+    return { success: false, error: ticketsErr.message };
+  }
+
+  return { success: true, order, tickets: tickets || [] };
 }
