@@ -110,12 +110,13 @@ function buildMagicLinkEmailHtml(magicLinkUrl: string, recipientEmail: string): 
 }
 
 /**
- * Sends a fast 1-click magic link email for passwordless sign-in.
+ * Sends a passwordless magic link email.
  *
- * Performance Architecture:
- * 1. Generates the authoritative token hash in <1s using Supabase Admin API without hitting Supabase's slow shared email queues.
- * 2. Sends the email directly via Resend (custom verified domain @coastalnganyaawards.com), delivering in <1 second.
- * 3. Has an automatic fallback to standard Supabase signInWithOtp if Resend is unavailable.
+ * Delivery Strategy:
+ * 1. Primary: Uses Supabase's native signInWithOtp, which routes through the Custom SMTP
+ *    configured in your Supabase Dashboard.
+ * 2. Fallback: If Supabase Custom SMTP hits project rate limits or fails, attempts
+ *    direct generation and delivery via Resend (if configured).
  */
 export async function sendOtpAction(
   rawEmail: string,
@@ -166,82 +167,15 @@ export async function sendOtpAction(
 
   const siteUrl = (process.env.NEXT_PUBLIC_SITE_URL || "https://coastalnganyaawards.com").replace(/\/$/, "");
   const targetNext = redirectPath && redirectPath.startsWith("/") ? redirectPath : "/vote";
-
-  // Build target return URL
   const callbackUrl = `${siteUrl}/auth/callback?next=${encodeURIComponent(targetNext)}`;
 
   // ─────────────────────────────────────────────────────────────────────────────
-  // 1. FAST PATH: RESEND DIRECT DELIVERY (<1 Second)
-  // ─────────────────────────────────────────────────────────────────────────────
-  const resendApiKey = process.env.RESEND_API_KEY;
-  let emailSentViaResend = false;
-
-  if (resendApiKey) {
-    try {
-      const adminClient = await createAdminClient();
-
-      // Request authoritative token from Supabase admin without triggering Supabase mailer
-      const { data: linkData, error: linkError } = await adminClient.auth.admin.generateLink({
-        type: "magiclink",
-        email,
-        options: {
-          redirectTo: callbackUrl,
-        },
-      });
-
-      if (!linkError && linkData) {
-        const hashedToken = linkData.properties?.hashed_token;
-        const verificationType = linkData.properties?.verification_type || "magiclink";
-
-        // Build 1-click verification URL directly to /auth/callback
-        const magicLinkUrl = hashedToken
-          ? `${siteUrl}/auth/callback?token_hash=${encodeURIComponent(hashedToken)}&type=${encodeURIComponent(
-              verificationType
-            )}&next=${encodeURIComponent(targetNext)}`
-          : linkData.properties?.action_link;
-
-        if (magicLinkUrl) {
-          const resend = new Resend(resendApiKey);
-          const fromAddress = process.env.EMAIL_FROM || "noreply@coastalnganyaawards.com";
-          const sender = fromAddress.includes("<")
-            ? fromAddress
-            : `Coastal Nganya Awards <${fromAddress}>`;
-
-          const emailRes = await resend.emails.send({
-            from: sender,
-            to: email,
-            subject: "Your Magic Sign-In Link — Coastal Nganya Awards 2026",
-            html: buildMagicLinkEmailHtml(magicLinkUrl, email),
-          });
-
-          if (emailRes.data?.id) {
-            console.log(`[sendOtpAction] Magic link sent instantly via Resend: ${emailRes.data.id} to ${email}`);
-            emailSentViaResend = true;
-          }
-        }
-      } else if (linkError) {
-        console.warn("[sendOtpAction] generateLink error:", linkError.message);
-      }
-    } catch (err) {
-      console.error("[sendOtpAction] Resend instant delivery error, switching to fallback:", err);
-    }
-  }
-
-  // If successfully sent via Resend, return immediately!
-  if (emailSentViaResend) {
-    return {
-      success: true,
-      message: `Sign-in link sent to ${email}`,
-    };
-  }
-
-  // ─────────────────────────────────────────────────────────────────────────────
-  // 2. FALLBACK PATH: SUPABASE BUILT-IN MAILER
+  // 1. PRIMARY PATH: SUPABASE CUSTOM SMTP
   // ─────────────────────────────────────────────────────────────────────────────
   try {
     const supabase = await createClient();
 
-    const { error } = await supabase.auth.signInWithOtp({
+    const { error: supaError } = await supabase.auth.signInWithOtp({
       email,
       options: {
         shouldCreateUser: true,
@@ -249,39 +183,96 @@ export async function sendOtpAction(
       },
     });
 
-    if (error) {
-      console.error("[sendOtpAction] Supabase fallback error:", error.message, error.status);
-      const msg = (error.message || "").toLowerCase();
-      const isRateLimit =
-        error.status === 429 ||
-        (error as any).code === "over_email_send_rate_limit" ||
-        msg.includes("rate limit") ||
-        msg.includes("security purposes") ||
-        msg.includes("too many requests") ||
-        msg.includes("once every");
-
-      if (isRateLimit) {
-        const match = error.message.match(/(\d+)\s*second/i);
-        const retryAfter = match ? parseInt(match[1], 10) : 60;
-        return {
-          success: false,
-          rateLimited: true,
-          retryAfterSeconds: retryAfter,
-          error: `Please wait ${retryAfter}s before requesting another sign-in link.`,
-        };
-      }
-
-      return { success: false, error: error.message };
+    if (!supaError) {
+      console.log(`[sendOtpAction] Magic link dispatched via Supabase Custom SMTP to ${email}`);
+      return {
+        success: true,
+        message: `Sign-in link sent to ${email}`,
+      };
     }
 
-    return {
-      success: true,
-      message: `Sign-in link sent to ${email}`,
-    };
-  } catch (fallbackErr: any) {
+    // Inspect error
+    console.warn("[sendOtpAction] Supabase Custom SMTP error:", supaError.message, supaError.status);
+    const msg = (supaError.message || "").toLowerCase();
+    const isRateLimit =
+      supaError.status === 429 ||
+      (supaError as any).code === "over_email_send_rate_limit" ||
+      msg.includes("rate limit") ||
+      msg.includes("security purposes") ||
+      msg.includes("too many requests") ||
+      msg.includes("once every");
+
+    // ─────────────────────────────────────────────────────────────────────────
+    // 2. FALLBACK PATH: DIRECT RESEND (if Supabase rate-limited or fails)
+    // ─────────────────────────────────────────────────────────────────────────
+    const resendApiKey = process.env.RESEND_API_KEY;
+    if (resendApiKey) {
+      try {
+        const adminClient = await createAdminClient();
+        const { data: linkData, error: linkError } = await adminClient.auth.admin.generateLink({
+          type: "magiclink",
+          email,
+          options: {
+            redirectTo: callbackUrl,
+          },
+        });
+
+        if (!linkError && linkData) {
+          const hashedToken = linkData.properties?.hashed_token;
+          const verificationType = linkData.properties?.verification_type || "magiclink";
+
+          const magicLinkUrl = hashedToken
+            ? `${siteUrl}/auth/callback?token_hash=${encodeURIComponent(hashedToken)}&type=${encodeURIComponent(
+                verificationType
+              )}&next=${encodeURIComponent(targetNext)}`
+            : linkData.properties?.action_link;
+
+          if (magicLinkUrl) {
+            const resend = new Resend(resendApiKey);
+            const fromAddress = process.env.EMAIL_FROM || "noreply@coastalnganyaawards.com";
+            const sender = fromAddress.includes("<")
+              ? fromAddress
+              : `Coastal Nganya Awards <${fromAddress}>`;
+
+            const emailRes = await resend.emails.send({
+              from: sender,
+              to: email,
+              subject: "Your Magic Sign-In Link — Coastal Nganya Awards 2026",
+              html: buildMagicLinkEmailHtml(magicLinkUrl, email),
+            });
+
+            if (emailRes.data?.id) {
+              console.log(`[sendOtpAction] Magic link sent via fallback Resend: ${emailRes.data.id}`);
+              return {
+                success: true,
+                message: `Sign-in link sent to ${email}`,
+              };
+            }
+          }
+        }
+      } catch (resendFallbackErr) {
+        console.warn("[sendOtpAction] Resend fallback also failed:", resendFallbackErr);
+      }
+    }
+
+    // If rate limit caused the failure
+    if (isRateLimit) {
+      const match = supaError.message.match(/(\d+)\s*second/i);
+      const retryAfter = match ? parseInt(match[1], 10) : 60;
+      return {
+        success: false,
+        rateLimited: true,
+        retryAfterSeconds: retryAfter,
+        error: `Supabase email rate limit reached (${retryAfter}s cooldown). Increase "Rate limit for sending emails" in Supabase Dashboard -> Authentication -> Rate Limits.`,
+      };
+    }
+
+    return { success: false, error: supaError.message };
+  } catch (err: any) {
+    console.error("[sendOtpAction] Unexpected error:", err);
     return {
       success: false,
-      error: fallbackErr?.message || "Failed to send magic link. Please check your connection.",
+      error: err?.message || "Failed to send magic link. Please try again.",
     };
   }
 }
