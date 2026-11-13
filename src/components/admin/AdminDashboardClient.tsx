@@ -947,7 +947,7 @@ export function AdminDashboardClient({
 
               {/* Status Filter Pills */}
               <div className="flex items-center gap-1.5 overflow-x-auto scrollbar-none">
-                {["all", "confirmed", "pending", "failed"].map((st) => (
+                {["all", "confirmed", "pending", "expired", "failed"].map((st) => (
                   <button
                     key={st}
                     onClick={() => setOrderStatusFilter(st)}
@@ -1060,6 +1060,8 @@ export function AdminDashboardClient({
                                 ? "bg-emerald-500/15 text-emerald-400 border border-emerald-500/30"
                                 : o.status === "pending"
                                 ? "bg-amber-400/15 text-amber-400 border border-amber-400/30"
+                                : o.status === "expired"
+                                ? "bg-rose-500/15 text-rose-400 border border-rose-500/30"
                                 : "bg-white/10 text-white/50"
                             }`}
                           >
@@ -1067,27 +1069,10 @@ export function AdminDashboardClient({
                           </span>
                         </td>
                         <td className="p-3.5 text-white/40 text-[11px]">
-                          {o.created_at ? format(new Date(o.created_at), "d MMM, h:mm a") : "Ã¢â‚¬â€"}
+                          {o.created_at ? format(new Date(o.created_at), "d MMM, h:mm a") : "-"}
                         </td>
                         <td className="p-3.5 text-right">
-                          {o.status === "pending" ? (
-                            <Button
-                              size="sm"
-                              variant="outline"
-                              onClick={() => handleSyncPaystackOrder(o.order_number)}
-                              disabled={syncingOrderId === o.order_number}
-                              className="h-8 px-2.5 text-[11px] font-sans border-amber-400/30 text-amber-400 hover:bg-amber-400/10"
-                            >
-                              {syncingOrderId === o.order_number ? (
-                                <>
-                                  <Loader2 className="w-3 h-3 mr-1 animate-spin" />
-                                  Checking...
-                                </>
-                              ) : (
-                                "Verify Paystack"
-                              )}
-                            </Button>
-                          ) : (
+                          {o.status === "confirmed" ? (
                             <div className="flex flex-col items-end gap-1.5">
                               <span className="text-emerald-400 text-[11px] font-sans inline-flex items-center gap-1">
                                 <Check className="w-3.5 h-3.5" />
@@ -1113,6 +1098,23 @@ export function AdminDashboardClient({
                                 )}
                               </Button>
                             </div>
+                          ) : (
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              onClick={() => handleSyncPaystackOrder(o.order_number)}
+                              disabled={syncingOrderId === o.order_number}
+                              className="h-8 px-2.5 text-[11px] font-sans border-amber-400/30 text-amber-400 hover:bg-amber-400/10"
+                            >
+                              {syncingOrderId === o.order_number ? (
+                                <>
+                                  <Loader2 className="w-3 h-3 mr-1 animate-spin" />
+                                  Checking...
+                                </>
+                              ) : (
+                                "Verify Paystack"
+                              )}
+                            </Button>
                           )}
                         </td>
                       </tr>
