@@ -22,31 +22,50 @@ export async function submitVoteAction(
     return { success: false, error: "Category and Nominee IDs are required." };
   }
 
-  // Optional Turnstile verification if secret key configured
-  if (process.env.TURNSTILE_SECRET_KEY && turnstileToken) {
-    try {
-      const res = await fetch("https://challenges.cloudflare.com/turnstile/v0/siteverify", {
-        method: "POST",
-        headers: { "Content-Type": "application/x-www-form-urlencoded" },
-        body: new URLSearchParams({
-          secret: process.env.TURNSTILE_SECRET_KEY,
-          response: turnstileToken,
-        }),
-      });
-      const data = await res.json();
-      if (!data.success) {
-        return { success: false, error: "Bot verification failed. Please try again." };
-      }
-    } catch {
-      // Proceed if verification service is unavailable
-    }
-  }
-
   const headerList = await headers();
   const forwardedFor = headerList.get("x-forwarded-for");
   const realIp = forwardedFor ? forwardedFor.split(",")[0].trim() : "127.0.0.1";
   const userAgent = headerList.get("user-agent") ?? "unknown";
   const ipHashed = hashIp(realIp);
+
+  // Cloudflare Turnstile bot verification
+  const turnstileSecret =
+    process.env.TURNSTILE_SECRET_KEY || "1x0000000000000000000000000000000AA";
+
+  if (turnstileSecret) {
+    if (!turnstileToken) {
+      return {
+        success: false,
+        error: "Bot protection verification required. Please complete the CAPTCHA check before submitting your vote.",
+      };
+    }
+
+    try {
+      const res = await fetch("https://challenges.cloudflare.com/turnstile/v0/siteverify", {
+        method: "POST",
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+        body: new URLSearchParams({
+          secret: turnstileSecret,
+          response: turnstileToken,
+          remoteip: realIp,
+        }),
+      });
+
+      const data = await res.json();
+      if (!data.success) {
+        return {
+          success: false,
+          error: "Bot verification failed. Please complete the CAPTCHA check again.",
+        };
+      }
+    } catch (turnstileErr) {
+      console.error("[Turnstile siteverify error]:", turnstileErr);
+      return {
+        success: false,
+        error: "Verification service temporarily unavailable. Please try again shortly.",
+      };
+    }
+  }
 
   const supabase = await createClient();
 

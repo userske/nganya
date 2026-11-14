@@ -1,4 +1,5 @@
 import type { Metadata, Viewport } from "next";
+import Script from "next/script";
 import "./globals.css";
 import { Toaster } from "@/components/ui/sonner";
 import { ThemeProvider } from "next-themes";
@@ -120,6 +121,10 @@ export default function RootLayout({
                 color: "#ffffff",
               },
             }}
+          />
+          <Script
+            src="https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit"
+            strategy="afterInteractive"
           />
         </ThemeProvider>
       </body>

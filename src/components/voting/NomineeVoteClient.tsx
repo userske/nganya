@@ -25,6 +25,7 @@ import {
   DialogFooter,
 } from "@/components/ui/dialog";
 import { VoteAuthDialog } from "./VoteAuthDialog";
+import { Turnstile } from "@/components/ui/turnstile";
 import { submitVoteAction } from "@/app/actions/vote";
 import { createClient } from "@/lib/supabase/client";
 import { toast } from "sonner";
@@ -70,21 +71,30 @@ export function NomineeVoteClient({
   const [authModalOpen, setAuthModalOpen] = useState(false);
   const [isAuthenticated, setIsAuthenticated] = useState(initialAuth);
   const [authChecked, setAuthChecked] = useState(false);
+  const [turnstileToken, setTurnstileToken] = useState<string | null>(null);
 
   const isLocked = Boolean(votedNomineeId);
   const totalCategoryVotes = Object.values(counts).reduce((acc, c) => acc + c, 0);
 
   // ─── EXECUTE VOTE HANDLER ────────────────────────────────────────────────
   const executeVote = useCallback(
-    async (targetNomineeId?: string) => {
+    async (targetNomineeId?: string, overrideToken?: string) => {
       const nomId = targetNomineeId || selectedNomineeId;
+      const token = overrideToken || turnstileToken;
       if (!nomId || isLocked) return;
+
+      if (!token) {
+        toast.error("Bot verification required", {
+          description: "Please complete the CAPTCHA check before confirming your vote.",
+        });
+        return;
+      }
 
       setIsSubmitting(true);
       setConfirmModalOpen(false);
 
       try {
-        const result = await submitVoteAction(category.id, nomId);
+        const result = await submitVoteAction(category.id, nomId, token);
 
         if (result.success) {
           setVotedNomineeId(nomId);
@@ -133,9 +143,10 @@ export function NomineeVoteClient({
         toast.error("Network error. Please check your connection.");
       } finally {
         setIsSubmitting(false);
+        setTurnstileToken(null);
       }
     },
-    [category.id, isLocked, selectedNomineeId]
+    [category.id, isLocked, selectedNomineeId, turnstileToken]
   );
 
   // ─── CLIENT-SIDE AUTH CHECK & AUTO-VOTE RESTORATION ─────────────────────
@@ -173,9 +184,9 @@ export function NomineeVoteClient({
         if (pendingNomineeId && nominees.some((n) => n.id === pendingNomineeId)) {
           setSelectedNomineeId(pendingNomineeId);
 
-          // If voter is now authenticated and hasn't voted yet, auto-execute vote!
+          // If voter is now authenticated and hasn't voted yet, open confirmation dialog with Turnstile
           if (authed && !votedNomineeId) {
-            executeVote(pendingNomineeId);
+            setConfirmModalOpen(true);
           }
         }
       }
@@ -329,6 +340,7 @@ export function NomineeVoteClient({
       setAuthModalOpen(true);
       return;
     }
+    setTurnstileToken(null);
     setConfirmModalOpen(true);
   };
 
@@ -606,8 +618,16 @@ export function NomineeVoteClient({
         </div>
       )}
 
-      {/* Confirmation Dialog */}
-      <Dialog open={confirmModalOpen} onOpenChange={setConfirmModalOpen}>
+      {/* Confirmation Dialog with Cloudflare Turnstile CAPTCHA */}
+      <Dialog
+        open={confirmModalOpen}
+        onOpenChange={(open) => {
+          setConfirmModalOpen(open);
+          if (!open) {
+            setTurnstileToken(null);
+          }
+        }}
+      >
         <DialogContent className="sm:max-w-md bg-[#0a0a0a] border border-white/10 text-white p-6 rounded-2xl">
           <DialogHeader>
             <div className="w-12 h-12 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center text-white mb-3">
@@ -628,19 +648,47 @@ export function NomineeVoteClient({
             </DialogDescription>
           </DialogHeader>
 
+          {/* Cloudflare Turnstile Bot Protection */}
+          <div className="my-2 p-3 rounded-xl bg-white/[0.03] border border-white/10">
+            <Turnstile
+              key={confirmModalOpen ? "turnstile-open" : "turnstile-closed"}
+              onVerify={(token) => setTurnstileToken(token)}
+              onExpire={() => setTurnstileToken(null)}
+              onError={() => setTurnstileToken(null)}
+            />
+          </div>
+
           <DialogFooter className="flex gap-2 sm:gap-3 mt-4">
             <Button
               variant="outline"
-              onClick={() => setConfirmModalOpen(false)}
+              disabled={isSubmitting}
+              onClick={() => {
+                setTurnstileToken(null);
+                setConfirmModalOpen(false);
+              }}
               className="border-white/10 hover:bg-white/5 text-white focus-visible:ring-2 focus-visible:ring-white"
             >
               Cancel
             </Button>
             <Button
               onClick={() => executeVote()}
-              className="bg-amber-400 hover:bg-amber-300 text-black font-bold focus-visible:ring-2 focus-visible:ring-amber-400"
+              disabled={isSubmitting || !turnstileToken}
+              className={`font-bold focus-visible:ring-2 focus-visible:ring-amber-400 transition-all ${
+                turnstileToken
+                  ? "bg-amber-400 hover:bg-amber-300 text-black shadow-[0_0_20px_rgba(245,158,11,0.3)]"
+                  : "bg-white/10 text-white/40 cursor-not-allowed"
+              }`}
             >
-              Confirm & Cast Vote
+              {isSubmitting ? (
+                <>
+                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                  Casting Vote...
+                </>
+              ) : !turnstileToken ? (
+                "Verify CAPTCHA Above"
+              ) : (
+                "Confirm & Cast Vote"
+              )}
             </Button>
           </DialogFooter>
         </DialogContent>
