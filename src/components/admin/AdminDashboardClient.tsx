@@ -41,6 +41,7 @@ import {
   resendOrderTicketsAction,
   resendAllConfirmedTicketsAction,
   getAdminOrderTicketsAction,
+  voidScriptedVotesAction,
 } from "@/app/actions/admin";
 import { toast } from "sonner";
 import { format } from "date-fns";
@@ -88,6 +89,9 @@ export function AdminDashboardClient({
   const [viewingTickets, setViewingTickets] = useState<any[]>([]);
   const [viewingQrUrls, setViewingQrUrls] = useState<Record<string, string>>({});
   const [loadingPassesOrderId, setLoadingPassesOrderId] = useState<string | null>(null);
+  const [isPurgingVotes, setIsPurgingVotes] = useState(false);
+  const [purgingNomineeId, setPurgingNomineeId] = useState<string | null>(null);
+  const [purgeSearch, setPurgeSearch] = useState("");
 
   // Financial & Ticketing Metrics
   const confirmedOrders = useMemo(() => {
@@ -208,6 +212,41 @@ export function AdminDashboardClient({
       toast.error("Failed to communicate with Paystack.");
     } finally {
       setSyncingOrderId(null);
+    }
+  };
+
+  // Bulk purge scripted / fake votes for a nominee
+  const handlePurgeNomineeVotes = async (nomineeId: string, categoryId: string, nomineeName: string) => {
+    if (
+      !confirm(
+        `Are you sure you want to scan and purge fake/scripted votes for "${nomineeName}"?\n\nThis will void votes with spoofed user agents (Chrome 156/157, iOS 26/27, CriOS, etc.) and high-frequency proxy clusters (>=3 votes/IP), recalibrating the live leaderboard to authentic votes.`
+      )
+    ) {
+      return;
+    }
+
+    setPurgingNomineeId(nomineeId);
+    setIsPurgingVotes(true);
+
+    try {
+      const res = await voidScriptedVotesAction(
+        nomineeId,
+        categoryId,
+        `Admin dashboard manual purge of scripted/spoofed votes for ${nomineeName}`
+      );
+
+      if (res.success) {
+        toast.success(`Purged ${res.voidedCount} scripted votes for ${res.nomineeName}!`, {
+          description: `Leaderboard recalibrated to ${res.authenticCount} authentic votes.`,
+        });
+      } else {
+        toast.error("Could not purge votes", { description: res.error });
+      }
+    } catch {
+      toast.error("Network error while purging votes.");
+    } finally {
+      setIsPurgingVotes(false);
+      setPurgingNomineeId(null);
     }
   };
 
@@ -1243,6 +1282,89 @@ export function AdminDashboardClient({
                     </div>
                   ))
                 )}
+              </div>
+            </div>
+
+            {/* Forensic Scripted Vote Purge Tool */}
+            <div className="p-5 sm:p-8 rounded-2xl bg-[#0d0d0d] border border-white/10 space-y-4">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-xl bg-amber-400/10 border border-amber-400/20 flex items-center justify-center text-amber-400 shrink-0">
+                    <Vote className="w-5 h-5" />
+                  </div>
+                  <div>
+                    <h2 className="text-sm font-bold text-white uppercase tracking-wider">
+                      Forensic Vote Purge & Script De-registration
+                    </h2>
+                    <p className="text-xs text-white/50">
+                      Scan and void scripted votes with spoofed user agents (Chrome 156/157, iOS 26/27, CriOS) or high-frequency proxy clusters.
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Quick Actions for Audited Nominees */}
+              <div className="p-4 rounded-xl bg-white/[0.02] border border-white/5 space-y-3">
+                <div className="text-xs font-bold text-white/70 uppercase tracking-wider">
+                  Quick Nominee Actions
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <div className="p-3.5 rounded-lg bg-black/40 border border-white/10 flex items-center justify-between gap-3">
+                    <div>
+                      <div className="text-xs font-bold text-white">Thunder</div>
+                      <div className="text-[11px] text-white/50">Kisauni 1</div>
+                    </div>
+                    <Button
+                      size="sm"
+                      disabled={isPurgingVotes}
+                      onClick={() =>
+                        handlePurgeNomineeVotes(
+                          "93393e17-0083-4b5b-8eb8-5d9bc36d2b65",
+                          "7d5fcaa5-3954-4a95-8a94-067190da5501",
+                          "Thunder (Kisauni 1)"
+                        )
+                      }
+                      className="bg-amber-400 hover:bg-amber-300 text-black font-bold text-xs h-8 px-3 rounded-lg"
+                    >
+                      {purgingNomineeId === "93393e17-0083-4b5b-8eb8-5d9bc36d2b65" ? (
+                        <>
+                          <Loader2 className="w-3.5 h-3.5 animate-spin mr-1" />
+                          Purging...
+                        </>
+                      ) : (
+                        "Purge Fake Votes"
+                      )}
+                    </Button>
+                  </div>
+
+                  <div className="p-3.5 rounded-lg bg-black/40 border border-white/10 flex items-center justify-between gap-3">
+                    <div>
+                      <div className="text-xs font-bold text-white">Thunder</div>
+                      <div className="text-[11px] text-white/50">Lighthouse of the Year</div>
+                    </div>
+                    <Button
+                      size="sm"
+                      disabled={isPurgingVotes}
+                      onClick={() =>
+                        handlePurgeNomineeVotes(
+                          "7817bce7-585e-423c-bff8-906c5ea023f3",
+                          "857ab4d2-ea6b-4678-aa57-bd1ab4fd11f4",
+                          "Thunder (Lighthouse of the Year)"
+                        )
+                      }
+                      className="bg-amber-400 hover:bg-amber-300 text-black font-bold text-xs h-8 px-3 rounded-lg"
+                    >
+                      {purgingNomineeId === "7817bce7-585e-423c-bff8-906c5ea023f3" ? (
+                        <>
+                          <Loader2 className="w-3.5 h-3.5 animate-spin mr-1" />
+                          Purging...
+                        </>
+                      ) : (
+                        "Purge Fake Votes"
+                      )}
+                    </Button>
+                  </div>
+                </div>
               </div>
             </div>
           </div>

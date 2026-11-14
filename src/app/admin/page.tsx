@@ -142,6 +142,29 @@ export default async function AdminPage() {
     .order("created_at", { ascending: false })
     .limit(50);
 
+  // 7. Suspicious IP clusters (IPs with 3+ active votes)
+  const { data: clusterVotes } = await adminClient
+    .from("votes")
+    .select("ip_hash")
+    .eq("voided", false)
+    .limit(10000);
+
+  const ipMap: Record<string, { ip_hash: string; votes_count: number; voters_count: number }> = {};
+  if (clusterVotes) {
+    for (const v of clusterVotes) {
+      if (!v.ip_hash) continue;
+      if (!ipMap[v.ip_hash]) {
+        ipMap[v.ip_hash] = { ip_hash: v.ip_hash, votes_count: 0, voters_count: 0 };
+      }
+      ipMap[v.ip_hash].votes_count++;
+      ipMap[v.ip_hash].voters_count++;
+    }
+  }
+  const suspiciousIps = Object.values(ipMap)
+    .filter((c) => c.votes_count >= 3)
+    .sort((a, b) => b.votes_count - a.votes_count)
+    .slice(0, 25);
+
   return (
     <div className="min-h-screen bg-black text-white flex flex-col">
       <Navbar />
@@ -152,7 +175,7 @@ export default async function AdminPage() {
           categories={categories || []}
           orders={orders || []}
           ticketTiers={ticketTiers || []}
-          suspiciousIps={[]}
+          suspiciousIps={suspiciousIps}
           auditLogs={auditLogs || []}
           totalVotes={totalVotes}
           adminUser={{
