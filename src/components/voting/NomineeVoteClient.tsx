@@ -8,7 +8,6 @@ import {
   Lock,
   Vote,
   ChevronLeft,
-  AlertTriangle,
   Loader2,
   BarChart3,
   TrendingUp,
@@ -20,10 +19,8 @@ import { Badge } from "@/components/ui/badge";
 import {
   Dialog,
   DialogContent,
-  DialogHeader,
   DialogTitle,
   DialogDescription,
-  DialogFooter,
 } from "@/components/ui/dialog";
 import { VoteAuthDialog } from "./VoteAuthDialog";
 import { Turnstile } from "@/components/ui/turnstile";
@@ -623,9 +620,13 @@ export function NomineeVoteClient({
         </div>
       )}
 
-      {/* Background Pre-Warmed Turnstile — only active when modal is closed to avoid dual-widget conflict */}
-      {!isLocked && !confirmModalOpen && (
-        <div className="fixed -bottom-96 -left-96 pointer-events-none opacity-0" aria-hidden="true">
+      {/* Background Pre-Warmed Turnstile — single widget, never duplicated */}
+      {!isLocked && (
+        <div
+          className="fixed pointer-events-none opacity-0"
+          style={{ bottom: "-500px", left: "-500px", zIndex: -1 }}
+          aria-hidden="true"
+        >
           <Turnstile
             onVerify={(token) => setTurnstileToken(token)}
             onExpire={() => setTurnstileToken(null)}
@@ -634,99 +635,129 @@ export function NomineeVoteClient({
         </div>
       )}
 
-      {/* Confirmation Dialog with Cloudflare Turnstile CAPTCHA */}
+      {/* Confirmation Dialog */}
       <Dialog open={confirmModalOpen} onOpenChange={setConfirmModalOpen}>
-        <DialogContent className="sm:max-w-md bg-[#0a0a0a] border border-white/10 text-white p-6 rounded-2xl">
-          <DialogHeader>
-            <div className="w-12 h-12 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center text-white mb-3">
-              <AlertTriangle className="w-5 h-5 text-amber-400" />
-            </div>
-            <DialogTitle className="text-xl font-bold text-white tracking-tight">
-              Confirm Your Vote
-            </DialogTitle>
-            <DialogDescription className="text-white/60 text-sm leading-relaxed">
-              You are voting for: <strong className="text-white font-semibold">{selectedNominee?.name}</strong>{" "}
-              (Current Rank #{selectedNominee ? rankMap[selectedNominee.id] ?? 1 : 1}) in{" "}
-              <strong className="text-white font-semibold">{category.name}</strong>.
-              <span className="block mt-2 text-xs text-white/40">
-                • You can only vote once in this category.<br />
-                • Votes cannot be changed or edited once cast.<br />
-                • Your vote will instantly reflect in the live leaderboard.
-              </span>
-            </DialogDescription>
-          </DialogHeader>
+        <DialogContent className="sm:max-w-sm bg-[#0d0d0d] border border-white/10 text-white p-0 rounded-2xl overflow-hidden gap-0">
+          <DialogTitle className="sr-only">Confirm Your Vote</DialogTitle>
+          <DialogDescription className="sr-only">
+            Confirm your vote for {selectedNominee?.name} in {category.name}
+          </DialogDescription>
 
-          {/* Cloudflare Turnstile Status & Interactive Fallback */}
-          {turnstileToken ? (
-            <div className="my-2 p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-between text-xs font-mono text-emerald-400">
-              <div className="flex items-center gap-2">
-                <ShieldCheck className="w-4 h-4 text-emerald-400" />
-                <span>Security Check: Verified Human</span>
+          {/* Header band */}
+          <div className="bg-gradient-to-br from-amber-500/10 to-amber-500/5 border-b border-white/[0.06] px-6 pt-6 pb-5">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="w-9 h-9 rounded-xl bg-amber-400/10 border border-amber-400/20 flex items-center justify-center shrink-0">
+                <Vote className="w-4 h-4 text-amber-400" />
               </div>
-              <CheckCircle2 className="w-4 h-4 text-emerald-400" />
+              <div>
+                <p className="text-[11px] font-semibold uppercase tracking-widest text-amber-400/80">Cast Your Vote</p>
+                <p className="text-xs text-white/40">{category.name}</p>
+              </div>
             </div>
-          ) : (
-            <div className="my-2 p-3 rounded-xl bg-white/[0.03] border border-white/10">
-              <Turnstile
-                onVerify={(token) => setTurnstileToken(token)}
-                onExpire={() => setTurnstileToken(null)}
-                onError={() => {
-                  setTurnstileToken(null);
-                  // Auto-reset on error so widget retries cleanly
-                  setTimeout(() => {
-                    if (typeof window !== "undefined" && window.turnstile) {
-                      try { window.turnstile.reset(); } catch {}
-                    }
-                  }, 500);
-                }}
-              />
-              <p className="text-[10px] text-white/30 mt-1 text-center">
-                If this takes too long,{" "}
-                <button
-                  type="button"
-                  className="underline text-white/50 hover:text-white/80"
-                  onClick={() => {
-                    if (typeof window !== "undefined" && window.turnstile) {
-                      try { window.turnstile.reset(); } catch {}
-                    }
-                  }}
-                >
-                  click to retry
-                </button>
-              </p>
-            </div>
-          )}
 
-          <DialogFooter className="flex gap-2 sm:gap-3 mt-4">
+            {/* Nominee card */}
+            <div className="bg-white/[0.04] border border-white/10 rounded-xl px-4 py-3 flex items-center justify-between">
+              <div>
+                <p className="text-[11px] text-white/40 mb-0.5">Voting for</p>
+                <p className="text-lg font-bold text-white tracking-tight leading-tight">
+                  {selectedNominee?.name}
+                </p>
+              </div>
+              <div className="text-right shrink-0 ml-3">
+                <p className="text-[10px] text-white/30 mb-0.5">Current Rank</p>
+                <p className="text-2xl font-black text-amber-400">
+                  #{selectedNominee ? rankMap[selectedNominee.id] ?? "—" : "—"}
+                </p>
+              </div>
+            </div>
+          </div>
+
+          {/* Body */}
+          <div className="px-6 py-4 space-y-4">
+
+            {/* Rules */}
+            <ul className="space-y-1.5">
+              {[
+                "One vote per category — cannot be changed.",
+                "Votes are permanent and final.",
+                "Results update live on the leaderboard.",
+              ].map((rule) => (
+                <li key={rule} className="flex items-start gap-2 text-[11px] text-white/40">
+                  <span className="text-amber-400 mt-0.5 shrink-0">•</span>
+                  {rule}
+                </li>
+              ))}
+            </ul>
+
+            {/* Turnstile security zone */}
+            <div className={`rounded-xl border overflow-hidden transition-all duration-300 ${
+              turnstileToken
+                ? "border-emerald-500/25 bg-emerald-500/5"
+                : "border-white/[0.06] bg-white/[0.02]"
+            }`}>
+              {turnstileToken ? (
+                <div className="flex items-center gap-3 px-4 py-3">
+                  <div className="w-7 h-7 rounded-lg bg-emerald-500/15 border border-emerald-500/25 flex items-center justify-center shrink-0">
+                    <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-xs font-semibold text-emerald-400">Human Verified</p>
+                    <p className="text-[10px] text-emerald-400/50">Bot protection cleared — ready to vote</p>
+                  </div>
+                  <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
+                </div>
+              ) : (
+                <div className="flex items-center gap-3 px-4 py-3">
+                  <div className="w-7 h-7 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center shrink-0">
+                    <Loader2 className="w-3.5 h-3.5 text-white/40 animate-spin" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-xs font-medium text-white/60">Security Check Running</p>
+                    <p className="text-[10px] text-white/30">Cloudflare bot protection — verifying in background</p>
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* Footer actions */}
+          <div className="px-6 pb-6 flex gap-2">
             <Button
               variant="outline"
               disabled={isSubmitting}
               onClick={() => setConfirmModalOpen(false)}
-              className="border-white/10 hover:bg-white/5 text-white focus-visible:ring-2 focus-visible:ring-white"
+              className="flex-1 border-white/10 bg-transparent hover:bg-white/5 text-white/70 hover:text-white text-sm h-11 rounded-xl"
             >
               Cancel
             </Button>
             <Button
               onClick={() => executeVote()}
               disabled={isSubmitting || !turnstileToken}
-              className={`font-bold focus-visible:ring-2 focus-visible:ring-amber-400 transition-all ${
+              className={`flex-1 h-11 rounded-xl text-sm font-bold transition-all duration-300 ${
                 turnstileToken
-                  ? "bg-amber-400 hover:bg-amber-300 text-black shadow-[0_0_20px_rgba(245,158,11,0.3)]"
-                  : "bg-white/10 text-white/40 cursor-not-allowed"
+                  ? "bg-amber-400 hover:bg-amber-300 text-black shadow-[0_0_24px_rgba(245,158,11,0.35)]"
+                  : "bg-white/5 text-white/25 cursor-not-allowed"
               }`}
             >
               {isSubmitting ? (
                 <>
                   <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                  Casting Vote...
+                  Casting...
                 </>
               ) : !turnstileToken ? (
-                "Verifying Security Check..."
+                <>
+                  <Loader2 className="w-3.5 h-3.5 mr-1.5 animate-spin opacity-50" />
+                  Verifying...
+                </>
               ) : (
-                "Confirm & Cast Vote"
+                <>
+                  <Vote className="w-4 h-4 mr-1.5" />
+                  Confirm Vote
+                </>
               )}
             </Button>
-          </DialogFooter>
+          </div>
+
         </DialogContent>
       </Dialog>
 

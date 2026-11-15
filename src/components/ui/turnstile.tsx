@@ -80,6 +80,7 @@ export function Turnstile({
           sitekey: siteKey,
           theme,
           size,
+          "refresh-expired": "auto",
           callback: (token: string) => {
             if (isMounted) {
               handleVerify(token);
