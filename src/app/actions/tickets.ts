@@ -99,8 +99,8 @@ export async function createTicketCheckoutAction(formData: {
           tierPrice = 30000;
           tierName = "VVIP";
         } else if (tierId.includes("5441") || tierId.includes("3333") || tierId.toLowerCase().includes("group")) {
-          tierPrice = 4800;
-          tierName = "VIP (Group of 4)";
+          tierPrice = 2250;
+          tierName = "VIP (Group of 5)";
         } else if (tierId.includes("3212") || tierId.includes("2222") || tierId.toLowerCase().includes("vip")) {
           tierPrice = 1500;
           tierName = "VIP";

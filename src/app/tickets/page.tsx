@@ -28,12 +28,12 @@ export const DEFAULT_TIERS = [
   },
   {
     id: "54417d7e-fc0c-4162-b594-6dbe6f2fe20b",
-    name: "VIP (Group of 4)",
-    description: "Discounted group package for 4 with VIP lounge access.",
-    price_kes: 4800,
+    name: "VIP (Group of 5)",
+    description: "Discounted group package for 5 with VIP lounge access.",
+    price_kes: 2250,
     capacity: 50,
     sold_count: 0,
-    perks: ["Admission for 4 Persons", "VIP Priority Entrance", "Reserved Lounge Seating", "4 Complimentary Drink Vouchers"],
+    perks: ["Admission for 5 Persons", "VIP Priority Entrance", "Reserved Lounge Seating", "5 Complimentary Drink Vouchers"],
     is_active: true,
   },
   {
