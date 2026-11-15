@@ -623,8 +623,8 @@ export function NomineeVoteClient({
         </div>
       )}
 
-      {/* Background Pre-Warmed Turnstile */}
-      {!isLocked && (
+      {/* Background Pre-Warmed Turnstile — only active when modal is closed to avoid dual-widget conflict */}
+      {!isLocked && !confirmModalOpen && (
         <div className="fixed -bottom-96 -left-96 pointer-events-none opacity-0" aria-hidden="true">
           <Turnstile
             onVerify={(token) => setTurnstileToken(token)}
@@ -670,8 +670,30 @@ export function NomineeVoteClient({
               <Turnstile
                 onVerify={(token) => setTurnstileToken(token)}
                 onExpire={() => setTurnstileToken(null)}
-                onError={() => setTurnstileToken(null)}
+                onError={() => {
+                  setTurnstileToken(null);
+                  // Auto-reset on error so widget retries cleanly
+                  setTimeout(() => {
+                    if (typeof window !== "undefined" && window.turnstile) {
+                      try { window.turnstile.reset(); } catch {}
+                    }
+                  }, 500);
+                }}
               />
+              <p className="text-[10px] text-white/30 mt-1 text-center">
+                If this takes too long,{" "}
+                <button
+                  type="button"
+                  className="underline text-white/50 hover:text-white/80"
+                  onClick={() => {
+                    if (typeof window !== "undefined" && window.turnstile) {
+                      try { window.turnstile.reset(); } catch {}
+                    }
+                  }}
+                >
+                  click to retry
+                </button>
+              </p>
             </div>
           )}
 
