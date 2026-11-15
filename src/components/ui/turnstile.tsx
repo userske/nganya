@@ -39,7 +39,7 @@ export function Turnstile({
   onVerify,
   onExpire,
   onError,
-  siteKey = process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY || "1x00000000000000000000AA",
+  siteKey = process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY || "0x4AAAAAAGAggNDR0Ff70DFY",
   theme = "dark",
   size = "normal",
   className = "",
@@ -126,7 +126,7 @@ export function Turnstile({
             if (pollInterval) clearInterval(pollInterval);
             renderWidget();
           }
-        }, 150);
+        }, 30);
       }
     }
 

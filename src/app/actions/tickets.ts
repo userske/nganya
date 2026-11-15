@@ -95,12 +95,15 @@ export async function createTicketCheckoutAction(formData: {
         tierName = dbTier.name;
       } else {
         // Tier not in DB — determine from ID pattern and insert it
-        if (tierId.includes("3333") || tierId.toLowerCase().includes("vvip")) {
+        if (tierId.includes("83eb") || tierId.includes("4444") || tierId.toLowerCase().includes("vvip")) {
           tierPrice = 30000;
-          tierName = "VVIP Table of 5";
-        } else if (tierId.includes("2222") || tierId.toLowerCase().includes("vip")) {
-          tierPrice = 3500;
-          tierName = "VIP Lounge Pass";
+          tierName = "VVIP";
+        } else if (tierId.includes("5441") || tierId.includes("3333") || tierId.toLowerCase().includes("group")) {
+          tierPrice = 4800;
+          tierName = "VIP (Group of 4)";
+        } else if (tierId.includes("3212") || tierId.includes("2222") || tierId.toLowerCase().includes("vip")) {
+          tierPrice = 1500;
+          tierName = "VIP";
         } else {
           tierPrice = 500;
           tierName = "Regular";

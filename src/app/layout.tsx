@@ -75,6 +75,13 @@ export default function RootLayout({
           href="https://fonts.gstatic.com"
           crossOrigin="anonymous"
         />
+        <link rel="preconnect" href="https://challenges.cloudflare.com" />
+        {/* Cloudflare Turnstile explicit API */}
+        <script
+          src="https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit"
+          async
+          defer
+        />
         {/* Apple PWA / web-app meta */}
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
@@ -121,10 +128,6 @@ export default function RootLayout({
                 color: "#ffffff",
               },
             }}
-          />
-          <Script
-            src="https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit"
-            strategy="afterInteractive"
           />
         </ThemeProvider>
       </body>

@@ -144,6 +144,11 @@ export function NomineeVoteClient({
       } finally {
         setIsSubmitting(false);
         setTurnstileToken(null);
+        if (typeof window !== "undefined" && window.turnstile) {
+          try {
+            window.turnstile.reset();
+          } catch {}
+        }
       }
     },
     [category.id, isLocked, selectedNomineeId, turnstileToken]
@@ -340,7 +345,6 @@ export function NomineeVoteClient({
       setAuthModalOpen(true);
       return;
     }
-    setTurnstileToken(null);
     setConfirmModalOpen(true);
   };
 
@@ -618,16 +622,19 @@ export function NomineeVoteClient({
         </div>
       )}
 
+      {/* Background Pre-Warmed Turnstile */}
+      {!isLocked && (
+        <div className="fixed -bottom-96 -left-96 pointer-events-none opacity-0" aria-hidden="true">
+          <Turnstile
+            onVerify={(token) => setTurnstileToken(token)}
+            onExpire={() => setTurnstileToken(null)}
+            onError={() => setTurnstileToken(null)}
+          />
+        </div>
+      )}
+
       {/* Confirmation Dialog with Cloudflare Turnstile CAPTCHA */}
-      <Dialog
-        open={confirmModalOpen}
-        onOpenChange={(open) => {
-          setConfirmModalOpen(open);
-          if (!open) {
-            setTurnstileToken(null);
-          }
-        }}
-      >
+      <Dialog open={confirmModalOpen} onOpenChange={setConfirmModalOpen}>
         <DialogContent className="sm:max-w-md bg-[#0a0a0a] border border-white/10 text-white p-6 rounded-2xl">
           <DialogHeader>
             <div className="w-12 h-12 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center text-white mb-3">
@@ -648,24 +655,30 @@ export function NomineeVoteClient({
             </DialogDescription>
           </DialogHeader>
 
-          {/* Cloudflare Turnstile Bot Protection */}
-          <div className="my-2 p-3 rounded-xl bg-white/[0.03] border border-white/10">
-            <Turnstile
-              key={confirmModalOpen ? "turnstile-open" : "turnstile-closed"}
-              onVerify={(token) => setTurnstileToken(token)}
-              onExpire={() => setTurnstileToken(null)}
-              onError={() => setTurnstileToken(null)}
-            />
-          </div>
+          {/* Cloudflare Turnstile Status & Interactive Fallback */}
+          {turnstileToken ? (
+            <div className="my-2 p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-between text-xs font-mono text-emerald-400">
+              <div className="flex items-center gap-2">
+                <ShieldCheck className="w-4 h-4 text-emerald-400" />
+                <span>Security Check: Verified Human</span>
+              </div>
+              <CheckCircle2 className="w-4 h-4 text-emerald-400" />
+            </div>
+          ) : (
+            <div className="my-2 p-3 rounded-xl bg-white/[0.03] border border-white/10">
+              <Turnstile
+                onVerify={(token) => setTurnstileToken(token)}
+                onExpire={() => setTurnstileToken(null)}
+                onError={() => setTurnstileToken(null)}
+              />
+            </div>
+          )}
 
           <DialogFooter className="flex gap-2 sm:gap-3 mt-4">
             <Button
               variant="outline"
               disabled={isSubmitting}
-              onClick={() => {
-                setTurnstileToken(null);
-                setConfirmModalOpen(false);
-              }}
+              onClick={() => setConfirmModalOpen(false)}
               className="border-white/10 hover:bg-white/5 text-white focus-visible:ring-2 focus-visible:ring-white"
             >
               Cancel
@@ -685,7 +698,7 @@ export function NomineeVoteClient({
                   Casting Vote...
                 </>
               ) : !turnstileToken ? (
-                "Verify CAPTCHA Above"
+                "Verifying Security Check..."
               ) : (
                 "Confirm & Cast Vote"
               )}
