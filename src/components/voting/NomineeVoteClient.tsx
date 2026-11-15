@@ -4,7 +4,6 @@ import { useState, useEffect, useMemo, useCallback } from "react";
 import Link from "next/link";
 import {
   CheckCircle2,
-  ShieldCheck,
   Lock,
   Vote,
   ChevronLeft,
@@ -620,23 +619,14 @@ export function NomineeVoteClient({
         </div>
       )}
 
-      {/* Background Pre-Warmed Turnstile — single widget, never duplicated */}
-      {!isLocked && (
-        <div
-          className="fixed pointer-events-none opacity-0"
-          style={{ bottom: "-500px", left: "-500px", zIndex: -1 }}
-          aria-hidden="true"
-        >
-          <Turnstile
-            onVerify={(token) => setTurnstileToken(token)}
-            onExpire={() => setTurnstileToken(null)}
-            onError={() => setTurnstileToken(null)}
-          />
-        </div>
-      )}
-
       {/* Confirmation Dialog */}
-      <Dialog open={confirmModalOpen} onOpenChange={setConfirmModalOpen}>
+      <Dialog
+        open={confirmModalOpen}
+        onOpenChange={(open) => {
+          setConfirmModalOpen(open);
+          if (!open) setTurnstileToken(null);
+        }}
+      >
         <DialogContent className="sm:max-w-sm bg-[#0d0d0d] border border-white/10 text-white p-0 rounded-2xl overflow-hidden gap-0">
           <DialogTitle className="sr-only">Confirm Your Vote</DialogTitle>
           <DialogDescription className="sr-only">
@@ -674,7 +664,6 @@ export function NomineeVoteClient({
 
           {/* Body */}
           <div className="px-6 py-4 space-y-4">
-
             {/* Rules */}
             <ul className="space-y-1.5">
               {[
@@ -689,34 +678,13 @@ export function NomineeVoteClient({
               ))}
             </ul>
 
-            {/* Turnstile security zone */}
-            <div className={`rounded-xl border overflow-hidden transition-all duration-300 ${
-              turnstileToken
-                ? "border-emerald-500/25 bg-emerald-500/5"
-                : "border-white/[0.06] bg-white/[0.02]"
-            }`}>
-              {turnstileToken ? (
-                <div className="flex items-center gap-3 px-4 py-3">
-                  <div className="w-7 h-7 rounded-lg bg-emerald-500/15 border border-emerald-500/25 flex items-center justify-center shrink-0">
-                    <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" />
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="text-xs font-semibold text-emerald-400">Human Verified</p>
-                    <p className="text-[10px] text-emerald-400/50">Bot protection cleared — ready to vote</p>
-                  </div>
-                  <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
-                </div>
-              ) : (
-                <div className="flex items-center gap-3 px-4 py-3">
-                  <div className="w-7 h-7 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center shrink-0">
-                    <Loader2 className="w-3.5 h-3.5 text-white/40 animate-spin" />
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="text-xs font-medium text-white/60">Security Check Running</p>
-                    <p className="text-[10px] text-white/30">Cloudflare bot protection — verifying in background</p>
-                  </div>
-                </div>
-              )}
+            {/* Cloudflare Turnstile */}
+            <div className="py-2 flex justify-center">
+              <Turnstile
+                onVerify={(token) => setTurnstileToken(token)}
+                onExpire={() => setTurnstileToken(null)}
+                onError={() => setTurnstileToken(null)}
+              />
             </div>
           </div>
 
@@ -725,7 +693,10 @@ export function NomineeVoteClient({
             <Button
               variant="outline"
               disabled={isSubmitting}
-              onClick={() => setConfirmModalOpen(false)}
+              onClick={() => {
+                setConfirmModalOpen(false);
+                setTurnstileToken(null);
+              }}
               className="flex-1 border-white/10 bg-transparent hover:bg-white/5 text-white/70 hover:text-white text-sm h-11 rounded-xl"
             >
               Cancel
@@ -745,10 +716,7 @@ export function NomineeVoteClient({
                   Casting...
                 </>
               ) : !turnstileToken ? (
-                <>
-                  <Loader2 className="w-3.5 h-3.5 mr-1.5 animate-spin opacity-50" />
-                  Verifying...
-                </>
+                "Verify to Vote"
               ) : (
                 <>
                   <Vote className="w-4 h-4 mr-1.5" />
