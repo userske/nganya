@@ -180,6 +180,7 @@ export async function sendOtpAction(
       options: {
         shouldCreateUser: true,
         emailRedirectTo: callbackUrl,
+        ...(turnstileToken ? { captchaToken: turnstileToken } : {}),
       },
     });
 
@@ -205,6 +206,7 @@ export async function sendOtpAction(
     // ─────────────────────────────────────────────────────────────────────────
     // 2. FALLBACK PATH: DIRECT RESEND (if Supabase rate-limited or fails)
     // ─────────────────────────────────────────────────────────────────────────
+    let resendQuotaExceeded = false;
     const resendApiKey = process.env.RESEND_API_KEY;
     if (resendApiKey) {
       try {
@@ -248,11 +250,29 @@ export async function sendOtpAction(
                 message: `Sign-in link sent to ${email}`,
               };
             }
+
+            if (emailRes.error) {
+              const errStr = JSON.stringify(emailRes.error);
+              if (errStr.includes("daily_quota_exceeded") || (emailRes.error as any).statusCode === 429) {
+                resendQuotaExceeded = true;
+              }
+            }
           }
         }
-      } catch (resendFallbackErr) {
+      } catch (resendFallbackErr: any) {
         console.warn("[sendOtpAction] Resend fallback also failed:", resendFallbackErr);
+        const errStr = String(resendFallbackErr?.message || "");
+        if (errStr.includes("daily_quota_exceeded") || errStr.includes("429")) {
+          resendQuotaExceeded = true;
+        }
       }
+    }
+
+    if (resendQuotaExceeded) {
+      return {
+        success: false,
+        error: "Daily email limit reached (200/day on Resend Free). Upgrade to Resend Pro at resend.com or disable Captcha in Supabase Dashboard -> Authentication -> Attack Protection.",
+      };
     }
 
     // If rate limit caused the failure
@@ -263,7 +283,14 @@ export async function sendOtpAction(
         success: false,
         rateLimited: true,
         retryAfterSeconds: retryAfter,
-        error: `Supabase email rate limit reached (${retryAfter}s cooldown). Increase "Rate limit for sending emails" in Supabase Dashboard -> Authentication -> Rate Limits.`,
+        error: `Email security cooldown (${retryAfter}s). Please wait before requesting another link.`,
+      };
+    }
+
+    if (supaError.message && supaError.message.includes("captcha protection")) {
+      return {
+        success: false,
+        error: "Captcha requirement active in Supabase: Disable 'Enable Captcha protection' in your Supabase Dashboard under Authentication -> Attack Protection.",
       };
     }
 
