@@ -203,10 +203,21 @@ export async function sendOtpAction(
       msg.includes("too many requests") ||
       msg.includes("once every");
 
+    // If it's a rate-limit security cooldown, don't spam fallbacks — inform the user cleanly
+    if (isRateLimit) {
+      const match = supaError.message.match(/(\d+)\s*second/i);
+      const retryAfter = match ? parseInt(match[1], 10) : 60;
+      return {
+        success: false,
+        rateLimited: true,
+        retryAfterSeconds: retryAfter,
+        error: `Security cooldown active. Please wait ${retryAfter}s before requesting another link.`,
+      };
+    }
+
     // ─────────────────────────────────────────────────────────────────────────
-    // 2. FALLBACK PATH: DIRECT RESEND (if Supabase rate-limited or fails)
+    // 2. FALLBACK PATH: DIRECT RESEND (only if Supabase delivery fails)
     // ─────────────────────────────────────────────────────────────────────────
-    let resendQuotaExceeded = false;
     const resendApiKey = process.env.RESEND_API_KEY;
     if (resendApiKey) {
       try {
@@ -251,55 +262,26 @@ export async function sendOtpAction(
               };
             }
 
-            if (emailRes.error) {
-              const errStr = JSON.stringify(emailRes.error);
-              if (errStr.includes("daily_quota_exceeded") || (emailRes.error as any).statusCode === 429) {
-                resendQuotaExceeded = true;
-              }
-            }
+            console.warn("[sendOtpAction] Resend fallback returned error:", emailRes.error);
           }
+        } else if (linkError) {
+          console.warn("[sendOtpAction] admin.generateLink error:", linkError);
         }
       } catch (resendFallbackErr: any) {
         console.warn("[sendOtpAction] Resend fallback also failed:", resendFallbackErr);
-        const errStr = String(resendFallbackErr?.message || "");
-        if (errStr.includes("daily_quota_exceeded") || errStr.includes("429")) {
-          resendQuotaExceeded = true;
-        }
       }
     }
 
-    if (resendQuotaExceeded) {
-      return {
-        success: false,
-        error: "Daily email limit reached (200/day on Resend Free). Upgrade to Resend Pro at resend.com or disable Captcha in Supabase Dashboard -> Authentication -> Attack Protection.",
-      };
-    }
-
-    // If rate limit caused the failure
-    if (isRateLimit) {
-      const match = supaError.message.match(/(\d+)\s*second/i);
-      const retryAfter = match ? parseInt(match[1], 10) : 60;
-      return {
-        success: false,
-        rateLimited: true,
-        retryAfterSeconds: retryAfter,
-        error: `Email security cooldown (${retryAfter}s). Please wait before requesting another link.`,
-      };
-    }
-
-    if (supaError.message && supaError.message.includes("captcha protection")) {
-      return {
-        success: false,
-        error: "Captcha requirement active in Supabase: Disable 'Enable Captcha protection' in your Supabase Dashboard under Authentication -> Attack Protection.",
-      };
-    }
-
-    return { success: false, error: supaError.message };
+    // Never leak technical or third-party provider errors to the voter
+    return {
+      success: false,
+      error: "Unable to send sign-in link right now. Please try again in a few moments.",
+    };
   } catch (err: any) {
     console.error("[sendOtpAction] Unexpected error:", err);
     return {
       success: false,
-      error: err?.message || "Failed to send magic link. Please try again.",
+      error: "Unable to send sign-in link right now. Please try again in a few moments.",
     };
   }
 }
