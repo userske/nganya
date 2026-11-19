@@ -51,9 +51,6 @@ export function FinalRoundBanner() {
             <Flame className="w-3.5 h-3.5 text-amber-400 fill-amber-400" />
             Final Voting Round Live
           </span>
-          <span className="text-xs sm:text-sm text-neutral-200 font-medium">
-            Top 4 Finalists Head-to-Head &middot; Votes reset to 0 for the final showdown!
-          </span>
         </div>
 
         {/* Right: Countdown & Action */}
