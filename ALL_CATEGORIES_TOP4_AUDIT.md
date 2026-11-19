@@ -1,9 +1,9 @@
 ﻿# COASTAL NGANYA AWARDS 2026
-## Official Full Category Results & Top 4 Finalist Selection Audit
+## Official Full Category Results & Final Round Qualifiers Audit
 
-**Audit Generated:** November 19, 2026 10:59:33 EAT  
+**Audit Generated:** November 19, 2026 11:14:37 EAT  
 **Database Status:** Live Supabase Production Sync  
-**Official Regulation:** Notice on Transition to Final Voting Round & Top 4 Selection  
+**Governing Regulation:** Official Notice on Transition to Final Voting Round & Top 4 Selection (Including 4th Position Ties)  
 
 ---
 
@@ -13,20 +13,24 @@
 | :--- | :--- |
 | **Total Categories** | 65 |
 | **Total Registered Nominees** | 636 |
-| **Total Votes Cast** | 14873 |
-| **Active Verified Votes** | 14511 |
-| **Voided / Flagged Votes** | 362 |
-| **Unique Verified Voters** | 5238 |
+| **Initial Round Votes Cast** | 14884 |
+| **Active Verified Votes** | 14522 |
+| **Unique Verified Voters** | 5244 |
+| **Qualified Finalists (Top 4 + Ties)** | 265 |
+| **Eliminated Nominees** | 371 |
 | **Data Integrity Rate** | 100.0% |
+
+> [!IMPORTANT]
+> **Qualification Directive**: In addition to the clear Top 4 nominees, all **20 nominees who tied for 4th position** with verified votes have been officially qualified to advance to the Final Voting Round. Initial round votes have been archived and reset to 0 for the final head-to-head vote.
 
 ---
 
-## All 65 Categories - Verified Standings & Top 4 Qualifiers
+## All 65 Categories - Standings & Final Round Status
 
 ### 1. Best Conductor Migadini
-**Total Nominees:** 9 | **Total Verified Votes:** 69  
+**Total Nominees:** 9 | **Total Initial Verified Votes:** 69  
 
-| Rank | Finalist Status | Nominee Name | Verified Votes | Share (%) |
+| Rank | Finalist Status | Nominee Name | Initial Votes | Share (%) |
 | :---: | :---: | :--- | :---: | :---: |
 | 1 | **QUALIFIED (TOP 4)** | Denno | 52 | 75.4% |
 | 2 | **QUALIFIED (TOP 4)** | Peter | 13 | 18.8% |
@@ -41,14 +45,14 @@
 ---
 
 ### 2. Best Conductor Mtambo
-**Total Nominees:** 11 | **Total Verified Votes:** 151  
+**Total Nominees:** 11 | **Total Initial Verified Votes:** 153  
 
-| Rank | Finalist Status | Nominee Name | Verified Votes | Share (%) |
+| Rank | Finalist Status | Nominee Name | Initial Votes | Share (%) |
 | :---: | :---: | :--- | :---: | :---: |
-| 1 | **QUALIFIED (TOP 4)** | Moha | 67 | 44.4% |
-| 2 | **QUALIFIED (TOP 4)** | mwafreeca Goiz (Rasta) | 51 | 33.8% |
-| 3 | **QUALIFIED (TOP 4)** | Rama | 12 | 7.9% |
-| 4 | **QUALIFIED (TOP 4)** | Sam (jaluo) | 8 | 5.3% |
+| 1 | **QUALIFIED (TOP 4)** | Moha | 67 | 43.8% |
+| 2 | **QUALIFIED (TOP 4)** | mwafreeca Goiz (Rasta) | 53 | 34.6% |
+| 3 | **QUALIFIED (TOP 4)** | Rama | 12 | 7.8% |
+| 4 | **QUALIFIED (TOP 4)** | Sam (jaluo) | 8 | 5.2% |
 | 5 | Eliminated | Ringo | 7 | 4.6% |
 | 6 | Eliminated | Baraka | 4 | 2.6% |
 | 7 | Eliminated | Mjitu | 1 | 0.7% |
@@ -60,9 +64,9 @@
 ---
 
 ### 3. Best Conductor Mtwapa
-**Total Nominees:** 4 | **Total Verified Votes:** 74  
+**Total Nominees:** 4 | **Total Initial Verified Votes:** 74  
 
-| Rank | Finalist Status | Nominee Name | Verified Votes | Share (%) |
+| Rank | Finalist Status | Nominee Name | Initial Votes | Share (%) |
 | :---: | :---: | :--- | :---: | :---: |
 | 1 | **QUALIFIED (ALL ADVANCE)** | Dulla | 64 | 86.5% |
 | 2 | **QUALIFIED (ALL ADVANCE)** | Hamso | 6 | 8.1% |
@@ -72,9 +76,9 @@
 ---
 
 ### 4. Sound Beast
-**Total Nominees:** 13 | **Total Verified Votes:** 364  
+**Total Nominees:** 13 | **Total Initial Verified Votes:** 364  
 
-| Rank | Finalist Status | Nominee Name | Verified Votes | Share (%) |
+| Rank | Finalist Status | Nominee Name | Initial Votes | Share (%) |
 | :---: | :---: | :--- | :---: | :---: |
 | 1 | **QUALIFIED (TOP 4)** | Mc queen | 196 | 53.8% |
 | 2 | **QUALIFIED (TOP 4)** | Jaguar paw | 58 | 15.9% |
@@ -93,9 +97,9 @@
 ---
 
 ### 5. Mikindani 1
-**Total Nominees:** 10 | **Total Verified Votes:** 415  
+**Total Nominees:** 10 | **Total Initial Verified Votes:** 415  
 
-| Rank | Finalist Status | Nominee Name | Verified Votes | Share (%) |
+| Rank | Finalist Status | Nominee Name | Initial Votes | Share (%) |
 | :---: | :---: | :--- | :---: | :---: |
 | 1 | **QUALIFIED (TOP 4)** | Blue lock | 289 | 69.6% |
 | 2 | **QUALIFIED (TOP 4)** | Moneybag yo (kdt) | 68 | 16.4% |
@@ -111,9 +115,9 @@
 ---
 
 ### 6. Magongo 1
-**Total Nominees:** 11 | **Total Verified Votes:** 254  
+**Total Nominees:** 11 | **Total Initial Verified Votes:** 254  
 
-| Rank | Finalist Status | Nominee Name | Verified Votes | Share (%) |
+| Rank | Finalist Status | Nominee Name | Initial Votes | Share (%) |
 | :---: | :---: | :--- | :---: | :---: |
 | 1 | **QUALIFIED (TOP 4)** | Prolific | 97 | 38.2% |
 | 2 | **QUALIFIED (TOP 4)** | Latto | 60 | 23.6% |
@@ -130,9 +134,9 @@
 ---
 
 ### 7. Private (Mombasa 1)
-**Total Nominees:** 5 | **Total Verified Votes:** 552  
+**Total Nominees:** 5 | **Total Initial Verified Votes:** 552  
 
-| Rank | Finalist Status | Nominee Name | Verified Votes | Share (%) |
+| Rank | Finalist Status | Nominee Name | Initial Votes | Share (%) |
 | :---: | :---: | :--- | :---: | :---: |
 | 1 | **QUALIFIED (TOP 4)** | Chinchilla | 429 | 77.7% |
 | 2 | **QUALIFIED (TOP 4)** | Venom | 91 | 16.5% |
@@ -143,9 +147,9 @@
 ---
 
 ### 8. Best Nganya Mombasa
-**Total Nominees:** 9 | **Total Verified Votes:** 254  
+**Total Nominees:** 9 | **Total Initial Verified Votes:** 254  
 
-| Rank | Finalist Status | Nominee Name | Verified Votes | Share (%) |
+| Rank | Finalist Status | Nominee Name | Initial Votes | Share (%) |
 | :---: | :---: | :--- | :---: | :---: |
 | 1 | **QUALIFIED (TOP 4)** | Sponge bob | 154 | 60.6% |
 | 2 | **QUALIFIED (TOP 4)** | Blacklist-kdz | 82 | 32.3% |
@@ -160,9 +164,9 @@
 ---
 
 ### 9. Best Garage
-**Total Nominees:** 11 | **Total Verified Votes:** 296  
+**Total Nominees:** 11 | **Total Initial Verified Votes:** 296  
 
-| Rank | Finalist Status | Nominee Name | Verified Votes | Share (%) |
+| Rank | Finalist Status | Nominee Name | Initial Votes | Share (%) |
 | :---: | :---: | :--- | :---: | :---: |
 | 1 | **QUALIFIED (TOP 4)** | Faraj graffix | 169 | 57.1% |
 | 2 | **QUALIFIED (TOP 4)** | Gemz Creation | 76 | 25.7% |
@@ -179,9 +183,9 @@
 ---
 
 ### 10. Mtwapa 1
-**Total Nominees:** 20 | **Total Verified Votes:** 264  
+**Total Nominees:** 20 | **Total Initial Verified Votes:** 264  
 
-| Rank | Finalist Status | Nominee Name | Verified Votes | Share (%) |
+| Rank | Finalist Status | Nominee Name | Initial Votes | Share (%) |
 | :---: | :---: | :--- | :---: | :---: |
 | 1 | **QUALIFIED (TOP 4)** | Versace | 115 | 43.6% |
 | 2 | **QUALIFIED (TOP 4)** | Darling | 47 | 17.8% |
@@ -207,11 +211,11 @@
 ---
 
 ### 11. Kisauni 1
-**Total Nominees:** 21 | **Total Verified Votes:** 903  
+**Total Nominees:** 21 | **Total Initial Verified Votes:** 904  
 
-| Rank | Finalist Status | Nominee Name | Verified Votes | Share (%) |
+| Rank | Finalist Status | Nominee Name | Initial Votes | Share (%) |
 | :---: | :---: | :--- | :---: | :---: |
-| 1 | **QUALIFIED (TOP 4)** | Brick pan brick | 460 | 50.9% |
+| 1 | **QUALIFIED (TOP 4)** | Brick pan brick | 461 | 51% |
 | 2 | **QUALIFIED (TOP 4)** | Kings | 112 | 12.4% |
 | 3 | **QUALIFIED (TOP 4)** | Jaguar paw | 81 | 9% |
 | 4 | **QUALIFIED (TOP 4)** | Creek (kaw) | 67 | 7.4% |
@@ -236,9 +240,9 @@
 ---
 
 ### 12. Mtambo 1
-**Total Nominees:** 15 | **Total Verified Votes:** 148  
+**Total Nominees:** 15 | **Total Initial Verified Votes:** 148  
 
-| Rank | Finalist Status | Nominee Name | Verified Votes | Share (%) |
+| Rank | Finalist Status | Nominee Name | Initial Votes | Share (%) |
 | :---: | :---: | :--- | :---: | :---: |
 | 1 | **QUALIFIED (TOP 4)** | Khood (kbc) | 74 | 50% |
 | 2 | **QUALIFIED (TOP 4)** | Remmy | 44 | 29.7% |
@@ -259,13 +263,13 @@
 ---
 
 ### 13. Nyali 1
-**Total Nominees:** 6 | **Total Verified Votes:** 83  
+**Total Nominees:** 6 | **Total Initial Verified Votes:** 84  
 
-| Rank | Finalist Status | Nominee Name | Verified Votes | Share (%) |
+| Rank | Finalist Status | Nominee Name | Initial Votes | Share (%) |
 | :---: | :---: | :--- | :---: | :---: |
-| 1 | **QUALIFIED (TOP 4)** | lilbaby | 58 | 69.9% |
-| 2 | **QUALIFIED (TOP 4)** | Black muslim | 10 | 12% |
-| 3 | **QUALIFIED (TOP 4)** | dollar dream | 6 | 7.2% |
+| 1 | **QUALIFIED (TOP 4)** | lilbaby | 59 | 70.2% |
+| 2 | **QUALIFIED (TOP 4)** | Black muslim | 10 | 11.9% |
+| 3 | **QUALIFIED (TOP 4)** | dollar dream | 6 | 7.1% |
 | 4 | **QUALIFIED (TOP 4)** | redeemer | 4 | 4.8% |
 | 5 | Eliminated | gunna | 3 | 3.6% |
 | 6 | Eliminated | hyper | 2 | 2.4% |
@@ -273,9 +277,9 @@
 ---
 
 ### 14. Iconic Drivers
-**Total Nominees:** 12 | **Total Verified Votes:** 476  
+**Total Nominees:** 12 | **Total Initial Verified Votes:** 476  
 
-| Rank | Finalist Status | Nominee Name | Verified Votes | Share (%) |
+| Rank | Finalist Status | Nominee Name | Initial Votes | Share (%) |
 | :---: | :---: | :--- | :---: | :---: |
 | 1 | **QUALIFIED (TOP 4)** | Arbab | 190 | 39.9% |
 | 2 | **QUALIFIED (TOP 4)** | Swabri king | 151 | 31.7% |
@@ -293,9 +297,9 @@
 ---
 
 ### 15. Tudor 1
-**Total Nominees:** 11 | **Total Verified Votes:** 910  
+**Total Nominees:** 11 | **Total Initial Verified Votes:** 910  
 
-| Rank | Finalist Status | Nominee Name | Verified Votes | Share (%) |
+| Rank | Finalist Status | Nominee Name | Initial Votes | Share (%) |
 | :---: | :---: | :--- | :---: | :---: |
 | 1 | **QUALIFIED (TOP 4)** | Bigdaddy | 527 | 57.9% |
 | 2 | **QUALIFIED (TOP 4)** | Posh (KBP) | 296 | 32.5% |
@@ -312,9 +316,9 @@
 ---
 
 ### 16. Jomvu 1
-**Total Nominees:** 4 | **Total Verified Votes:** 81  
+**Total Nominees:** 4 | **Total Initial Verified Votes:** 81  
 
-| Rank | Finalist Status | Nominee Name | Verified Votes | Share (%) |
+| Rank | Finalist Status | Nominee Name | Initial Votes | Share (%) |
 | :---: | :---: | :--- | :---: | :---: |
 | 1 | **QUALIFIED (ALL ADVANCE)** | Guap | 59 | 72.8% |
 | 2 | **QUALIFIED (ALL ADVANCE)** | Compton | 12 | 14.8% |
@@ -324,9 +328,9 @@
 ---
 
 ### 17. Migadini 1
-**Total Nominees:** 3 | **Total Verified Votes:** 230  
+**Total Nominees:** 3 | **Total Initial Verified Votes:** 230  
 
-| Rank | Finalist Status | Nominee Name | Verified Votes | Share (%) |
+| Rank | Finalist Status | Nominee Name | Initial Votes | Share (%) |
 | :---: | :---: | :--- | :---: | :---: |
 | 1 | **QUALIFIED (ALL ADVANCE)** | Baby | 162 | 70.4% |
 | 2 | **QUALIFIED (ALL ADVANCE)** | Madtown | 64 | 27.8% |
@@ -335,9 +339,9 @@
 ---
 
 ### 18. Mshomoroni 1
-**Total Nominees:** 6 | **Total Verified Votes:** 367  
+**Total Nominees:** 6 | **Total Initial Verified Votes:** 367  
 
-| Rank | Finalist Status | Nominee Name | Verified Votes | Share (%) |
+| Rank | Finalist Status | Nominee Name | Initial Votes | Share (%) |
 | :---: | :---: | :--- | :---: | :---: |
 | 1 | **QUALIFIED (TOP 4)** | Yaa yes | 206 | 56.1% |
 | 2 | **QUALIFIED (TOP 4)** | Mint | 105 | 28.6% |
@@ -349,9 +353,9 @@
 ---
 
 ### 19. Investor of the Year
-**Total Nominees:** 11 | **Total Verified Votes:** 381  
+**Total Nominees:** 11 | **Total Initial Verified Votes:** 381  
 
-| Rank | Finalist Status | Nominee Name | Verified Votes | Share (%) |
+| Rank | Finalist Status | Nominee Name | Initial Votes | Share (%) |
 | :---: | :---: | :--- | :---: | :---: |
 | 1 | **QUALIFIED (TOP 4)** | Herlifa family | 233 | 61.2% |
 | 2 | **QUALIFIED (TOP 4)** | Creek family | 63 | 16.5% |
@@ -368,9 +372,9 @@
 ---
 
 ### 20. Legend Company
-**Total Nominees:** 8 | **Total Verified Votes:** 188  
+**Total Nominees:** 8 | **Total Initial Verified Votes:** 188  
 
-| Rank | Finalist Status | Nominee Name | Verified Votes | Share (%) |
+| Rank | Finalist Status | Nominee Name | Initial Votes | Share (%) |
 | :---: | :---: | :--- | :---: | :---: |
 | 1 | **QUALIFIED (TOP 4)** | Khaled family | 106 | 56.4% |
 | 2 | **QUALIFIED (TOP 4)** | Nexus family | 39 | 20.7% |
@@ -384,9 +388,9 @@
 ---
 
 ### 21. Miritini 1
-**Total Nominees:** 12 | **Total Verified Votes:** 168  
+**Total Nominees:** 12 | **Total Initial Verified Votes:** 168  
 
-| Rank | Finalist Status | Nominee Name | Verified Votes | Share (%) |
+| Rank | Finalist Status | Nominee Name | Initial Votes | Share (%) |
 | :---: | :---: | :--- | :---: | :---: |
 | 1 | **QUALIFIED (TOP 4)** | Goon | 149 | 88.7% |
 | 2 | **QUALIFIED (TOP 4)** | Rich dynasty | 4 | 2.4% |
@@ -404,17 +408,15 @@
 ---
 
 ### 22. Best Maintained
-**Total Nominees:** 15 | **Total Verified Votes:** 181  
-> [!WARNING]
-> **Tie-Break Notice**: A tie exists at 4th position (6 votes). Committee review recommended.
+**Total Nominees:** 15 | **Total Initial Verified Votes:** 181  
 
-| Rank | Finalist Status | Nominee Name | Verified Votes | Share (%) |
+| Rank | Finalist Status | Nominee Name | Initial Votes | Share (%) |
 | :---: | :---: | :--- | :---: | :---: |
 | 1 | **QUALIFIED (TOP 4)** | Mr cheeks | 103 | 56.9% |
 | 2 | **QUALIFIED (TOP 4)** | Jaguar paw - kisauni | 37 | 20.4% |
 | 3 | **QUALIFIED (TOP 4)** | T.i (white) - mtwapa | 16 | 8.8% |
 | 4 | **QUALIFIED (TIED FOR 4TH)** | Band 4 band | 6 | 3.3% |
-| 5 | *TIED FOR 4TH (PENDING)* | Je taime | 6 | 3.3% |
+| 5 | **QUALIFIED (TIED FOR 4TH)** | Je taime | 6 | 3.3% |
 | 6 | Eliminated | Bululizo | 4 | 2.2% |
 | 7 | Eliminated | Fugeez | 3 | 1.7% |
 | 8 | Eliminated | Loyal | 3 | 1.7% |
@@ -429,12 +431,12 @@
 ---
 
 ### 23. Blogger of the Year
-**Total Nominees:** 11 | **Total Verified Votes:** 659  
+**Total Nominees:** 11 | **Total Initial Verified Votes:** 660  
 
-| Rank | Finalist Status | Nominee Name | Verified Votes | Share (%) |
+| Rank | Finalist Status | Nominee Name | Initial Votes | Share (%) |
 | :---: | :---: | :--- | :---: | :---: |
-| 1 | **QUALIFIED (TOP 4)** | Thee culture | 276 | 41.9% |
-| 2 | **QUALIFIED (TOP 4)** | Thriller | 249 | 37.8% |
+| 1 | **QUALIFIED (TOP 4)** | Thee culture | 276 | 41.8% |
+| 2 | **QUALIFIED (TOP 4)** | Thriller | 250 | 37.9% |
 | 3 | **QUALIFIED (TOP 4)** | Tuluahmad | 52 | 7.9% |
 | 4 | **QUALIFIED (TOP 4)** | Mauzoo | 37 | 5.6% |
 | 5 | Eliminated | Abawa | 36 | 5.5% |
@@ -448,9 +450,9 @@
 ---
 
 ### 24. Airbrush Artists
-**Total Nominees:** 12 | **Total Verified Votes:** 262  
+**Total Nominees:** 12 | **Total Initial Verified Votes:** 262  
 
-| Rank | Finalist Status | Nominee Name | Verified Votes | Share (%) |
+| Rank | Finalist Status | Nominee Name | Initial Votes | Share (%) |
 | :---: | :---: | :--- | :---: | :---: |
 | 1 | **QUALIFIED (TOP 4)** | Wizard customs ke (iantoholic) | 123 | 46.9% |
 | 2 | **QUALIFIED (TOP 4)** | kush | 71 | 27.1% |
@@ -468,9 +470,9 @@
 ---
 
 ### 25. Lighthouse Installer
-**Total Nominees:** 7 | **Total Verified Votes:** 625  
+**Total Nominees:** 7 | **Total Initial Verified Votes:** 625  
 
-| Rank | Finalist Status | Nominee Name | Verified Votes | Share (%) |
+| Rank | Finalist Status | Nominee Name | Initial Votes | Share (%) |
 | :---: | :---: | :--- | :---: | :---: |
 | 1 | **QUALIFIED (TOP 4)** | Daylight auto décor | 372 | 59.5% |
 | 2 | **QUALIFIED (TOP 4)** | Rashid lights | 229 | 36.6% |
@@ -483,9 +485,9 @@
 ---
 
 ### 26. Sticker Works
-**Total Nominees:** 8 | **Total Verified Votes:** 181  
+**Total Nominees:** 8 | **Total Initial Verified Votes:** 181  
 
-| Rank | Finalist Status | Nominee Name | Verified Votes | Share (%) |
+| Rank | Finalist Status | Nominee Name | Initial Votes | Share (%) |
 | :---: | :---: | :--- | :---: | :---: |
 | 1 | **QUALIFIED (TOP 4)** | stickerhub | 76 | 42% |
 | 2 | **QUALIFIED (TOP 4)** | marcelo | 62 | 34.3% |
@@ -499,9 +501,9 @@
 ---
 
 ### 27. Best Auto Shop
-**Total Nominees:** 2 | **Total Verified Votes:** 156  
+**Total Nominees:** 2 | **Total Initial Verified Votes:** 156  
 
-| Rank | Finalist Status | Nominee Name | Verified Votes | Share (%) |
+| Rank | Finalist Status | Nominee Name | Initial Votes | Share (%) |
 | :---: | :---: | :--- | :---: | :---: |
 | 1 | **QUALIFIED (ALL ADVANCE)** | fahmy | 83 | 53.2% |
 | 2 | **QUALIFIED (ALL ADVANCE)** | abbas car décor | 73 | 46.8% |
@@ -509,17 +511,15 @@
 ---
 
 ### 28. Best Sacco
-**Total Nominees:** 9 | **Total Verified Votes:** 375  
-> [!WARNING]
-> **Tie-Break Notice**: A tie exists at 4th position (1 votes). Committee review recommended.
+**Total Nominees:** 9 | **Total Initial Verified Votes:** 375  
 
-| Rank | Finalist Status | Nominee Name | Verified Votes | Share (%) |
+| Rank | Finalist Status | Nominee Name | Initial Votes | Share (%) |
 | :---: | :---: | :--- | :---: | :---: |
 | 1 | **QUALIFIED (TOP 4)** | Mom sacco | 292 | 77.9% |
 | 2 | **QUALIFIED (TOP 4)** | Xperia sacco | 80 | 21.3% |
 | 3 | **QUALIFIED (TOP 4)** | Geno sacco | 1 | 0.3% |
 | 4 | **QUALIFIED (TIED FOR 4TH)** | Safari sacco | 1 | 0.3% |
-| 5 | *TIED FOR 4TH (PENDING)* | Tlb sacco | 1 | 0.3% |
+| 5 | **QUALIFIED (TIED FOR 4TH)** | Tlb sacco | 1 | 0.3% |
 | 6 | Eliminated | Bambu invest | 0 | 0% |
 | 7 | Eliminated | Mtwapa sacco | 0 | 0% |
 | 8 | Eliminated | Sheikhspear cabs limited | 0 | 0% |
@@ -528,39 +528,35 @@
 ---
 
 ### 29. Best Interior Design
-**Total Nominees:** 5 | **Total Verified Votes:** 140  
-> [!WARNING]
-> **Tie-Break Notice**: A tie exists at 4th position (4 votes). Committee review recommended.
+**Total Nominees:** 5 | **Total Initial Verified Votes:** 140  
 
-| Rank | Finalist Status | Nominee Name | Verified Votes | Share (%) |
+| Rank | Finalist Status | Nominee Name | Initial Votes | Share (%) |
 | :---: | :---: | :--- | :---: | :---: |
 | 1 | **QUALIFIED (TOP 4)** | Madevu | 114 | 81.4% |
 | 2 | **QUALIFIED (TOP 4)** | Simon | 10 | 7.1% |
 | 3 | **QUALIFIED (TOP 4)** | kudura | 8 | 5.7% |
 | 4 | **QUALIFIED (TIED FOR 4TH)** | Hussein | 4 | 2.9% |
-| 5 | *TIED FOR 4TH (PENDING)* | Muiruri | 4 | 2.9% |
+| 5 | **QUALIFIED (TIED FOR 4TH)** | Muiruri | 4 | 2.9% |
 
 ---
 
 ### 30. Best Sound Installer
-**Total Nominees:** 5 | **Total Verified Votes:** 119  
-> [!WARNING]
-> **Tie-Break Notice**: A tie exists at 4th position (2 votes). Committee review recommended.
+**Total Nominees:** 5 | **Total Initial Verified Votes:** 119  
 
-| Rank | Finalist Status | Nominee Name | Verified Votes | Share (%) |
+| Rank | Finalist Status | Nominee Name | Initial Votes | Share (%) |
 | :---: | :---: | :--- | :---: | :---: |
 | 1 | **QUALIFIED (TOP 4)** | Dolby trm | 73 | 61.3% |
 | 2 | **QUALIFIED (TOP 4)** | Marto | 29 | 24.4% |
 | 3 | **QUALIFIED (TOP 4)** | Salim | 13 | 10.9% |
 | 4 | **QUALIFIED (TIED FOR 4TH)** | Hussein | 2 | 1.7% |
-| 5 | *TIED FOR 4TH (PENDING)* | Simon | 2 | 1.7% |
+| 5 | **QUALIFIED (TIED FOR 4TH)** | Simon | 2 | 1.7% |
 
 ---
 
 ### 31. Best Traffic
-**Total Nominees:** 20 | **Total Verified Votes:** 95  
+**Total Nominees:** 20 | **Total Initial Verified Votes:** 95  
 
-| Rank | Finalist Status | Nominee Name | Verified Votes | Share (%) |
+| Rank | Finalist Status | Nominee Name | Initial Votes | Share (%) |
 | :---: | :---: | :--- | :---: | :---: |
 | 1 | **QUALIFIED (TOP 4)** | Rhama - central | 67 | 70.5% |
 | 2 | **QUALIFIED (TOP 4)** | Kinywa - makupa | 12 | 12.6% |
@@ -586,12 +582,12 @@
 ---
 
 ### 32. Best Driver Mtwapa
-**Total Nominees:** 11 | **Total Verified Votes:** 282  
+**Total Nominees:** 11 | **Total Initial Verified Votes:** 283  
 
-| Rank | Finalist Status | Nominee Name | Verified Votes | Share (%) |
+| Rank | Finalist Status | Nominee Name | Initial Votes | Share (%) |
 | :---: | :---: | :--- | :---: | :---: |
-| 1 | **QUALIFIED (TOP 4)** | Sabri king | 121 | 42.9% |
-| 2 | **QUALIFIED (TOP 4)** | Jack | 85 | 30.1% |
+| 1 | **QUALIFIED (TOP 4)** | Sabri king | 121 | 42.8% |
+| 2 | **QUALIFIED (TOP 4)** | Jack | 86 | 30.4% |
 | 3 | **QUALIFIED (TOP 4)** | Baby driver | 33 | 11.7% |
 | 4 | **QUALIFIED (TOP 4)** | Namba nane | 31 | 11% |
 | 5 | Eliminated | spoiler | 4 | 1.4% |
@@ -605,9 +601,9 @@
 ---
 
 ### 33. Mtambo Best Driver
-**Total Nominees:** 17 | **Total Verified Votes:** 307  
+**Total Nominees:** 17 | **Total Initial Verified Votes:** 307  
 
-| Rank | Finalist Status | Nominee Name | Verified Votes | Share (%) |
+| Rank | Finalist Status | Nominee Name | Initial Votes | Share (%) |
 | :---: | :---: | :--- | :---: | :---: |
 | 1 | **QUALIFIED (TOP 4)** | Daddy | 123 | 40.1% |
 | 2 | **QUALIFIED (TOP 4)** | Moddy (Alcatraz) | 87 | 28.3% |
@@ -630,12 +626,12 @@
 ---
 
 ### 34. Kisauni Best Driver
-**Total Nominees:** 17 | **Total Verified Votes:** 591  
+**Total Nominees:** 17 | **Total Initial Verified Votes:** 592  
 
-| Rank | Finalist Status | Nominee Name | Verified Votes | Share (%) |
+| Rank | Finalist Status | Nominee Name | Initial Votes | Share (%) |
 | :---: | :---: | :--- | :---: | :---: |
-| 1 | **QUALIFIED (TOP 4)** | Abu hafswa | 207 | 35% |
-| 2 | **QUALIFIED (TOP 4)** | Aloha | 170 | 28.8% |
+| 1 | **QUALIFIED (TOP 4)** | Abu hafswa | 208 | 35.1% |
+| 2 | **QUALIFIED (TOP 4)** | Aloha | 170 | 28.7% |
 | 3 | **QUALIFIED (TOP 4)** | Poloranks | 127 | 21.5% |
 | 4 | **QUALIFIED (TOP 4)** | Abu ali - madtown | 48 | 8.1% |
 | 5 | Eliminated | Roja | 17 | 2.9% |
@@ -655,9 +651,9 @@
 ---
 
 ### 35. Tudor Best Driver
-**Total Nominees:** 19 | **Total Verified Votes:** 182  
+**Total Nominees:** 19 | **Total Initial Verified Votes:** 182  
 
-| Rank | Finalist Status | Nominee Name | Verified Votes | Share (%) |
+| Rank | Finalist Status | Nominee Name | Initial Votes | Share (%) |
 | :---: | :---: | :--- | :---: | :---: |
 | 1 | **QUALIFIED (TOP 4)** | Mkare - bigdaddy | 114 | 62.6% |
 | 2 | **QUALIFIED (TOP 4)** | Mbwakni - el clasico | 33 | 18.1% |
@@ -682,17 +678,15 @@
 ---
 
 ### 36. Mikindani Best Driver
-**Total Nominees:** 10 | **Total Verified Votes:** 356  
-> [!WARNING]
-> **Tie-Break Notice**: A tie exists at 4th position (3 votes). Committee review recommended.
+**Total Nominees:** 10 | **Total Initial Verified Votes:** 356  
 
-| Rank | Finalist Status | Nominee Name | Verified Votes | Share (%) |
+| Rank | Finalist Status | Nominee Name | Initial Votes | Share (%) |
 | :---: | :---: | :--- | :---: | :---: |
 | 1 | **QUALIFIED (TOP 4)** | Junior | 209 | 58.7% |
 | 2 | **QUALIFIED (TOP 4)** | Mnyika | 134 | 37.6% |
 | 3 | **QUALIFIED (TOP 4)** | Amani | 3 | 0.8% |
 | 4 | **QUALIFIED (TIED FOR 4TH)** | Monte | 3 | 0.8% |
-| 5 | *TIED FOR 4TH (PENDING)* | Pato | 3 | 0.8% |
+| 5 | **QUALIFIED (TIED FOR 4TH)** | Pato | 3 | 0.8% |
 | 6 | Eliminated | Buda monk | 2 | 0.6% |
 | 7 | Eliminated | raphael | 1 | 0.3% |
 | 8 | Eliminated | Vinnie | 1 | 0.3% |
@@ -702,9 +696,9 @@
 ---
 
 ### 37. Magongo Best Driver
-**Total Nominees:** 15 | **Total Verified Votes:** 118  
+**Total Nominees:** 15 | **Total Initial Verified Votes:** 118  
 
-| Rank | Finalist Status | Nominee Name | Verified Votes | Share (%) |
+| Rank | Finalist Status | Nominee Name | Initial Votes | Share (%) |
 | :---: | :---: | :--- | :---: | :---: |
 | 1 | **QUALIFIED (TOP 4)** | Sensei - prolific | 50 | 42.4% |
 | 2 | **QUALIFIED (TOP 4)** | Ali - rust | 21 | 17.8% |
@@ -725,9 +719,9 @@
 ---
 
 ### 38. Mshomoroni Best Driver
-**Total Nominees:** 11 | **Total Verified Votes:** 184  
+**Total Nominees:** 11 | **Total Initial Verified Votes:** 184  
 
-| Rank | Finalist Status | Nominee Name | Verified Votes | Share (%) |
+| Rank | Finalist Status | Nominee Name | Initial Votes | Share (%) |
 | :---: | :---: | :--- | :---: | :---: |
 | 1 | **QUALIFIED (TOP 4)** | Eduu - mint | 87 | 47.3% |
 | 2 | **QUALIFIED (TOP 4)** | Chetu - yaa yes | 65 | 35.3% |
@@ -744,18 +738,16 @@
 ---
 
 ### 39. Best Driver Jomvu
-**Total Nominees:** 9 | **Total Verified Votes:** 36  
-> [!WARNING]
-> **Tie-Break Notice**: A tie exists at 4th position (1 votes). Committee review recommended.
+**Total Nominees:** 9 | **Total Initial Verified Votes:** 36  
 
-| Rank | Finalist Status | Nominee Name | Verified Votes | Share (%) |
+| Rank | Finalist Status | Nominee Name | Initial Votes | Share (%) |
 | :---: | :---: | :--- | :---: | :---: |
 | 1 | **QUALIFIED (TOP 4)** | Ali - Compton | 30 | 83.3% |
 | 2 | **QUALIFIED (TOP 4)** | Hamso kanali - buggzbunny | 2 | 5.6% |
 | 3 | **QUALIFIED (TOP 4)** | Bysaaa - bugz bunny | 1 | 2.8% |
 | 4 | **QUALIFIED (TIED FOR 4TH)** | Dawaa - liger | 1 | 2.8% |
-| 5 | *TIED FOR 4TH (PENDING)* | Dulla chugulu - daffy | 1 | 2.8% |
-| 6 | *TIED FOR 4TH (PENDING)* | Sammy - guap | 1 | 2.8% |
+| 5 | **QUALIFIED (TIED FOR 4TH)** | Dulla chugulu - daffy | 1 | 2.8% |
+| 6 | **QUALIFIED (TIED FOR 4TH)** | Sammy - guap | 1 | 2.8% |
 | 7 | Eliminated | Adamu - host | 0 | 0% |
 | 8 | Eliminated | Saidi hogost - 3t | 0 | 0% |
 | 9 | Eliminated | Yeyo - konde boy | 0 | 0% |
@@ -763,17 +755,15 @@
 ---
 
 ### 40. Best Driver Miritini
-**Total Nominees:** 10 | **Total Verified Votes:** 122  
-> [!WARNING]
-> **Tie-Break Notice**: A tie exists at 4th position (2 votes). Committee review recommended.
+**Total Nominees:** 10 | **Total Initial Verified Votes:** 122  
 
-| Rank | Finalist Status | Nominee Name | Verified Votes | Share (%) |
+| Rank | Finalist Status | Nominee Name | Initial Votes | Share (%) |
 | :---: | :---: | :--- | :---: | :---: |
 | 1 | **QUALIFIED (TOP 4)** | Goon - junior mafia | 91 | 74.6% |
 | 2 | **QUALIFIED (TOP 4)** | Athumani - the kings | 23 | 18.9% |
 | 3 | **QUALIFIED (TOP 4)** | Jay - the kings | 2 | 1.6% |
 | 4 | **QUALIFIED (TIED FOR 4TH)** | Mjaka - weezy | 2 | 1.6% |
-| 5 | *TIED FOR 4TH (PENDING)* | Songoni - liquid | 2 | 1.6% |
+| 5 | **QUALIFIED (TIED FOR 4TH)** | Songoni - liquid | 2 | 1.6% |
 | 6 | Eliminated | Kibarua - call of duty | 1 | 0.8% |
 | 7 | Eliminated | Mabottle - rich gang | 1 | 0.8% |
 | 8 | Eliminated | Juma - the kings | 0 | 0% |
@@ -783,17 +773,17 @@
 ---
 
 ### 41. Best Conductor Kisauni
-**Total Nominees:** 13 | **Total Verified Votes:** 324  
+**Total Nominees:** 13 | **Total Initial Verified Votes:** 325  
 
-| Rank | Finalist Status | Nominee Name | Verified Votes | Share (%) |
+| Rank | Finalist Status | Nominee Name | Initial Votes | Share (%) |
 | :---: | :---: | :--- | :---: | :---: |
-| 1 | **QUALIFIED (TOP 4)** | Saddam | 136 | 42% |
-| 2 | **QUALIFIED (TOP 4)** | Seif | 124 | 38.3% |
-| 3 | **QUALIFIED (TOP 4)** | Zuchu | 31 | 9.6% |
+| 1 | **QUALIFIED (TOP 4)** | Saddam | 137 | 42.2% |
+| 2 | **QUALIFIED (TOP 4)** | Seif | 124 | 38.2% |
+| 3 | **QUALIFIED (TOP 4)** | Zuchu | 31 | 9.5% |
 | 4 | **QUALIFIED (TOP 4)** | Bwiza | 10 | 3.1% |
 | 5 | Eliminated | Abu macho | 7 | 2.2% |
 | 6 | Eliminated | Koko jr | 7 | 2.2% |
-| 7 | Eliminated | Arafat | 6 | 1.9% |
+| 7 | Eliminated | Arafat | 6 | 1.8% |
 | 8 | Eliminated | Mea | 2 | 0.6% |
 | 9 | Eliminated | Chilemba | 1 | 0.3% |
 | 10 | Eliminated | Ali rasta | 0 | 0% |
@@ -804,9 +794,9 @@
 ---
 
 ### 42. Best Conductor Jomvu
-**Total Nominees:** 7 | **Total Verified Votes:** 32  
+**Total Nominees:** 7 | **Total Initial Verified Votes:** 32  
 
-| Rank | Finalist Status | Nominee Name | Verified Votes | Share (%) |
+| Rank | Finalist Status | Nominee Name | Initial Votes | Share (%) |
 | :---: | :---: | :--- | :---: | :---: |
 | 1 | **QUALIFIED (TOP 4)** | Osama - guap | 30 | 93.8% |
 | 2 | **QUALIFIED (TOP 4)** | Bokanda - host | 1 | 3.1% |
@@ -819,9 +809,9 @@
 ---
 
 ### 43. Magongo Conductors
-**Total Nominees:** 6 | **Total Verified Votes:** 74  
+**Total Nominees:** 6 | **Total Initial Verified Votes:** 74  
 
-| Rank | Finalist Status | Nominee Name | Verified Votes | Share (%) |
+| Rank | Finalist Status | Nominee Name | Initial Votes | Share (%) |
 | :---: | :---: | :--- | :---: | :---: |
 | 1 | **QUALIFIED (TOP 4)** | Jaylaw | 33 | 44.6% |
 | 2 | **QUALIFIED (TOP 4)** | Kennedy | 30 | 40.5% |
@@ -833,9 +823,9 @@
 ---
 
 ### 44. Mikindani Best Conductor
-**Total Nominees:** 10 | **Total Verified Votes:** 64  
+**Total Nominees:** 10 | **Total Initial Verified Votes:** 64  
 
-| Rank | Finalist Status | Nominee Name | Verified Votes | Share (%) |
+| Rank | Finalist Status | Nominee Name | Initial Votes | Share (%) |
 | :---: | :---: | :--- | :---: | :---: |
 | 1 | **QUALIFIED (TOP 4)** | Aleh - moneybag | 44 | 68.8% |
 | 2 | **QUALIFIED (TOP 4)** | Simiu - moneybag kdt | 8 | 12.5% |
@@ -851,9 +841,9 @@
 ---
 
 ### 45. Best Conductor Miritini
-**Total Nominees:** 9 | **Total Verified Votes:** 88  
+**Total Nominees:** 9 | **Total Initial Verified Votes:** 88  
 
-| Rank | Finalist Status | Nominee Name | Verified Votes | Share (%) |
+| Rank | Finalist Status | Nominee Name | Initial Votes | Share (%) |
 | :---: | :---: | :--- | :---: | :---: |
 | 1 | **QUALIFIED (TOP 4)** | Simo - goon | 73 | 83% |
 | 2 | **QUALIFIED (TOP 4)** | Balo - rich gang | 6 | 6.8% |
@@ -868,26 +858,24 @@
 ---
 
 ### 46. Best Conductor Mshomoroni
-**Total Nominees:** 7 | **Total Verified Votes:** 91  
-> [!WARNING]
-> **Tie-Break Notice**: A tie exists at 4th position (1 votes). Committee review recommended.
+**Total Nominees:** 7 | **Total Initial Verified Votes:** 91  
 
-| Rank | Finalist Status | Nominee Name | Verified Votes | Share (%) |
+| Rank | Finalist Status | Nominee Name | Initial Votes | Share (%) |
 | :---: | :---: | :--- | :---: | :---: |
 | 1 | **QUALIFIED (TOP 4)** | Og - mint | 65 | 71.4% |
 | 2 | **QUALIFIED (TOP 4)** | Kobole - yaa yes | 20 | 22% |
 | 3 | **QUALIFIED (TOP 4)** | Bruno - nizer green | 4 | 4.4% |
 | 4 | **QUALIFIED (TIED FOR 4TH)** | Mungai - freaky kbj | 1 | 1.1% |
-| 5 | *TIED FOR 4TH (PENDING)* | Spider - nizer red | 1 | 1.1% |
+| 5 | **QUALIFIED (TIED FOR 4TH)** | Spider - nizer red | 1 | 1.1% |
 | 6 | Eliminated | Lee - freaky kat | 0 | 0% |
 | 7 | Eliminated | Pastor - tecno | 0 | 0% |
 
 ---
 
 ### 47. Best Conductor Tudor
-**Total Nominees:** 8 | **Total Verified Votes:** 139  
+**Total Nominees:** 8 | **Total Initial Verified Votes:** 139  
 
-| Rank | Finalist Status | Nominee Name | Verified Votes | Share (%) |
+| Rank | Finalist Status | Nominee Name | Initial Votes | Share (%) |
 | :---: | :---: | :--- | :---: | :---: |
 | 1 | **QUALIFIED (TOP 4)** | Rama - bigdaddy | 93 | 66.9% |
 | 2 | **QUALIFIED (TOP 4)** | Mohaa - prolific | 29 | 20.9% |
@@ -901,9 +889,9 @@
 ---
 
 ### 48. Lighthouse of the Year
-**Total Nominees:** 13 | **Total Verified Votes:** 446  
+**Total Nominees:** 13 | **Total Initial Verified Votes:** 446  
 
-| Rank | Finalist Status | Nominee Name | Verified Votes | Share (%) |
+| Rank | Finalist Status | Nominee Name | Initial Votes | Share (%) |
 | :---: | :---: | :--- | :---: | :---: |
 | 1 | **QUALIFIED (TOP 4)** | Brick pan brick | 347 | 77.8% |
 | 2 | **QUALIFIED (TOP 4)** | Thunder (kbk) | 51 | 11.4% |
@@ -922,18 +910,16 @@
 ---
 
 ### 49. Nyali Best Conductor
-**Total Nominees:** 16 | **Total Verified Votes:** 27  
-> [!WARNING]
-> **Tie-Break Notice**: A tie exists at 4th position (1 votes). Committee review recommended.
+**Total Nominees:** 16 | **Total Initial Verified Votes:** 27  
 
-| Rank | Finalist Status | Nominee Name | Verified Votes | Share (%) |
+| Rank | Finalist Status | Nominee Name | Initial Votes | Share (%) |
 | :---: | :---: | :--- | :---: | :---: |
 | 1 | **QUALIFIED (TOP 4)** | Mzamo - king | 21 | 77.8% |
 | 2 | **QUALIFIED (TOP 4)** | Gift - lilbaby | 2 | 7.4% |
 | 3 | **QUALIFIED (TOP 4)** | Abdul - black muslims | 1 | 3.7% |
 | 4 | **QUALIFIED (TIED FOR 4TH)** | Kitale - dollar dream | 1 | 3.7% |
-| 5 | *TIED FOR 4TH (PENDING)* | Madawa - blacklist | 1 | 3.7% |
-| 6 | *TIED FOR 4TH (PENDING)* | Shaban - viron | 1 | 3.7% |
+| 5 | **QUALIFIED (TIED FOR 4TH)** | Madawa - blacklist | 1 | 3.7% |
+| 6 | **QUALIFIED (TIED FOR 4TH)** | Shaban - viron | 1 | 3.7% |
 | 7 | Eliminated | Abdul | 0 | 0% |
 | 8 | Eliminated | Bisaka | 0 | 0% |
 | 9 | Eliminated | Bisaka - miami | 0 | 0% |
@@ -948,18 +934,16 @@
 ---
 
 ### 50. Nyali Best Drivers
-**Total Nominees:** 18 | **Total Verified Votes:** 30  
-> [!WARNING]
-> **Tie-Break Notice**: A tie exists at 4th position (1 votes). Committee review recommended.
+**Total Nominees:** 18 | **Total Initial Verified Votes:** 30  
 
-| Rank | Finalist Status | Nominee Name | Verified Votes | Share (%) |
+| Rank | Finalist Status | Nominee Name | Initial Votes | Share (%) |
 | :---: | :---: | :--- | :---: | :---: |
 | 1 | **QUALIFIED (TOP 4)** | Hamso duba - lilbaby | 21 | 70% |
 | 2 | **QUALIFIED (TOP 4)** | Rogers - kung | 4 | 13.3% |
 | 3 | **QUALIFIED (TOP 4)** | Bakari - dollar dream | 2 | 6.7% |
 | 4 | **QUALIFIED (TIED FOR 4TH)** | Majukumu - black muslim | 1 | 3.3% |
-| 5 | *TIED FOR 4TH (PENDING)* | Muda - redeemer | 1 | 3.3% |
-| 6 | *TIED FOR 4TH (PENDING)* | Mwakubia - blacklist | 1 | 3.3% |
+| 5 | **QUALIFIED (TIED FOR 4TH)** | Muda - redeemer | 1 | 3.3% |
+| 6 | **QUALIFIED (TIED FOR 4TH)** | Mwakubia - blacklist | 1 | 3.3% |
 | 7 | Eliminated | Bakari | 0 | 0% |
 | 8 | Eliminated | Hamso duba | 0 | 0% |
 | 9 | Eliminated | Kalameni | 0 | 0% |
@@ -976,9 +960,9 @@
 ---
 
 ### 51. Best Petrol Station
-**Total Nominees:** 6 | **Total Verified Votes:** 233  
+**Total Nominees:** 6 | **Total Initial Verified Votes:** 233  
 
-| Rank | Finalist Status | Nominee Name | Verified Votes | Share (%) |
+| Rank | Finalist Status | Nominee Name | Initial Votes | Share (%) |
 | :---: | :---: | :--- | :---: | :---: |
 | 1 | **QUALIFIED (TOP 4)** | Reem (gas field) | 130 | 55.8% |
 | 2 | **QUALIFIED (TOP 4)** | Bamburi 1 (issa) | 95 | 40.8% |
@@ -990,25 +974,23 @@
 ---
 
 ### 52. Best Carwash
-**Total Nominees:** 6 | **Total Verified Votes:** 119  
-> [!WARNING]
-> **Tie-Break Notice**: A tie exists at 4th position (2 votes). Committee review recommended.
+**Total Nominees:** 6 | **Total Initial Verified Votes:** 119  
 
-| Rank | Finalist Status | Nominee Name | Verified Votes | Share (%) |
+| Rank | Finalist Status | Nominee Name | Initial Votes | Share (%) |
 | :---: | :---: | :--- | :---: | :---: |
 | 1 | **QUALIFIED (TOP 4)** | Chigunda's car wash & parking | 97 | 81.5% |
 | 2 | **QUALIFIED (TOP 4)** | Bululizo & parking | 10 | 8.4% |
 | 3 | **QUALIFIED (TOP 4)** | Rubis & parking | 8 | 6.7% |
 | 4 | **QUALIFIED (TIED FOR 4TH)** | Bamburi car wash | 2 | 1.7% |
-| 5 | *TIED FOR 4TH (PENDING)* | Gems car wash & parking | 2 | 1.7% |
+| 5 | **QUALIFIED (TIED FOR 4TH)** | Gems car wash & parking | 2 | 1.7% |
 | 6 | Eliminated | Steji ya paka & parking | 0 | 0% |
 
 ---
 
 ### 53. Best Operation Manager
-**Total Nominees:** 6 | **Total Verified Votes:** 104  
+**Total Nominees:** 6 | **Total Initial Verified Votes:** 104  
 
-| Rank | Finalist Status | Nominee Name | Verified Votes | Share (%) |
+| Rank | Finalist Status | Nominee Name | Initial Votes | Share (%) |
 | :---: | :---: | :--- | :---: | :---: |
 | 1 | **QUALIFIED (TOP 4)** | swagger | 54 | 51.9% |
 | 2 | **QUALIFIED (TOP 4)** | Mwangala | 34 | 32.7% |
@@ -1020,9 +1002,9 @@
 ---
 
 ### 54. Best Route
-**Total Nominees:** 13 | **Total Verified Votes:** 157  
+**Total Nominees:** 13 | **Total Initial Verified Votes:** 157  
 
-| Rank | Finalist Status | Nominee Name | Verified Votes | Share (%) |
+| Rank | Finalist Status | Nominee Name | Initial Votes | Share (%) |
 | :---: | :---: | :--- | :---: | :---: |
 | 1 | **QUALIFIED (TOP 4)** | Bamburi kisauni | 109 | 69.4% |
 | 2 | **QUALIFIED (TOP 4)** | Mshomoroni | 11 | 7% |
@@ -1041,9 +1023,9 @@
 ---
 
 ### 55. Best Adventure Group Mombasa
-**Total Nominees:** 5 | **Total Verified Votes:** 216  
+**Total Nominees:** 5 | **Total Initial Verified Votes:** 216  
 
-| Rank | Finalist Status | Nominee Name | Verified Votes | Share (%) |
+| Rank | Finalist Status | Nominee Name | Initial Votes | Share (%) |
 | :---: | :---: | :--- | :---: | :---: |
 | 1 | **QUALIFIED (TOP 4)** | Coastal adventures | 117 | 54.2% |
 | 2 | **QUALIFIED (TOP 4)** | Sunset cartels | 62 | 28.7% |
@@ -1054,9 +1036,9 @@
 ---
 
 ### 56. Kiembeni Driver
-**Total Nominees:** 10 | **Total Verified Votes:** 63  
+**Total Nominees:** 10 | **Total Initial Verified Votes:** 63  
 
-| Rank | Finalist Status | Nominee Name | Verified Votes | Share (%) |
+| Rank | Finalist Status | Nominee Name | Initial Votes | Share (%) |
 | :---: | :---: | :--- | :---: | :---: |
 | 1 | **QUALIFIED (TOP 4)** | Alfan | 34 | 54% |
 | 2 | **QUALIFIED (TOP 4)** | Shariffuh | 18 | 28.6% |
@@ -1072,17 +1054,15 @@
 ---
 
 ### 57. Kiembeni Conductor
-**Total Nominees:** 11 | **Total Verified Votes:** 53  
-> [!WARNING]
-> **Tie-Break Notice**: A tie exists at 4th position (1 votes). Committee review recommended.
+**Total Nominees:** 11 | **Total Initial Verified Votes:** 53  
 
-| Rank | Finalist Status | Nominee Name | Verified Votes | Share (%) |
+| Rank | Finalist Status | Nominee Name | Initial Votes | Share (%) |
 | :---: | :---: | :--- | :---: | :---: |
 | 1 | **QUALIFIED (TOP 4)** | Kanairo | 47 | 88.7% |
 | 2 | **QUALIFIED (TOP 4)** | Dogo | 3 | 5.7% |
 | 3 | **QUALIFIED (TOP 4)** | Jay | 1 | 1.9% |
 | 4 | **QUALIFIED (TIED FOR 4TH)** | Morgan | 1 | 1.9% |
-| 5 | *TIED FOR 4TH (PENDING)* | Tolly | 1 | 1.9% |
+| 5 | **QUALIFIED (TIED FOR 4TH)** | Tolly | 1 | 1.9% |
 | 6 | Eliminated | George | 0 | 0% |
 | 7 | Eliminated | Gilly | 0 | 0% |
 | 8 | Eliminated | Jomba | 0 | 0% |
@@ -1093,43 +1073,41 @@
 ---
 
 ### 58. Mombasa 1 Matatu
-**Total Nominees:** 0 | **Total Verified Votes:** 0  
+**Total Nominees:** 0 | **Total Initial Verified Votes:** 0  
 
-| Rank | Finalist Status | Nominee Name | Verified Votes | Share (%) |
+| Rank | Finalist Status | Nominee Name | Initial Votes | Share (%) |
 | :---: | :---: | :--- | :---: | :---: |
 
 ---
 
 ### 59. Best Driver Mombasa
-**Total Nominees:** 0 | **Total Verified Votes:** 0  
+**Total Nominees:** 0 | **Total Initial Verified Votes:** 0  
 
-| Rank | Finalist Status | Nominee Name | Verified Votes | Share (%) |
+| Rank | Finalist Status | Nominee Name | Initial Votes | Share (%) |
 | :---: | :---: | :--- | :---: | :---: |
 
 ---
 
 ### 60. Best Conductor Mombasa
-**Total Nominees:** 0 | **Total Verified Votes:** 0  
+**Total Nominees:** 0 | **Total Initial Verified Votes:** 0  
 
-| Rank | Finalist Status | Nominee Name | Verified Votes | Share (%) |
+| Rank | Finalist Status | Nominee Name | Initial Votes | Share (%) |
 | :---: | :---: | :--- | :---: | :---: |
 
 ---
 
 ### 61. Best Private 14 Seater (Nairobi)
-**Total Nominees:** 11 | **Total Verified Votes:** 91  
-> [!WARNING]
-> **Tie-Break Notice**: A tie exists at 4th position (2 votes). Committee review recommended.
+**Total Nominees:** 11 | **Total Initial Verified Votes:** 91  
 
-| Rank | Finalist Status | Nominee Name | Verified Votes | Share (%) |
+| Rank | Finalist Status | Nominee Name | Initial Votes | Share (%) |
 | :---: | :---: | :--- | :---: | :---: |
 | 1 | **QUALIFIED (TOP 4)** | Stinger | 74 | 81.3% |
 | 2 | **QUALIFIED (TOP 4)** | spicy safaris | 6 | 6.6% |
 | 3 | **QUALIFIED (TOP 4)** | Flight 13 (the Comeback) | 3 | 3.3% |
 | 4 | **QUALIFIED (TIED FOR 4TH)** | habibi | 2 | 2.2% |
-| 5 | *TIED FOR 4TH (PENDING)* | kimya kimya | 2 | 2.2% |
-| 6 | *TIED FOR 4TH (PENDING)* | kings | 2 | 2.2% |
-| 7 | *TIED FOR 4TH (PENDING)* | steps | 2 | 2.2% |
+| 5 | **QUALIFIED (TIED FOR 4TH)** | kimya kimya | 2 | 2.2% |
+| 6 | **QUALIFIED (TIED FOR 4TH)** | kings | 2 | 2.2% |
+| 7 | **QUALIFIED (TIED FOR 4TH)** | steps | 2 | 2.2% |
 | 8 | Eliminated | fbi | 0 | 0% |
 | 9 | Eliminated | first priority | 0 | 0% |
 | 10 | Eliminated | flight 13 | 0 | 0% |
@@ -1138,9 +1116,9 @@
 ---
 
 ### 62. Best Driver Nairobi
-**Total Nominees:** 10 | **Total Verified Votes:** 119  
+**Total Nominees:** 10 | **Total Initial Verified Votes:** 119  
 
-| Rank | Finalist Status | Nominee Name | Verified Votes | Share (%) |
+| Rank | Finalist Status | Nominee Name | Initial Votes | Share (%) |
 | :---: | :---: | :--- | :---: | :---: |
 | 1 | **QUALIFIED (TOP 4)** | Ostoh | 58 | 48.7% |
 | 2 | **QUALIFIED (TOP 4)** | Liabloh | 41 | 34.5% |
@@ -1156,17 +1134,15 @@
 ---
 
 ### 63. Kenya 1
-**Total Nominees:** 10 | **Total Verified Votes:** 118  
-> [!WARNING]
-> **Tie-Break Notice**: A tie exists at 4th position (2 votes). Committee review recommended.
+**Total Nominees:** 10 | **Total Initial Verified Votes:** 118  
 
-| Rank | Finalist Status | Nominee Name | Verified Votes | Share (%) |
+| Rank | Finalist Status | Nominee Name | Initial Votes | Share (%) |
 | :---: | :---: | :--- | :---: | :---: |
 | 1 | **QUALIFIED (TOP 4)** | Baba yaga | 95 | 80.5% |
 | 2 | **QUALIFIED (TOP 4)** | Outlawz | 9 | 7.6% |
 | 3 | **QUALIFIED (TOP 4)** | Moneyfest | 6 | 5.1% |
 | 4 | **QUALIFIED (TIED FOR 4TH)** | 1977 | 2 | 1.7% |
-| 5 | *TIED FOR 4TH (PENDING)* | Ultron | 2 | 1.7% |
+| 5 | **QUALIFIED (TIED FOR 4TH)** | Ultron | 2 | 1.7% |
 | 6 | Eliminated | Bomaye | 1 | 0.8% |
 | 7 | Eliminated | Eccentric | 1 | 0.8% |
 | 8 | Eliminated | Ferrari | 1 | 0.8% |
@@ -1176,25 +1152,23 @@
 ---
 
 ### 64. Best Adventure Group
-**Total Nominees:** 6 | **Total Verified Votes:** 213  
-> [!WARNING]
-> **Tie-Break Notice**: A tie exists at 4th position (2 votes). Committee review recommended.
+**Total Nominees:** 6 | **Total Initial Verified Votes:** 216  
 
-| Rank | Finalist Status | Nominee Name | Verified Votes | Share (%) |
+| Rank | Finalist Status | Nominee Name | Initial Votes | Share (%) |
 | :---: | :---: | :--- | :---: | :---: |
-| 1 | **QUALIFIED (TOP 4)** | Headboy adventures | 115 | 54% |
-| 2 | **QUALIFIED (TOP 4)** | Alpha adventures | 63 | 29.6% |
-| 3 | **QUALIFIED (TOP 4)** | Iconic tours | 30 | 14.1% |
+| 1 | **QUALIFIED (TOP 4)** | Headboy adventures | 118 | 54.6% |
+| 2 | **QUALIFIED (TOP 4)** | Alpha adventures | 63 | 29.2% |
+| 3 | **QUALIFIED (TOP 4)** | Iconic tours | 30 | 13.9% |
 | 4 | **QUALIFIED (TIED FOR 4TH)** | Certified adventures | 2 | 0.9% |
-| 5 | *TIED FOR 4TH (PENDING)* | Plug adventures | 2 | 0.9% |
+| 5 | **QUALIFIED (TIED FOR 4TH)** | Plug adventures | 2 | 0.9% |
 | 6 | Eliminated | Vva tours | 1 | 0.5% |
 
 ---
 
 ### 65. Best 14 Seater Nairobi
-**Total Nominees:** 10 | **Total Verified Votes:** 111  
+**Total Nominees:** 10 | **Total Initial Verified Votes:** 111  
 
-| Rank | Finalist Status | Nominee Name | Verified Votes | Share (%) |
+| Rank | Finalist Status | Nominee Name | Initial Votes | Share (%) |
 | :---: | :---: | :--- | :---: | :---: |
 | 1 | **QUALIFIED (TOP 4)** | Frakas | 95 | 85.6% |
 | 2 | **QUALIFIED (TOP 4)** | Kichele | 10 | 9% |
