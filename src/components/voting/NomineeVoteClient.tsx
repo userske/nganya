@@ -348,6 +348,14 @@ export function NomineeVoteClient({
   const selectedNominee = nominees.find((n) => n.id === selectedNomineeId);
   const votedNominee = nominees.find((n) => n.id === votedNomineeId);
 
+  // Dynamic grid column class based on finalists count
+  const gridColsClass = useMemo(() => {
+    if (nominees.length === 2) return "grid-cols-1 sm:grid-cols-2 max-w-4xl mx-auto";
+    if (nominees.length === 3) return "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3";
+    if (nominees.length === 4) return "grid-cols-1 sm:grid-cols-2 lg:grid-cols-4";
+    return "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4";
+  }, [nominees.length]);
+
   // Leader nominee
   const leaderNominee = useMemo(() => {
     let topNom: Nominee | null = null;
@@ -363,7 +371,7 @@ export function NomineeVoteClient({
   }, [nominees, counts]);
 
   return (
-    <div className="pb-36 sm:pb-40">
+    <div className="pb-44 sm:pb-52">
       {/* Back button and group badge */}
       <div className="flex items-center justify-between gap-4 mb-6">
         <Button
@@ -452,7 +460,7 @@ export function NomineeVoteClient({
       </div>
 
       {/* Nominees Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+      <div className={`grid gap-4 ${gridColsClass}`}>
         {rankedNominees.map((nominee) => {
           const voteCount = counts[nominee.id] ?? 0;
           const percentage =
@@ -574,34 +582,29 @@ export function NomineeVoteClient({
         })}
       </div>
 
-      {/* Floating Action Bar (positioned safely above iOS Safari bottom bar) */}
-      {!isLocked && (
-        <div className="fixed bottom-[calc(1.5rem+env(safe-area-inset-bottom,0px))] left-1/2 -translate-x-1/2 w-[92%] max-w-xl z-30">
-          <div className="p-3.5 sm:p-4 rounded-2xl bg-[#0a0a0a]/95 border border-amber-500/30 shadow-2xl backdrop-blur-xl flex items-center justify-between gap-4">
+      {/* Floating Action Bar - appears cleanly when a nominee is selected */}
+      {!isLocked && selectedNomineeId && (
+        <div className="fixed bottom-[calc(1.5rem+env(safe-area-inset-bottom,0px))] left-1/2 -translate-x-1/2 w-[92%] max-w-xl z-40 transition-all duration-300 animate-in fade-in slide-in-from-bottom-4">
+          <div className="p-3.5 sm:p-4 rounded-2xl bg-[#0a0a0a]/95 border border-amber-500/40 shadow-[0_8px_32px_rgba(0,0,0,0.8),0_0_20px_rgba(245,158,11,0.2)] backdrop-blur-xl flex items-center justify-between gap-4">
             <div className="min-w-0 truncate">
-              {selectedNominee ? (
+              {selectedNominee && (
                 <div>
-                  <div className="text-[10px] uppercase tracking-wider text-amber-400/80 font-medium">
+                  <div className="text-[10px] uppercase tracking-wider text-amber-400 font-bold flex items-center gap-1.5">
+                    <span className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse" />
                     Selected (Rank #{rankMap[selectedNominee.id] ?? 1}):
                   </div>
-                  <div className="text-xs sm:text-sm font-semibold text-white truncate">
+                  <div className="text-xs sm:text-sm font-bold text-white truncate">
                     {selectedNominee.name}
                     {selectedNominee.subtitle && ` (${selectedNominee.subtitle})`}
                   </div>
-                </div>
-              ) : (
-                <div className="text-xs text-white/50">
-                  {authChecked && isAuthenticated
-                    ? "Select a nominee above to cast your vote"
-                    : "Select a nominee to cast your vote"}
                 </div>
               )}
             </div>
 
             <Button
-              disabled={!selectedNomineeId || isSubmitting}
+              disabled={isSubmitting}
               onClick={handleVoteSubmitClick}
-              className="bg-amber-400 hover:bg-amber-300 text-black font-bold px-5 sm:px-6 h-11 rounded-xl shadow-[0_0_20px_rgba(245,158,11,0.25)] shrink-0 focus-visible:ring-2 focus-visible:ring-amber-400 active:scale-[0.98] text-xs sm:text-sm"
+              className="bg-amber-400 hover:bg-amber-300 text-black font-extrabold px-5 sm:px-6 h-11 rounded-xl shadow-[0_0_20px_rgba(245,158,11,0.3)] shrink-0 focus-visible:ring-2 focus-visible:ring-amber-400 active:scale-[0.98] text-xs sm:text-sm"
             >
               {isSubmitting ? (
                 <>

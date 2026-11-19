@@ -186,7 +186,7 @@ export default async function CategoryVotePage({ params }: PageProps) {
     <div className="min-h-screen bg-black text-white flex flex-col justify-between">
       <Navbar />
 
-      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-28">
+      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 pt-32 pb-40 sm:pt-36 sm:pb-44">
         <NomineeVoteClient
           category={categoryData}
           nominees={categoryData.nominees}

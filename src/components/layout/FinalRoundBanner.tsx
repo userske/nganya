@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { Flame, Clock, ChevronRight } from "lucide-react";
 
 interface TimeRemaining {
@@ -29,6 +30,8 @@ function calculateTimeRemaining(): TimeRemaining {
 }
 
 export function FinalRoundBanner() {
+  const pathname = usePathname();
+  const isVotePage = pathname?.startsWith("/vote");
   const [time, setTime] = useState<TimeRemaining>(calculateTimeRemaining());
   const [mounted, setMounted] = useState(false);
 
@@ -43,47 +46,52 @@ export function FinalRoundBanner() {
   if (!mounted) return null;
 
   return (
-    <div className="relative z-50 bg-gradient-to-r from-black via-amber-950/40 to-black border-b border-amber-500/30 text-white py-2.5 px-4 sm:px-6 shadow-[0_4px_20px_rgba(245,158,11,0.15)]">
-      <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-3 text-center md:text-left">
-        {/* Left: Live status and info */}
-        <div className="flex flex-wrap items-center justify-center md:justify-start gap-2.5">
-          <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-amber-500/20 border border-amber-400/40 text-amber-300 text-[11px] font-black uppercase tracking-wider animate-pulse">
-            <Flame className="w-3.5 h-3.5 text-amber-400 fill-amber-400" />
-            Final Voting Round Live
+    <div className="relative z-50 bg-gradient-to-r from-black via-amber-950/60 to-black border-b border-amber-500/30 text-white py-1.5 px-3 sm:px-6 shadow-[0_2px_15px_rgba(245,158,11,0.12)]">
+      <div className="max-w-7xl mx-auto flex items-center justify-between gap-2">
+        {/* Left: Status badge */}
+        <div className="flex items-center gap-2">
+          <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-amber-500/20 border border-amber-400/40 text-amber-300 text-[10px] sm:text-xs font-black uppercase tracking-wider animate-pulse">
+            <Flame className="w-3 h-3 text-amber-400 fill-amber-400 shrink-0" />
+            Final Round Live
+          </span>
+          <span className="hidden md:inline text-xs text-neutral-400">
+            Top 4 Finalists &middot; One Verified Vote
           </span>
         </div>
 
-        {/* Right: Countdown & Action */}
-        <div className="flex items-center gap-4">
-          <div className="flex items-center gap-1.5 font-mono text-xs sm:text-sm">
-            <Clock className="w-3.5 h-3.5 text-amber-400/80 mr-0.5" />
-            <span className="text-neutral-400 text-xs hidden sm:inline">Closes in:</span>
+        {/* Right: Countdown & Optional CTA */}
+        <div className="flex items-center gap-3">
+          <div className="flex items-center gap-1 font-mono text-[11px] sm:text-xs">
+            <Clock className="w-3 h-3 text-amber-400/80 mr-0.5 shrink-0" />
+            <span className="text-neutral-400 text-[10px] sm:text-xs hidden sm:inline">Closes:</span>
             <div className="flex items-center gap-1">
-              <span className="bg-white/10 px-1.5 py-0.5 rounded text-amber-400 font-bold">
+              <span className="bg-white/10 px-1 py-0.5 rounded text-amber-400 font-bold">
                 {String(time.days).padStart(2, "0")}d
               </span>
               <span className="text-neutral-500">:</span>
-              <span className="bg-white/10 px-1.5 py-0.5 rounded text-amber-400 font-bold">
+              <span className="bg-white/10 px-1 py-0.5 rounded text-amber-400 font-bold">
                 {String(time.hours).padStart(2, "0")}h
               </span>
               <span className="text-neutral-500">:</span>
-              <span className="bg-white/10 px-1.5 py-0.5 rounded text-amber-400 font-bold">
+              <span className="bg-white/10 px-1 py-0.5 rounded text-amber-400 font-bold">
                 {String(time.minutes).padStart(2, "0")}m
               </span>
               <span className="text-neutral-500">:</span>
-              <span className="bg-white/10 px-1.5 py-0.5 rounded text-amber-400 font-bold">
+              <span className="bg-white/10 px-1 py-0.5 rounded text-amber-400 font-bold">
                 {String(time.seconds).padStart(2, "0")}s
               </span>
             </div>
           </div>
 
-          <Link
-            href="/vote"
-            className="inline-flex items-center gap-1 px-3 py-1 rounded-lg bg-amber-500 hover:bg-amber-400 text-black text-xs font-bold transition-all hover:scale-105 active:scale-95 shadow-[0_0_12px_rgba(245,158,11,0.3)]"
-          >
-            Vote Now
-            <ChevronRight className="w-3.5 h-3.5" />
-          </Link>
+          {!isVotePage && (
+            <Link
+              href="/vote"
+              className="inline-flex items-center gap-0.5 px-2.5 py-0.5 rounded-md bg-amber-500 hover:bg-amber-400 text-black text-[11px] font-bold transition-all hover:scale-105 active:scale-95 shadow-[0_0_10px_rgba(245,158,11,0.25)] shrink-0"
+            >
+              Vote
+              <ChevronRight className="w-3 h-3" />
+            </Link>
+          )}
         </div>
       </div>
     </div>
