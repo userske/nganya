@@ -127,5 +127,26 @@ export function isDisposableEmail(email: string): boolean {
   if (!email) return false;
   const parts = email.trim().toLowerCase().split("@");
   if (parts.length !== 2) return false;
-  return DISPOSABLE_DOMAINS.has(parts[1]);
+  const domain = parts[1];
+
+  if (DISPOSABLE_DOMAINS.has(domain)) return true;
+
+  // Pattern detection for disposable / bot services
+  if (
+    domain.endsWith(".surf") ||
+    domain.endsWith(".mom") ||
+    domain.endsWith(".sbs") ||
+    domain.endsWith(".cyou") ||
+    domain.endsWith(".rest") ||
+    domain.endsWith(".space") ||
+    domain.endsWith(".top") ||
+    domain.endsWith(".xyz") ||
+    domain.endsWith(".cfd") ||
+    domain.endsWith(".pw") ||
+    domain.endsWith(".icu")
+  ) {
+    return true;
+  }
+
+  return false;
 }

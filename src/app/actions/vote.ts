@@ -4,6 +4,7 @@ import { headers } from "next/headers";
 import { revalidatePath } from "next/cache";
 import { createClient, createAdminClient } from "@/lib/supabase/server";
 import { hashIp } from "@/lib/security/ip-hash";
+import { isDisposableEmail } from "@/lib/auth/email";
 
 export interface VoteResult {
   success: boolean;
@@ -77,6 +78,14 @@ export async function submitVoteAction(
 
   if (userError || !user) {
     return { success: false, error: "NOT_AUTHENTICATED" };
+  }
+
+  // Check if voter email is disposable or banned
+  if (isDisposableEmail(user.email ?? "")) {
+    return {
+      success: false,
+      error: "Temporary or disposable email addresses are strictly prohibited from voting.",
+    };
   }
 
   // 1. First attempt: call the atomic cast_vote Postgres RPC function
