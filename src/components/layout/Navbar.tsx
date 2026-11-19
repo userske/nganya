@@ -6,6 +6,7 @@ import { usePathname } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { Menu, X } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { FinalRoundBanner } from "@/components/layout/FinalRoundBanner";
 
 const navLinks = [
   { href: "/#about", label: "About" },
@@ -50,10 +51,11 @@ export function Navbar() {
         className={cn(
           "fixed top-0 left-0 right-0 z-50 transition-[background-color,border-color,backdrop-filter] duration-500",
           scrolled
-            ? "bg-black/80 backdrop-blur-xl border-b border-white/10"
-            : "bg-transparent"
+            ? "bg-black/90 backdrop-blur-xl border-b border-white/10"
+            : "bg-black/40 backdrop-blur-md"
         )}
       >
+        <FinalRoundBanner />
         <nav aria-label="Main Navigation" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16 lg:h-20">
             {/* Logo */}

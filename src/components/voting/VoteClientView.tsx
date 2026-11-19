@@ -2,7 +2,7 @@
 
 import { useState, useMemo, useEffect } from "react";
 import Link from "next/link";
-import { Search, Trophy, BarChart3, UserCheck, TrendingUp } from "lucide-react";
+import { Search, Trophy, BarChart3, UserCheck, TrendingUp, Flame, Clock } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
@@ -38,6 +38,28 @@ export function VoteClientView({
   const [selectedGroup, setSelectedGroup] = useState<string>("All");
   const [authDialogOpen, setAuthDialogOpen] = useState(false);
   const [categoryVotes, setCategoryVotes] = useState<Record<string, number>>(initialCategoryVotes);
+  const [countdownTime, setCountdownTime] = useState({
+    days: 0,
+    hours: 0,
+    minutes: 0,
+    seconds: 0,
+  });
+
+  useEffect(() => {
+    const target = new Date("2026-11-30T23:59:59+03:00").getTime();
+    const update = () => {
+      const diff = Math.max(0, target - Date.now());
+      setCountdownTime({
+        days: Math.floor(diff / (1000 * 60 * 60 * 24)),
+        hours: Math.floor((diff / (1000 * 60 * 60)) % 24),
+        minutes: Math.floor((diff / (1000 * 60)) % 60),
+        seconds: Math.floor((diff / 1000) % 60),
+      });
+    };
+    update();
+    const timer = setInterval(update, 1000);
+    return () => clearInterval(timer);
+  }, []);
 
   // Live polling of category vote tallies
   useEffect(() => {
@@ -173,6 +195,52 @@ export function VoteClientView({
               Sign In to Vote
             </Button>
           )}
+        </div>
+      </div>
+
+      {/* Final Round Announcement & Countdown Box */}
+      <div className="relative overflow-hidden p-6 sm:p-7 rounded-2xl bg-gradient-to-r from-amber-950/40 via-black to-amber-950/30 border border-amber-500/40 mb-8 backdrop-blur-md shadow-[0_0_30px_rgba(245,158,11,0.12)]">
+        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
+          <div className="max-w-2xl">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-400/20 border border-amber-400/50 text-amber-300 text-xs font-black uppercase tracking-wider mb-3">
+              <Flame className="w-3.5 h-3.5 text-amber-400 fill-amber-400" />
+              Official Final Voting Round
+            </div>
+            <h2 className="text-xl sm:text-2xl font-black text-white tracking-tight uppercase">
+              Top 4 Head-to-Head Showdown
+            </h2>
+            <p className="text-neutral-300 text-xs sm:text-sm mt-1.5 leading-relaxed">
+              Initial round voting is complete and non-qualifying nominees have been eliminated. Only the <strong className="text-amber-400">Top 4 verified finalists</strong> per category advance to this decisive round. All category votes have been reset to <strong>0</strong> — cast your vote now!
+            </p>
+          </div>
+
+          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 bg-black/60 border border-amber-500/30 rounded-xl p-3.5 sm:p-4">
+            <div className="flex items-center gap-1.5 text-xs uppercase tracking-wider text-amber-400 font-bold">
+              <Clock className="w-4 h-4 text-amber-400" />
+              Voting Closes:
+            </div>
+            <div className="flex items-center gap-1.5 font-mono text-center">
+              <div className="bg-white/10 px-2 py-1 rounded-lg border border-white/10 min-w-[42px]">
+                <div className="text-base sm:text-lg font-black text-amber-400">{String(countdownTime.days).padStart(2, "0")}</div>
+                <div className="text-[9px] uppercase text-neutral-400 font-sans font-semibold">Days</div>
+              </div>
+              <span className="text-neutral-600 font-bold">:</span>
+              <div className="bg-white/10 px-2 py-1 rounded-lg border border-white/10 min-w-[42px]">
+                <div className="text-base sm:text-lg font-black text-amber-400">{String(countdownTime.hours).padStart(2, "0")}</div>
+                <div className="text-[9px] uppercase text-neutral-400 font-sans font-semibold">Hours</div>
+              </div>
+              <span className="text-neutral-600 font-bold">:</span>
+              <div className="bg-white/10 px-2 py-1 rounded-lg border border-white/10 min-w-[42px]">
+                <div className="text-base sm:text-lg font-black text-amber-400">{String(countdownTime.minutes).padStart(2, "0")}</div>
+                <div className="text-[9px] uppercase text-neutral-400 font-sans font-semibold">Mins</div>
+              </div>
+              <span className="text-neutral-600 font-bold">:</span>
+              <div className="bg-white/10 px-2 py-1 rounded-lg border border-white/10 min-w-[42px]">
+                <div className="text-base sm:text-lg font-black text-amber-400">{String(countdownTime.seconds).padStart(2, "0")}</div>
+                <div className="text-[9px] uppercase text-neutral-400 font-sans font-semibold">Secs</div>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
 
