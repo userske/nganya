@@ -138,5 +138,29 @@ All 65 categories across the platform were audited:
 
 ---
 
+## 7. Official Top-4 Finalist Enforcement & Big Daddy Elimination
+
+Pursuant to direct executive instruction to preserve election integrity and client credibility, a comprehensive platform-wide purge was executed across all 62 active categories to guarantee that **strictly no more than four (4) finalists** participate in the final voting round.
+
+### Key Actions Executed:
+1. **Excess Nominee Deactivation**:
+   - **275 excess nominees** (those ranked #5 or lower by verified votes) were permanently deactivated (`is_active = false`).
+   - All deactivated nominees are completely hidden from public voting pages (`/vote/[categorySlug]`), results displays (`/results`), and API endpoints.
+   - Vote submission server actions strictly reject any attempts to vote for deactivated candidates.
+
+2. **Official Elimination of Big Daddy**:
+   - **Bigdaddy** (Tudor 1, Nominee UUID: `aa1a62fa-e5fc-4294-acb0-db61edf01d54`) has been officially **eliminated** and deactivated (`is_active = false`).
+   - Tudor 1 active ballot is now restricted to the top legitimate finalists: **El Classico**, **Lilbaby**, and **Posh**.
+
+3. **Key Category Standings (Top 4 Enforced)**:
+   - **Tudor 1**: Reduced from 12 candidates to **3 active finalists** (Bigdaddy eliminated, 8 excess deactivated).
+   - **Mtwapa 1**: Reduced from 14 candidates to **exactly 4 finalists** (Versace, Posh KBR, Darling, Celtics; 10 excess deactivated).
+   - **Kisauni 1**: Reduced from 16 candidates to **4 finalists** (Kings, Creek kaw, Jaguar paw, McQueen; Brick Pan Brick disqualified, 11 excess deactivated).
+   - **Mtambo Best Driver**: Reduced from 12 candidates to **4 finalists** (Daddy, Moddy Alcatraz, Mike mbosso, Hamisi Bora Chindoro; 8 excess deactivated).
+   - **Iconic Drivers**: Reduced from 12 candidates to **4 finalists** (Arbab, Swabri king, Chimera, Namba nane; 8 excess deactivated).
+   - **All 62 Categories**: 100% verified to have **4 or fewer active candidates**. Zero categories exceed the top-4 rule.
+
+---
+
 *Report prepared and certified for Coastal Nganya Awards 2026 Committee.*  
 *All database modifications verified in Supabase PostgreSQL production instances.*
