@@ -8,6 +8,7 @@ import {
   isValidEmailFormat,
   checkEmailTypo,
 } from "@/lib/auth/email";
+import { recordSecurityIncidentAndAlertAdmin } from "@/lib/security/fraud-alert";
 
 export interface AuthActionResult {
   success: boolean;
@@ -139,6 +140,15 @@ export async function sendOtpAction(
   }
 
   if (isDisposableEmail(email)) {
+    // Automatically record security incident and alert admin
+    recordSecurityIncidentAndAlertAdmin({
+      eventType: "DISPOSABLE_EMAIL_REGISTRATION_BLOCKED",
+      severity: "HIGH",
+      email,
+      reason: "Voter attempted magic link sign-in using a banned temporary/disposable email domain.",
+      metadata: { rawEmail },
+    }).catch(() => {});
+
     return {
       success: false,
       error: "Temporary or disposable email addresses are not permitted for voting.",
@@ -223,8 +233,12 @@ export async function sendOtpAction(
       process.env.RESEND_API_KEY_SECONDARY,
       process.env.RESEND_BACKUP_API_KEY,
     ].filter(Boolean) as string[];
+    const extraKeys = (process.env.RESEND_API_KEYS || "")
+      .split(",")
+      .map((k) => k.trim())
+      .filter(Boolean);
 
-    const candidateKeys = [primaryKey, ...backupKeys].filter(Boolean) as string[];
+    const candidateKeys = [primaryKey, ...backupKeys, ...extraKeys].filter(Boolean) as string[];
 
     if (candidateKeys.length > 0) {
       try {
@@ -275,7 +289,8 @@ export async function sendOtpAction(
 
                 if (
                   emailRes.error?.name === "daily_quota_exceeded" ||
-                  (emailRes.error as any)?.statusCode === 429
+                  (emailRes.error as any)?.statusCode === 429 ||
+                  emailRes.error?.message?.toLowerCase().includes("quota")
                 ) {
                   quotaExceeded = true;
                   console.warn(`[sendOtpAction] Resend key (${key.slice(0, 6)}...) exceeded daily quota. Trying next key if available.`);
@@ -284,6 +299,14 @@ export async function sendOtpAction(
                 }
               } catch (singleKeyErr: any) {
                 console.warn("[sendOtpAction] Resend key attempt error:", singleKeyErr);
+                if (
+                  singleKeyErr?.statusCode === 429 ||
+                  singleKeyErr?.name === "daily_quota_exceeded" ||
+                  singleKeyErr?.message?.toLowerCase().includes("quota") ||
+                  singleKeyErr?.message?.includes("429")
+                ) {
+                  quotaExceeded = true;
+                }
               }
             }
 
@@ -294,7 +317,7 @@ export async function sendOtpAction(
               return {
                 success: false,
                 error:
-                  "High voter traffic has temporarily filled today's email delivery queue. Please try again shortly or contact support at info@coastalnganyaawards.com.",
+                  "Today's email delivery queue is temporarily full due to high voter traffic. Please try again shortly or contact support at info@coastalnganyaawards.com.",
               };
             }
           }

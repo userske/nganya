@@ -5,6 +5,7 @@ import { revalidatePath } from "next/cache";
 import { createClient, createAdminClient } from "@/lib/supabase/server";
 import { hashIp } from "@/lib/security/ip-hash";
 import { isDisposableEmail } from "@/lib/auth/email";
+import { recordSecurityIncidentAndAlertAdmin } from "@/lib/security/fraud-alert";
 
 export interface VoteResult {
   success: boolean;
@@ -82,6 +83,14 @@ export async function submitVoteAction(
 
   // Check if voter email is disposable or banned
   if (isDisposableEmail(user.email ?? "")) {
+    recordSecurityIncidentAndAlertAdmin({
+      eventType: "DISPOSABLE_EMAIL_VOTE_BLOCKED",
+      severity: "HIGH",
+      email: user.email ?? "unknown",
+      nomineeId,
+      reason: "Disposable/temporary email attempted to submit a vote.",
+    }).catch(() => {});
+
     return {
       success: false,
       error: "Temporary or disposable email addresses are strictly prohibited from voting.",
@@ -167,8 +176,23 @@ export async function submitVoteAction(
           .eq("category_id", categoryId)
           .maybeSingle();
 
-        if (!nominee || !nominee.is_active) {
+        if (!nominee) {
           return { success: false, error: "Nominee not found in this category." };
+        }
+
+        if (!nominee.is_active) {
+          recordSecurityIncidentAndAlertAdmin({
+            eventType: "DISQUALIFIED_NOMINEE_VOTE_ATTEMPT",
+            severity: "MEDIUM",
+            email: user.email ?? "unknown",
+            nomineeName: nominee.name,
+            reason: `Voter attempted to cast vote for deactivated/disqualified nominee ${nominee.name}.`,
+          }).catch(() => {});
+
+          return {
+            success: false,
+            error: `Nominee "${nominee.name}" has been disqualified from Coastal Nganya Awards 2026 due to vote integrity violations.`,
+          };
         }
 
         // 4. Record vote
