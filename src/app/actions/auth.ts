@@ -216,10 +216,17 @@ export async function sendOtpAction(
     }
 
     // ─────────────────────────────────────────────────────────────────────────
-    // 2. FALLBACK PATH: DIRECT RESEND (only if Supabase delivery fails)
+    // 2. FALLBACK PATH: DIRECT RESEND (with multi-key support)
     // ─────────────────────────────────────────────────────────────────────────
-    const resendApiKey = process.env.RESEND_API_KEY;
-    if (resendApiKey) {
+    const primaryKey = process.env.RESEND_API_KEY;
+    const backupKeys = [
+      process.env.RESEND_API_KEY_SECONDARY,
+      process.env.RESEND_BACKUP_API_KEY,
+    ].filter(Boolean) as string[];
+
+    const candidateKeys = [primaryKey, ...backupKeys].filter(Boolean) as string[];
+
+    if (candidateKeys.length > 0) {
       try {
         const adminClient = await createAdminClient();
         const { data: linkData, error: linkError } = await adminClient.auth.admin.generateLink({
@@ -241,28 +248,55 @@ export async function sendOtpAction(
             : linkData.properties?.action_link;
 
           if (magicLinkUrl) {
-            const resend = new Resend(resendApiKey);
             const fromAddress = process.env.EMAIL_FROM || "noreply@coastalnganyaawards.com";
             const sender = fromAddress.includes("<")
               ? fromAddress
               : `Coastal Nganya Awards <${fromAddress}>`;
 
-            const emailRes = await resend.emails.send({
-              from: sender,
-              to: email,
-              subject: "Your Magic Sign-In Link — Coastal Nganya Awards 2026",
-              html: buildMagicLinkEmailHtml(magicLinkUrl, email),
-            });
+            let quotaExceeded = false;
 
-            if (emailRes.data?.id) {
-              console.log(`[sendOtpAction] Magic link sent via fallback Resend: ${emailRes.data.id}`);
-              return {
-                success: true,
-                message: `Sign-in link sent to ${email}`,
-              };
+            for (const key of candidateKeys) {
+              try {
+                const resend = new Resend(key);
+                const emailRes = await resend.emails.send({
+                  from: sender,
+                  to: email,
+                  subject: "Your Magic Sign-In Link — Coastal Nganya Awards 2026",
+                  html: buildMagicLinkEmailHtml(magicLinkUrl, email),
+                });
+
+                if (emailRes.data?.id) {
+                  console.log(`[sendOtpAction] Magic link sent via Resend (${key.slice(0, 6)}...): ${emailRes.data.id}`);
+                  return {
+                    success: true,
+                    message: `Sign-in link sent to ${email}`,
+                  };
+                }
+
+                if (
+                  emailRes.error?.name === "daily_quota_exceeded" ||
+                  (emailRes.error as any)?.statusCode === 429
+                ) {
+                  quotaExceeded = true;
+                  console.warn(`[sendOtpAction] Resend key (${key.slice(0, 6)}...) exceeded daily quota. Trying next key if available.`);
+                } else {
+                  console.warn("[sendOtpAction] Resend error:", emailRes.error);
+                }
+              } catch (singleKeyErr: any) {
+                console.warn("[sendOtpAction] Resend key attempt error:", singleKeyErr);
+              }
             }
 
-            console.warn("[sendOtpAction] Resend fallback returned error:", emailRes.error);
+            if (quotaExceeded) {
+              console.error(
+                "[sendOtpAction] CRITICAL: All configured Resend keys have exceeded their daily email quota. Upgrade Resend plan to Pro or supply RESEND_BACKUP_API_KEY."
+              );
+              return {
+                success: false,
+                error:
+                  "High voter traffic has temporarily filled today's email delivery queue. Please try again shortly or contact support at info@coastalnganyaawards.com.",
+              };
+            }
           }
         } else if (linkError) {
           console.warn("[sendOtpAction] admin.generateLink error:", linkError);
