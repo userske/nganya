@@ -84,7 +84,7 @@ export async function submitVoteAction(
   // Check if voter email is disposable or banned
   if (isDisposableEmail(user.email ?? "")) {
     recordSecurityIncidentAndAlertAdmin({
-      eventType: "DISPOSABLE_EMAIL_VOTE_BLOCKED",
+      eventType: "DISPOSABLE_EMAIL_VOTE_ATTEMPT",
       severity: "HIGH",
       email: user.email ?? "unknown",
       nomineeId,

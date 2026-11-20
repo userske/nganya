@@ -142,7 +142,7 @@ export async function sendOtpAction(
   if (isDisposableEmail(email)) {
     // Automatically record security incident and alert admin
     recordSecurityIncidentAndAlertAdmin({
-      eventType: "DISPOSABLE_EMAIL_REGISTRATION_BLOCKED",
+      eventType: "DISPOSABLE_EMAIL_SIGNIN_ATTEMPT",
       severity: "HIGH",
       email,
       reason: "Voter attempted magic link sign-in using a banned temporary/disposable email domain.",
