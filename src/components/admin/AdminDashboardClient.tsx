@@ -449,6 +449,13 @@ export function AdminDashboardClient({
 
   // Seed Database Handler
   const handleSeedDatabase = async () => {
+    if (
+      !confirm(
+        "WARNING: Re-seeding will reload category data from JSON. This is intended only for initial platform initialization. Are you sure you want to proceed?"
+      )
+    ) {
+      return;
+    }
     setIsSeeding(true);
     try {
       const res = await fetch("/api/seed", { method: "POST" });
@@ -573,22 +580,6 @@ export function AdminDashboardClient({
             >
               <RefreshCw className="w-3.5 h-3.5 mr-1.5 text-amber-400" />
               Refresh Data
-            </Button>
-
-            <Button
-              variant="outline"
-              onClick={handleSeedDatabase}
-              disabled={isSeeding}
-              className="border-white/15 bg-white/5 hover:bg-white/10 text-white font-semibold h-10 px-3.5 rounded-xl text-xs"
-            >
-              {isSeeding ? (
-                <>
-                  <Loader2 className="w-3.5 h-3.5 mr-1.5 animate-spin text-amber-400" />
-                  Seeding...
-                </>
-              ) : (
-                "Seed DB"
-              )}
             </Button>
 
             <Button

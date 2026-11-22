@@ -97,12 +97,17 @@ export async function seedDatabaseFromLocalJson() {
 
     for (let i = 0; i < cat.nominees.length; i++) {
       const { name, subtitle } = extractSubtitle(cat.nominees[i]);
+      const lowerName = name.toLowerCase();
+      const isDisqualified =
+        lowerName.includes("brick pan brick") ||
+        lowerName.includes("bigdaddy");
+
       allNominees.push({
         category_id: catId,
         name,
         subtitle,
         sort_order: i + 1,
-        is_active: true,
+        is_active: !isDisqualified,
       });
     }
   }
