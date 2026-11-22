@@ -120,10 +120,10 @@ export default async function AdminPage() {
     .select("*")
     .order("sort_order", { ascending: true });
 
-  // 5. Total Votes — calculate maximum between sum of vote_counts and verified votes table
+  // 5. Total Votes & Finalist Tallies
   const { data: counts } = await adminClient
     .from("vote_counts")
-    .select("count")
+    .select("category_id, nominee_id, count")
     .limit(5000);
 
   const sumCounts = (counts || []).reduce((acc, c) => acc + Number(c.count), 0);
@@ -135,14 +135,41 @@ export default async function AdminPage() {
 
   const totalVotes = Math.max(sumCounts, rawVotesCount || 0);
 
-  // 6. Audit Log
+  // 6. Finalists & Nominees
+  const { data: allNominees } = await adminClient
+    .from("nominees")
+    .select("id, category_id, name, subtitle, sort_order, is_active")
+    .order("name", { ascending: true })
+    .limit(3000);
+
+  const categoryMap = new Map((categories || []).map((c) => [c.id, c]));
+  const countMap = new Map((counts || []).map((c) => [c.nominee_id, Number(c.count) || 0]));
+
+  const nomineeTallies = (allNominees || [])
+    .filter((n) => n.is_active)
+    .map((n) => {
+      const cat = categoryMap.get(n.category_id);
+      return {
+        id: n.id,
+        name: n.name,
+        subtitle: n.subtitle,
+        category_id: n.category_id,
+        category_name: cat?.name || "Unknown Category",
+        category_slug: cat?.slug || "",
+        category_group: cat?.group_name || "Special",
+        is_active: n.is_active,
+        count: countMap.get(n.id) || 0,
+      };
+    });
+
+  // 7. Audit Log
   const { data: auditLogs } = await adminClient
     .from("audit_log")
     .select("*")
     .order("created_at", { ascending: false })
     .limit(50);
 
-  // 7. Suspicious IP clusters (IPs with 3+ active votes)
+  // 8. Suspicious IP clusters (IPs with 3+ active votes)
   const { data: clusterVotes } = await adminClient
     .from("votes")
     .select("ip_hash")
@@ -173,6 +200,7 @@ export default async function AdminPage() {
         <AdminDashboardClient
           initialSettings={settings || {}}
           categories={categories || []}
+          nomineeTallies={nomineeTallies || []}
           orders={orders || []}
           ticketTiers={ticketTiers || []}
           suspiciousIps={suspiciousIps}

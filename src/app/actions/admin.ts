@@ -534,3 +534,84 @@ export async function getAdminOrderTicketsAction(orderNumber: string): Promise<{
 
   return { success: true, order, tickets: tickets || [] };
 }
+
+/**
+ * Admin action to set or restore baseline vote counts for a finalist/nominee.
+ * Updates vote_counts table and logs the administrative adjustment in audit_log.
+ */
+export async function setNomineeVoteTallyAction(
+  nomineeId: string,
+  categoryId: string,
+  newCount: number,
+  reason: string
+): Promise<{ success: boolean; newCount?: number; error?: string }> {
+  const adminUser = await verifyAdminRole();
+  const adminClient = await createAdminClient();
+
+  const countVal = Math.max(0, Math.floor(Number(newCount)));
+  if (isNaN(countVal)) {
+    return { success: false, error: "Invalid vote count provided" };
+  }
+
+  // Fetch nominee to confirm existence and get name for audit logging
+  const { data: nominee, error: nomineeErr } = await adminClient
+    .from("nominees")
+    .select("id, name, category_id")
+    .eq("id", nomineeId)
+    .maybeSingle();
+
+  if (nomineeErr || !nominee) {
+    return { success: false, error: "Nominee not found" };
+  }
+
+  // Get current count for audit diff
+  const { data: curVc } = await adminClient
+    .from("vote_counts")
+    .select("count")
+    .eq("category_id", categoryId)
+    .eq("nominee_id", nomineeId)
+    .maybeSingle();
+
+  const previousCount = curVc?.count ?? 0;
+
+  // Upsert the updated vote count into vote_counts
+  const { error: upsertErr } = await adminClient
+    .from("vote_counts")
+    .upsert(
+      {
+        category_id: categoryId,
+        nominee_id: nomineeId,
+        count: countVal,
+        updated_at: new Date().toISOString(),
+      },
+      { onConflict: "category_id,nominee_id" }
+    );
+
+  if (upsertErr) {
+    return { success: false, error: upsertErr.message };
+  }
+
+  // Record in audit_log
+  await adminClient.from("audit_log").insert({
+    actor_id: adminUser.id,
+    action: "RESTORE_NOMINEE_VOTES",
+    entity_type: "nominee",
+    entity_id: nomineeId,
+    details: {
+      nominee_name: nominee.name,
+      category_id: categoryId,
+      previous_count: previousCount,
+      new_count: countVal,
+      diff: countVal - previousCount,
+      reason: reason || "Manual baseline / historical vote restoration by admin",
+      admin_email: adminUser.email,
+    },
+  });
+
+  revalidatePath("/vote");
+  revalidatePath("/results");
+  revalidatePath("/admin");
+
+  return { success: true, newCount: countVal };
+}
+
