@@ -582,7 +582,6 @@ export async function setNomineeVoteTallyAction(
         category_id: categoryId,
         nominee_id: nomineeId,
         count: countVal,
-        updated_at: new Date().toISOString(),
       },
       { onConflict: "category_id,nominee_id" }
     );
