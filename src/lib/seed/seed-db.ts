@@ -174,7 +174,24 @@ export async function seedDatabaseFromLocalJson() {
         tallyMap[key].count += 1;
       }
 
-      const updates = Object.values(tallyMap);
+      // Fetch existing vote counts to ensure we NEVER downgrade or deduct admin-restored tallies
+      const { data: existingCounts } = await adminClient
+        .from("vote_counts")
+        .select("category_id, nominee_id, count");
+
+      const existingMap = new Map<string, number>();
+      if (existingCounts) {
+        for (const ec of existingCounts) {
+          existingMap.set(`${ec.category_id}|${ec.nominee_id}`, ec.count);
+        }
+      }
+
+      // Only update if verified vote records strictly exceed the currently recorded count
+      const updates = Object.values(tallyMap).filter((item) => {
+        const current = existingMap.get(`${item.category_id}|${item.nominee_id}`) ?? 0;
+        return item.count > current;
+      });
+
       for (let i = 0; i < updates.length; i += chunkSize) {
         const chunk = updates.slice(i, i + chunkSize);
         await adminClient
