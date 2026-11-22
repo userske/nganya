@@ -1926,9 +1926,9 @@ export function AdminDashboardClient({
       ───────────────────────────────────────────────────────────── */}
       {adjustingNominee && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 bg-black/85 backdrop-blur-md overflow-y-auto">
-          <div className="w-full max-w-lg bg-[#0d0d0d] border border-amber-400/30 rounded-3xl p-6 sm:p-8 space-y-6 text-white my-auto shadow-2xl relative">
+          <div className="w-full max-w-lg bg-[#0d0d0d] border border-amber-400/30 rounded-3xl p-5 sm:p-7 space-y-4 sm:space-y-5 text-white my-auto shadow-2xl relative max-h-[92vh] overflow-y-auto">
             {/* Header */}
-            <div className="flex items-start justify-between gap-4 pb-4 border-b border-white/10">
+            <div className="flex items-start justify-between gap-4 pb-3 border-b border-white/10">
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 rounded-xl bg-amber-400/10 border border-amber-400/25 flex items-center justify-center text-amber-400 shrink-0">
                   <Vote className="w-5 h-5" />
@@ -1951,7 +1951,7 @@ export function AdminDashboardClient({
             </div>
 
             {/* Target Nominee Banner */}
-            <div className="p-4 rounded-2xl bg-white/[0.03] border border-white/10 flex items-center justify-between">
+            <div className="p-3.5 rounded-2xl bg-white/[0.03] border border-white/10 flex items-center justify-between">
               <div>
                 <div className="text-sm font-bold text-white">{adjustingNominee.name}</div>
                 <div className="text-xs text-white/40">{adjustingNominee.subtitle || adjustingNominee.category_group}</div>
@@ -1963,7 +1963,7 @@ export function AdminDashboardClient({
             </div>
 
             {/* Adjustment Mode Selector */}
-            <div className="space-y-2">
+            <div className="space-y-1.5">
               <Label className="text-xs font-mono uppercase text-white/60">Adjustment Mode</Label>
               <div className="grid grid-cols-2 gap-2 p-1 bg-white/5 rounded-xl border border-white/10">
                 <button
@@ -1998,7 +1998,7 @@ export function AdminDashboardClient({
             </div>
 
             {/* Input Value */}
-            <div className="space-y-2">
+            <div className="space-y-1.5">
               <div className="flex items-center justify-between">
                 <Label className="text-xs font-mono uppercase text-white/60">
                   {adjustmentMode === "set" ? "New Vote Count Total" : "Votes to Add"}
@@ -2014,11 +2014,11 @@ export function AdminDashboardClient({
                 min="0"
                 value={targetVoteCount}
                 onChange={(e) => setTargetVoteCount(Math.max(0, parseInt(e.target.value) || 0))}
-                className="bg-white/5 border-white/10 text-white font-mono text-lg font-bold h-12 rounded-xl focus-visible:ring-amber-400"
+                className="bg-white/5 border-white/10 text-white font-mono text-lg font-bold h-11 rounded-xl focus-visible:ring-amber-400"
               />
 
               {/* Quick Increment Buttons */}
-              <div className="flex items-center gap-2 pt-1">
+              <div className="flex items-center gap-2 pt-0.5">
                 {[10, 25, 50, 100].map((step) => (
                   <button
                     key={step}
@@ -2044,7 +2044,7 @@ export function AdminDashboardClient({
             </div>
 
             {/* Reason / Audit Note */}
-            <div className="space-y-2">
+            <div className="space-y-1.5">
               <Label className="text-xs font-mono uppercase text-white/60">
                 Reason / Audit Log Note
               </Label>
@@ -2060,7 +2060,7 @@ export function AdminDashboardClient({
             </div>
 
             {/* Footer Buttons */}
-            <div className="flex items-center justify-end gap-3 pt-3 border-t border-white/10">
+            <div className="flex items-center justify-end gap-3 pt-2.5 border-t border-white/10">
               <Button
                 variant="ghost"
                 onClick={() => setAdjustingNominee(null)}
